@@ -1,0 +1,1403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>M0404 Pressure Map</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17242a;
+      --muted: #65777d;
+      --line: #cfdbdf;
+      --surface: #ffffff;
+      --canvas: #edf2f3;
+      --accent: #0a7f82;
+      --accent-dark: #07575b;
+      --danger: #b52f39;
+      --success: #13785b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      min-height: 36px;
+      padding: 0 14px;
+      border: 1px solid var(--accent-dark);
+      border-radius: 6px;
+      background: var(--accent);
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button.secondary {
+      border-color: #9aacb2;
+      background: #ffffff;
+      color: #304249;
+    }
+
+    button.secondary:hover {
+      background: #e9f0f1;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    .connection-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #8a9ba1;
+    }
+
+    .connection-state[data-state="connected"] .status-dot {
+      background: var(--success);
+    }
+
+    .connection-state[data-state="error"] .status-dot {
+      background: var(--danger);
+    }
+
+    .workspace {
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      border-left: 1px solid var(--line);
+    }
+
+    .main-panel {
+      min-width: 0;
+      padding: 28px;
+      border-right: 1px solid var(--line);
+    }
+
+    .panel-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .panel-heading h2,
+    .side-section h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    .frame-meta {
+      color: var(--muted);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .module-labels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: 900px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .module-labels span:last-child {
+      padding-left: 8px;
+      border-left: 2px solid #97aab0;
+    }
+
+    .heatmap {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .pressure-cell {
+      min-width: 0;
+      aspect-ratio: 1;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 5px;
+      padding: 6px;
+      border: 1px solid rgba(13, 38, 47, 0.18);
+      border-radius: 6px;
+      background: #dde7e9;
+      color: #17242a;
+      transition: background-color 140ms linear, color 140ms linear;
+    }
+
+    .pressure-cell.module-boundary {
+      margin-left: 8px;
+    }
+
+    .pressure-cell.empty {
+      color: #75878d;
+    }
+
+    .cell-id {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      font-weight: 650;
+      opacity: 0.82;
+    }
+
+    .cell-value {
+      max-width: 100%;
+      overflow: hidden;
+      font-variant-numeric: tabular-nums;
+      font-size: 19px;
+      font-weight: 700;
+      line-height: 1;
+      text-overflow: ellipsis;
+    }
+
+    .legend-row {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: auto minmax(80px, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      color: var(--muted);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .legend-scale {
+      height: 12px;
+      border: 1px solid rgba(13, 38, 47, 0.2);
+      background: linear-gradient(90deg, #fff6c1 0%, #ffd661 35%, #e27330 68%, #801830 100%);
+    }
+
+    .numeric-panel {
+      width: 100%;
+      max-width: 900px;
+      margin-top: 26px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .numeric-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+
+    .numeric-heading h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .timestamp {
+      color: var(--muted);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    .numeric-values {
+      margin: 0;
+      overflow-x: auto;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #f6f9f9;
+      color: #284047;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.8;
+      white-space: pre;
+    }
+
+    .sidebar {
+      background: #f8fafb;
+    }
+
+    .side-section {
+      padding: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin-top: 16px;
+    }
+
+    .field label,
+    .switch-label {
+      color: #4f6369;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .field input[type="number"] {
+      width: 100%;
+      min-height: 36px;
+      padding: 6px 9px;
+      border: 1px solid #aebfc4;
+      border-radius: 4px;
+      background: #ffffff;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .field input[type="number"]:disabled {
+      background: #e7edef;
+      color: #7e9095;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .button-row.single {
+      grid-template-columns: 1fr;
+    }
+
+    .imu-status {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .imu-status[data-state="connected"] {
+      color: var(--success);
+    }
+
+    .imu-status[data-state="error"] {
+      color: var(--danger);
+    }
+
+    .imu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .imu-value {
+      min-width: 0;
+      padding: 9px 8px;
+      border-top: 1px solid var(--line);
+    }
+
+    .imu-value label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .imu-value output {
+      display: block;
+      margin-top: 5px;
+      overflow: hidden;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 15px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .imu-timestamp {
+      margin-top: 12px;
+      color: var(--muted);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .switch-row input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .stat {
+      min-height: 58px;
+      padding: 9px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .stat-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-value {
+      display: block;
+      margin-top: 5px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 17px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .browser-notice {
+      display: none;
+      margin-top: 16px;
+      color: var(--danger);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .browser-notice.visible {
+      display: block;
+    }
+
+    @media (max-width: 900px) {
+      .workspace {
+        grid-template-columns: 1fr;
+        border-right: 0;
+        border-left: 0;
+      }
+
+      .main-panel {
+        border-right: 0;
+      }
+
+      .sidebar {
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .topbar,
+      .main-panel {
+        padding: 16px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .panel-heading,
+      .numeric-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .heatmap {
+        gap: 4px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .pressure-cell {
+        gap: 3px;
+        padding: 3px;
+      }
+
+      .pressure-cell.module-boundary {
+        margin-left: 0;
+      }
+
+      .module-labels {
+        display: none;
+      }
+
+      .cell-id {
+        font-size: 9px;
+      }
+
+      .cell-value {
+        font-size: 13px;
+      }
+
+      .numeric-values {
+        overflow-x: hidden;
+        padding: 10px 8px;
+        font-size: 9px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <h1>M0404 Pressure Map</h1>
+      <div id="connection-state" class="connection-state" data-state="idle">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="connection-text">Disconnected</span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <section class="main-panel" aria-labelledby="map-heading">
+        <div class="panel-heading">
+          <h2 id="map-heading">32-Point Heatmap</h2>
+          <div id="frame-meta" class="frame-meta">Frame --</div>
+        </div>
+
+        <div class="module-labels" aria-hidden="true">
+          <span>M1: points 01-16</span>
+          <span>M2: points 17-32</span>
+        </div>
+
+        <div id="heatmap" class="heatmap" aria-label="32 point pressure heatmap"></div>
+
+        <div class="legend-row" aria-label="Pressure color scale">
+          <span id="legend-min">0</span>
+          <div class="legend-scale"></div>
+          <span id="legend-max">65535</span>
+        </div>
+
+        <section class="numeric-panel" aria-labelledby="numeric-heading">
+          <div class="numeric-heading">
+            <h3 id="numeric-heading">Pressure Values</h3>
+            <div id="timestamp" class="timestamp">Last frame: --</div>
+          </div>
+          <pre id="numeric-values" class="numeric-values">R0 [     --,     --,     --,     -- |     --,     --,     --,     -- ]
+R1 [     --,     --,     --,     -- |     --,     --,     --,     -- ]
+R2 [     --,     --,     --,     -- |     --,     --,     --,     -- ]
+R3 [     --,     --,     --,     -- |     --,     --,     --,     -- ]</pre>
+        </section>
+      </section>
+
+      <aside class="sidebar" aria-label="Controls and statistics">
+        <section class="side-section">
+          <h2>Serial</h2>
+          <div class="field">
+            <label for="baud-rate">Baud rate</label>
+            <input id="baud-rate" type="number" min="1200" max="2000000" value="115200" step="1">
+          </div>
+          <div class="button-row">
+            <button id="connect-button" type="button">Connect</button>
+            <button id="demo-button" class="secondary" type="button">Demo</button>
+          </div>
+          <div id="browser-notice" class="browser-notice" role="status"></div>
+        </section>
+
+        <section class="side-section">
+          <h2>Color Range</h2>
+          <div class="switch-row">
+            <label class="switch-label" for="auto-range">Auto range</label>
+            <input id="auto-range" type="checkbox" checked>
+          </div>
+          <div class="field">
+            <label for="range-min">Minimum</label>
+            <input id="range-min" type="number" min="0" max="65535" value="0" disabled>
+          </div>
+          <div class="field">
+            <label for="range-max">Maximum</label>
+            <input id="range-max" type="number" min="1" max="65535" value="65535" disabled>
+          </div>
+        </section>
+
+        <section class="side-section" aria-labelledby="imu-heading">
+          <h2 id="imu-heading">IMU Bluetooth</h2>
+          <div id="imu-status" class="imu-status" data-state="idle">Disconnected</div>
+          <div class="button-row single">
+            <button id="imu-connect-button" type="button">Connect IMU</button>
+          </div>
+          <div class="imu-grid" aria-label="IMU values">
+            <div class="imu-value"><label for="imu-roll">Roll</label><output id="imu-roll">--</output></div>
+            <div class="imu-value"><label for="imu-pitch">Pitch</label><output id="imu-pitch">--</output></div>
+            <div class="imu-value"><label for="imu-yaw">Yaw</label><output id="imu-yaw">--</output></div>
+            <div class="imu-value"><label for="imu-ax">Acc X (g)</label><output id="imu-ax">--</output></div>
+            <div class="imu-value"><label for="imu-ay">Acc Y (g)</label><output id="imu-ay">--</output></div>
+            <div class="imu-value"><label for="imu-az">Acc Z (g)</label><output id="imu-az">--</output></div>
+            <div class="imu-value"><label for="imu-gx">Gyro X (deg/s)</label><output id="imu-gx">--</output></div>
+            <div class="imu-value"><label for="imu-gy">Gyro Y (deg/s)</label><output id="imu-gy">--</output></div>
+            <div class="imu-value"><label for="imu-gz">Gyro Z (deg/s)</label><output id="imu-gz">--</output></div>
+            <div class="imu-value"><label for="imu-lin-ax">Linear X (g)</label><output id="imu-lin-ax">--</output></div>
+            <div class="imu-value"><label for="imu-lin-ay">Linear Y (g)</label><output id="imu-lin-ay">--</output></div>
+            <div class="imu-value"><label for="imu-lin-az">Linear Z (g)</label><output id="imu-lin-az">--</output></div>
+            <div class="imu-value"><label for="imu-ang-ax">Angular X (deg/s2)</label><output id="imu-ang-ax">--</output></div>
+            <div class="imu-value"><label for="imu-ang-ay">Angular Y (deg/s2)</label><output id="imu-ang-ay">--</output></div>
+            <div class="imu-value"><label for="imu-ang-az">Angular Z (deg/s2)</label><output id="imu-ang-az">--</output></div>
+          </div>
+          <div id="imu-timestamp" class="imu-timestamp">Last IMU frame: --</div>
+        </section>
+
+        <section class="side-section">
+          <h2>Frame Statistics</h2>
+          <div class="stats">
+            <div class="stat">
+              <span class="stat-label">Minimum</span>
+              <output id="stat-min" class="stat-value">--</output>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Maximum</span>
+              <output id="stat-max" class="stat-value">--</output>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Average</span>
+              <output id="stat-average" class="stat-value">--</output>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Frames</span>
+              <output id="stat-frames" class="stat-value">0</output>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const CELL_COUNT = 32;
+      const ROW_COUNT = 4;
+      const COLUMN_COUNT = 8;
+      const COLOR_STOPS = [
+        { position: 0.00, color: [255, 246, 193] },
+        { position: 0.35, color: [255, 214, 97] },
+        { position: 0.68, color: [226, 115, 48] },
+        { position: 1.00, color: [128, 24, 48] }
+      ];
+
+      const heatmap = document.getElementById("heatmap");
+      const connectButton = document.getElementById("connect-button");
+      const demoButton = document.getElementById("demo-button");
+      const imuConnectButton = document.getElementById("imu-connect-button");
+      const imuStatus = document.getElementById("imu-status");
+      const imuTimestamp = document.getElementById("imu-timestamp");
+      const imuOutputs = {
+        roll: document.getElementById("imu-roll"),
+        pitch: document.getElementById("imu-pitch"),
+        yaw: document.getElementById("imu-yaw"),
+        ax: document.getElementById("imu-ax"),
+        ay: document.getElementById("imu-ay"),
+        az: document.getElementById("imu-az"),
+        gx: document.getElementById("imu-gx"),
+        gy: document.getElementById("imu-gy"),
+        gz: document.getElementById("imu-gz"),
+        linAx: document.getElementById("imu-lin-ax"),
+        linAy: document.getElementById("imu-lin-ay"),
+        linAz: document.getElementById("imu-lin-az"),
+        angAx: document.getElementById("imu-ang-ax"),
+        angAy: document.getElementById("imu-ang-ay"),
+        angAz: document.getElementById("imu-ang-az")
+      };
+      const baudRateInput = document.getElementById("baud-rate");
+      const autoRangeInput = document.getElementById("auto-range");
+      const rangeMinInput = document.getElementById("range-min");
+      const rangeMaxInput = document.getElementById("range-max");
+      const connectionState = document.getElementById("connection-state");
+      const connectionText = document.getElementById("connection-text");
+      const browserNotice = document.getElementById("browser-notice");
+      const frameMeta = document.getElementById("frame-meta");
+      const timestamp = document.getElementById("timestamp");
+      const numericValues = document.getElementById("numeric-values");
+      const legendMin = document.getElementById("legend-min");
+      const legendMax = document.getElementById("legend-max");
+      const statMin = document.getElementById("stat-min");
+      const statMax = document.getElementById("stat-max");
+      const statAverage = document.getElementById("stat-average");
+      const statFrames = document.getElementById("stat-frames");
+
+      let port = null;
+      let reader = null;
+      let inputDone = null;
+      let keepReading = false;
+      let frameCount = 0;
+      let latestValues = null;
+      let lastFrameAt = null;
+      let lastDeviceTimestampMs = null;
+      let demoTimer = null;
+      let imuDevice = null;
+      let imuServer = null;
+      let imuNotifyCharacteristic = null;
+      let imuWriteCharacteristic = null;
+      let imuPacketBuffer = [];
+      let imuQueryTimer = null;
+      let imuQueryInFlight = false;
+      let imuStreaming = false;
+      let imuRateTimer = null;
+      let imuFramesThisSecond = 0;
+      let lastGyroSample = null;
+      let filteredAngularAcceleration = null;
+      const imuRegisters = new Map();
+
+      const IMU_SERVICE_UUID = "0000ffe5-0000-1000-8000-00805f9a34fb";
+      const IMU_NOTIFY_UUID = "0000ffe4-0000-1000-8000-00805f9a34fb";
+      const IMU_WRITE_UUID = "0000ffe9-0000-1000-8000-00805f9a34fb";
+
+      const cells = Array.from({ length: CELL_COUNT }, (_, index) => {
+        const module = index % COLUMN_COUNT < 4 ? "M1" : "M2";
+        const modulePoint = Math.floor(index / COLUMN_COUNT) * 4 + (index % 4) + 1;
+        const cell = document.createElement("div");
+        cell.className = "pressure-cell empty";
+        cell.dataset.index = String(index);
+        cell.innerHTML = `<span class="cell-id">${module}-${String(modulePoint).padStart(2, "0")}</span><span class="cell-value">--</span>`;
+
+        if (index % COLUMN_COUNT === 4) {
+          cell.classList.add("module-boundary");
+        }
+
+        heatmap.appendChild(cell);
+        return cell;
+      });
+
+      function clamp(value, minimum, maximum) {
+        return Math.min(Math.max(value, minimum), maximum);
+      }
+
+      function interpolateColor(ratio) {
+        const boundedRatio = clamp(ratio, 0, 1);
+        let lower = COLOR_STOPS[0];
+        let upper = COLOR_STOPS[COLOR_STOPS.length - 1];
+
+        for (let index = 1; index < COLOR_STOPS.length; index += 1) {
+          if (boundedRatio <= COLOR_STOPS[index].position) {
+            upper = COLOR_STOPS[index];
+            lower = COLOR_STOPS[index - 1];
+            break;
+          }
+        }
+
+        const span = upper.position - lower.position || 1;
+        const localRatio = (boundedRatio - lower.position) / span;
+        const channels = lower.color.map((channel, index) => {
+          return Math.round(channel + (upper.color[index] - channel) * localRatio);
+        });
+
+        return `rgb(${channels[0]}, ${channels[1]}, ${channels[2]})`;
+      }
+
+      function textColorFor(ratio) {
+        return ratio < 0.62 ? "#17242a" : "#ffffff";
+      }
+
+      function displayTimestamp(date) {
+        const datePart = date.toLocaleString([], {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false
+        });
+
+        return `${datePart}.${String(date.getMilliseconds()).padStart(3, "0")}`;
+      }
+
+      function activeRange(values) {
+        if (!autoRangeInput.checked) {
+          const minimum = Number(rangeMinInput.value);
+          const maximum = Number(rangeMaxInput.value);
+
+          if (Number.isFinite(minimum) && Number.isFinite(maximum) && maximum > minimum) {
+            return { minimum, maximum };
+          }
+        }
+
+        const minimum = Math.min(...values);
+        const maximum = Math.max(...values);
+        return {
+          minimum,
+          maximum: maximum > minimum ? maximum : minimum + 1
+        };
+      }
+
+      function numericLayout(values) {
+        const rows = [];
+
+        for (let row = 0; row < ROW_COUNT; row += 1) {
+          const rowStart = row * COLUMN_COUNT;
+          const left = values.slice(rowStart, rowStart + 4).map((value) => String(value).padStart(6, " "));
+          const right = values.slice(rowStart + 4, rowStart + 8).map((value) => String(value).padStart(6, " "));
+          rows.push(`R${row} [${left.join(",")} |${right.join(",")} ]`);
+        }
+
+        return rows.join("\n");
+      }
+
+      function setConnectionState(state, message) {
+        connectionState.dataset.state = state;
+        connectionText.textContent = message;
+      }
+
+      function setImuState(state, message) {
+        imuStatus.dataset.state = state;
+        imuStatus.textContent = message;
+      }
+
+      function connectedImuName() {
+        return imuDevice === null ? "BWT901" : (imuDevice.name || "BWT901");
+      }
+
+      function synchronizedMcuTimestampMs(pcTimestampMs) {
+        if (lastFrameAt === null || lastDeviceTimestampMs === null) {
+          return null;
+        }
+
+        return lastDeviceTimestampMs + (pcTimestampMs - lastFrameAt.getTime());
+      }
+
+      function calculateAngularAcceleration(values) {
+        const sampleTime = performance.now();
+        const gyro = { x: values.gx, y: values.gy, z: values.gz };
+
+        if (lastGyroSample === null) {
+          lastGyroSample = { gyro, sampleTime };
+          return null;
+        }
+
+        const elapsedMs = sampleTime - lastGyroSample.sampleTime;
+        const previousGyro = lastGyroSample.gyro;
+        lastGyroSample = { gyro, sampleTime };
+
+        if (elapsedMs < 2 || elapsedMs > 250) {
+          filteredAngularAcceleration = null;
+          return null;
+        }
+
+        const scale = 1000 / elapsedMs;
+        const raw = {
+          x: (gyro.x - previousGyro.x) * scale,
+          y: (gyro.y - previousGyro.y) * scale,
+          z: (gyro.z - previousGyro.z) * scale
+        };
+        const blend = elapsedMs / (30 + elapsedMs);
+
+        if (filteredAngularAcceleration === null) {
+          filteredAngularAcceleration = raw;
+        } else {
+          filteredAngularAcceleration = {
+            x: filteredAngularAcceleration.x + (raw.x - filteredAngularAcceleration.x) * blend,
+            y: filteredAngularAcceleration.y + (raw.y - filteredAngularAcceleration.y) * blend,
+            z: filteredAngularAcceleration.z + (raw.z - filteredAngularAcceleration.z) * blend
+          };
+        }
+
+        return filteredAngularAcceleration;
+      }
+
+      function updateImuPanel(values) {
+        const rollRadians = values.roll * Math.PI / 180;
+        const pitchRadians = values.pitch * Math.PI / 180;
+        const gravity = {
+          x: -Math.sin(pitchRadians),
+          y: Math.sin(rollRadians) * Math.cos(pitchRadians),
+          z: Math.cos(rollRadians) * Math.cos(pitchRadians)
+        };
+        const angularAcceleration = calculateAngularAcceleration(values);
+        const displayValues = {
+          ...values,
+          linAx: values.ax - gravity.x,
+          linAy: values.ay - gravity.y,
+          linAz: values.az - gravity.z,
+          ...(angularAcceleration === null ? {} : {
+            angAx: angularAcceleration.x,
+            angAy: angularAcceleration.y,
+            angAz: angularAcceleration.z
+          })
+        };
+
+        Object.entries(displayValues).forEach(([key, value]) => {
+          if (key in imuOutputs) {
+            imuOutputs[key].textContent = value.toFixed(3);
+          }
+        });
+        if (angularAcceleration === null) {
+          imuOutputs.angAx.textContent = "--";
+          imuOutputs.angAy.textContent = "--";
+          imuOutputs.angAz.textContent = "--";
+        }
+        const mcuTimestampMs = synchronizedMcuTimestampMs(values.timestampMs);
+        const pcTimestamp = displayTimestamp(new Date(values.timestampMs));
+        imuTimestamp.textContent = mcuTimestampMs === null
+          ? `PC: ${pcTimestamp} | MCU: waiting for pressure sync`
+          : `PC: ${pcTimestamp} | MCU: ${Math.round(mcuTimestampMs)} ms`;
+      }
+
+      function parseImuPacket(packet) {
+        if (packet.length !== 20 || packet[0] !== 0x55 || packet[1] !== 0x61) {
+          return;
+        }
+
+        const view = new DataView(Uint8Array.from(packet).buffer);
+        const raw = (offset) => view.getInt16(offset, true);
+        const values = {
+          ax: raw(2) / 32768 * 16,
+          ay: raw(4) / 32768 * 16,
+          az: raw(6) / 32768 * 16,
+          gx: raw(8) / 32768 * 2000,
+          gy: raw(10) / 32768 * 2000,
+          gz: raw(12) / 32768 * 2000,
+          roll: raw(14) / 32768 * 180,
+          pitch: raw(16) / 32768 * 180,
+          yaw: raw(18) / 32768 * 180,
+          timestampMs: Date.now()
+        };
+
+        imuFramesThisSecond += 1;
+        imuStreaming = true;
+        stopImuPolling();
+        updateImuPanel(values);
+      }
+
+      function parseImuRegisterPacket(packet) {
+        if (packet.length !== 20 || packet[0] !== 0x55 || packet[1] !== 0x71) {
+          return;
+        }
+
+        const view = new DataView(Uint8Array.from(packet).buffer);
+        const baseRegister = view.getUint16(2, true);
+        for (let index = 0; index < 4; index += 1) {
+          imuRegisters.set(baseRegister + index, view.getInt16(4 + index * 2, true));
+        }
+
+        const requiredRegisters = [0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3d, 0x3e, 0x3f];
+        if (!requiredRegisters.every((register) => imuRegisters.has(register))) {
+          return;
+        }
+
+        if (baseRegister !== 0x3d) {
+          return;
+        }
+
+        const value = (register) => imuRegisters.get(register);
+        updateImuPanel({
+          ax: value(0x34) / 32768 * 16,
+          ay: value(0x35) / 32768 * 16,
+          az: value(0x36) / 32768 * 16,
+          gx: value(0x37) / 32768 * 2000,
+          gy: value(0x38) / 32768 * 2000,
+          gz: value(0x39) / 32768 * 2000,
+          roll: value(0x3d) / 32768 * 180,
+          pitch: value(0x3e) / 32768 * 180,
+          yaw: value(0x3f) / 32768 * 180,
+          timestampMs: Date.now()
+        });
+      }
+
+      function handleImuNotification(event) {
+        const value = event.target.value;
+        const bytes = new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+        imuPacketBuffer.push(...bytes);
+
+        while (imuPacketBuffer.length >= 20) {
+          const headerIndex = imuPacketBuffer.indexOf(0x55);
+
+          if (headerIndex < 0) {
+            imuPacketBuffer = [];
+            return;
+          }
+
+          if (headerIndex > 0) {
+            imuPacketBuffer.splice(0, headerIndex);
+          }
+
+          if (imuPacketBuffer.length < 2) {
+            return;
+          }
+
+          if (imuPacketBuffer[1] !== 0x61 && imuPacketBuffer[1] !== 0x71) {
+            imuPacketBuffer.shift();
+            continue;
+          }
+
+          const packet = imuPacketBuffer.splice(0, 20);
+          if (packet[1] === 0x61) {
+            parseImuPacket(packet);
+          } else {
+            parseImuRegisterPacket(packet);
+          }
+        }
+      }
+
+      function stopImuPolling() {
+        if (imuQueryTimer !== null) {
+          window.clearInterval(imuQueryTimer);
+          imuQueryTimer = null;
+        }
+      }
+
+      function stopImuRateMeter() {
+        if (imuRateTimer !== null) {
+          window.clearInterval(imuRateTimer);
+          imuRateTimer = null;
+        }
+      }
+
+      function startImuRateMeter() {
+        stopImuRateMeter();
+        imuFramesThisSecond = 0;
+        imuRateTimer = window.setInterval(() => {
+          if (imuServer !== null && imuServer.connected) {
+            setImuState("connected", `Connected: ${connectedImuName()} | RX ${imuFramesThisSecond} Hz`);
+          }
+          imuFramesThisSecond = 0;
+        }, 1000);
+      }
+
+      async function writeImuCommand(bytes) {
+        if (imuWriteCharacteristic === null) {
+          return;
+        }
+
+        const value = Uint8Array.from(bytes);
+        if (imuWriteCharacteristic.properties.writeWithoutResponse &&
+            "writeValueWithoutResponse" in imuWriteCharacteristic) {
+          await imuWriteCharacteristic.writeValueWithoutResponse(value);
+        } else if (imuWriteCharacteristic.properties.write &&
+                   "writeValueWithResponse" in imuWriteCharacteristic) {
+          await imuWriteCharacteristic.writeValueWithResponse(value);
+        } else if (imuWriteCharacteristic.properties.write &&
+                   "writeValue" in imuWriteCharacteristic) {
+          await imuWriteCharacteristic.writeValue(value);
+        } else {
+          throw new Error("FFE9 is not writable");
+        }
+      }
+
+      async function setImuReturnRate200Hz() {
+        await writeImuCommand([0xff, 0xaa, 0x69, 0x88, 0xb5]);
+        await new Promise((resolve) => window.setTimeout(resolve, 30));
+        await writeImuCommand([0xff, 0xaa, 0x1f, 0x02, 0x00]);
+        await new Promise((resolve) => window.setTimeout(resolve, 30));
+        await writeImuCommand([0xff, 0xaa, 0x03, 0x0b, 0x00]);
+        await new Promise((resolve) => window.setTimeout(resolve, 100));
+        await writeImuCommand([0xff, 0xaa, 0x00, 0x00, 0x00]);
+      }
+
+      async function pollImuRegisters() {
+        if (imuStreaming || imuQueryInFlight || imuWriteCharacteristic === null) {
+          return;
+        }
+
+        imuQueryInFlight = true;
+        try {
+          for (const register of [0x34, 0x38, 0x3d]) {
+            await writeImuCommand([0xff, 0xaa, 0x27, register, 0x00]);
+          }
+        } catch (error) {
+          setImuState("error", `IMU read failed: ${error.message}`);
+        } finally {
+          imuQueryInFlight = false;
+        }
+      }
+
+      function handleImuDisconnected() {
+        stopImuPolling();
+        stopImuRateMeter();
+        imuServer = null;
+        imuNotifyCharacteristic = null;
+        imuWriteCharacteristic = null;
+        imuPacketBuffer = [];
+        imuRegisters.clear();
+        imuStreaming = false;
+        lastGyroSample = null;
+        filteredAngularAcceleration = null;
+        imuConnectButton.textContent = "Connect IMU";
+        setImuState("idle", "Disconnected");
+      }
+
+      async function disconnectImu() {
+        stopImuPolling();
+        stopImuRateMeter();
+        if (imuNotifyCharacteristic !== null) {
+          await imuNotifyCharacteristic.stopNotifications().catch(() => undefined);
+          imuNotifyCharacteristic.removeEventListener("characteristicvaluechanged", handleImuNotification);
+        }
+
+        if (imuDevice !== null) {
+          imuDevice.removeEventListener("gattserverdisconnected", handleImuDisconnected);
+          if (imuDevice.gatt && imuDevice.gatt.connected) {
+            imuDevice.gatt.disconnect();
+          }
+        }
+
+        imuDevice = null;
+        handleImuDisconnected();
+      }
+
+      async function connectImu() {
+        if (!("bluetooth" in navigator)) {
+          setImuState("error", "Web Bluetooth is unavailable");
+          return;
+        }
+
+        try {
+          setImuState("connecting", "Selecting BWT901BLECL5.0...");
+          imuDevice = await navigator.bluetooth.requestDevice({
+            filters: [
+              { namePrefix: "BWT901" },
+              { namePrefix: "WT901" },
+              { namePrefix: "WIT" }
+            ],
+            optionalServices: [IMU_SERVICE_UUID]
+          });
+          imuDevice.addEventListener("gattserverdisconnected", handleImuDisconnected);
+          imuServer = await imuDevice.gatt.connect();
+          const service = await imuServer.getPrimaryService(IMU_SERVICE_UUID);
+          imuNotifyCharacteristic = await service.getCharacteristic(IMU_NOTIFY_UUID);
+          imuWriteCharacteristic = await service.getCharacteristic(IMU_WRITE_UUID);
+          imuPacketBuffer = [];
+          imuRegisters.clear();
+          imuStreaming = false;
+          lastGyroSample = null;
+          filteredAngularAcceleration = null;
+          imuNotifyCharacteristic.addEventListener("characteristicvaluechanged", handleImuNotification);
+          await imuNotifyCharacteristic.startNotifications();
+          imuConnectButton.textContent = "Disconnect IMU";
+          setImuState("connected", `Connected: ${connectedImuName()} | configuring 200 Hz`);
+          await setImuReturnRate200Hz().catch((error) => {
+            setImuState("error", `200 Hz setup failed: ${error.message}`);
+          });
+          startImuRateMeter();
+          if (!imuStreaming) {
+            await pollImuRegisters();
+            if (!imuStreaming) {
+              imuQueryTimer = window.setInterval(pollImuRegisters, 100);
+            }
+          }
+        } catch (error) {
+          await disconnectImu();
+
+          if (error.name === "NotFoundError" || error.name === "AbortError") {
+            setImuState("idle", "No IMU selected");
+          } else if (error.name === "SecurityError") {
+            setImuState("error", "Open this page from localhost");
+          } else {
+            setImuState("error", `Connection failed: ${error.message}`);
+          }
+        }
+      }
+
+      function renderFrame(values, source, options = {}) {
+        const { isNewFrame = true, deviceTimestampMs = null } = options;
+        latestValues = values;
+
+        if (isNewFrame) {
+          frameCount += 1;
+          lastFrameAt = new Date();
+          lastDeviceTimestampMs = deviceTimestampMs;
+        }
+
+        const range = activeRange(values);
+        const minimum = Math.min(...values);
+        const maximum = Math.max(...values);
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        const receivedAt = lastFrameAt || new Date();
+
+        cells.forEach((cell, index) => {
+          const value = values[index];
+          const ratio = (value - range.minimum) / (range.maximum - range.minimum);
+          cell.classList.remove("empty");
+          cell.style.backgroundColor = interpolateColor(ratio);
+          cell.style.color = textColorFor(ratio);
+          cell.querySelector(".cell-value").textContent = String(value);
+          cell.setAttribute("aria-label", `Point ${index + 1}: ${value}`);
+        });
+
+        legendMin.textContent = String(range.minimum);
+        legendMax.textContent = String(range.maximum);
+        statMin.textContent = String(minimum);
+        statMax.textContent = String(maximum);
+        statAverage.textContent = average.toFixed(1);
+        statFrames.textContent = String(frameCount);
+        frameMeta.textContent = `Frame ${frameCount} ${source}`;
+        timestamp.textContent = lastDeviceTimestampMs === null
+          ? `PC: ${displayTimestamp(receivedAt)}`
+          : `PC: ${displayTimestamp(receivedAt)} | MCU: ${lastDeviceTimestampMs} ms`;
+        numericValues.textContent = numericLayout(values);
+      }
+
+      function updateRangeControls() {
+        const isAutomatic = autoRangeInput.checked;
+        rangeMinInput.disabled = isAutomatic;
+        rangeMaxInput.disabled = isAutomatic;
+
+        if (latestValues !== null) {
+          renderFrame(latestValues, "range update", { isNewFrame: false });
+          frameMeta.textContent = `Frame ${frameCount} range update`;
+        }
+      }
+
+      function parsePressureLine(line) {
+        const fields = line.split(",");
+
+        if (fields.length !== CELL_COUNT + 2 ||
+            fields[0] !== "P32" ||
+            !fields[1].startsWith("t=")) {
+          return null;
+        }
+
+        const timestampMs = Number(fields[1].slice(2));
+        const values = fields.slice(2).map((item) => Number(item.trim()));
+
+        if (!Number.isInteger(timestampMs) || timestampMs < 0 ||
+            values.some((value) => !Number.isInteger(value) || value < 0 || value > 65535)) {
+          return null;
+        }
+
+        return { timestampMs, values };
+      }
+
+      function processLine(line) {
+        const frame = parsePressureLine(line.trim());
+
+        if (frame !== null) {
+          renderFrame(frame.values, "serial", { deviceTimestampMs: frame.timestampMs });
+        }
+      }
+
+      function stopDemo() {
+        if (demoTimer !== null) {
+          window.clearInterval(demoTimer);
+          demoTimer = null;
+        }
+      }
+
+      function startDemo() {
+        stopDemo();
+        let phase = 0;
+        setConnectionState("idle", "Demo data");
+
+        const renderDemo = () => {
+          const values = Array.from({ length: CELL_COUNT }, (_, index) => {
+            const row = Math.floor(index / COLUMN_COUNT);
+            const column = index % COLUMN_COUNT;
+            const distance = Math.hypot(column - 3.5 - Math.sin(phase) * 1.5, row - 1.5);
+            return Math.max(0, Math.round(8500 - distance * 1800));
+          });
+          renderFrame(values, "demo");
+          phase += 0.26;
+        };
+
+        renderDemo();
+        demoTimer = window.setInterval(renderDemo, 220);
+      }
+
+      async function readSerial() {
+        const decoder = new TextDecoderStream();
+        inputDone = port.readable.pipeTo(decoder.writable);
+        reader = decoder.readable.getReader();
+        let remainder = "";
+
+        try {
+          while (keepReading) {
+            const { value, done } = await reader.read();
+
+            if (done) {
+              break;
+            }
+
+            remainder += value;
+            let newlineIndex = remainder.indexOf("\n");
+
+            while (newlineIndex >= 0) {
+              processLine(remainder.slice(0, newlineIndex));
+              remainder = remainder.slice(newlineIndex + 1);
+              newlineIndex = remainder.indexOf("\n");
+            }
+          }
+        } catch (error) {
+          if (keepReading) {
+            setConnectionState("error", `Read error: ${error.message}`);
+          }
+        } finally {
+          reader.releaseLock();
+          reader = null;
+        }
+      }
+
+      async function disconnectSerial() {
+        stopDemo();
+        keepReading = false;
+
+        if (reader !== null) {
+          await reader.cancel().catch(() => undefined);
+        }
+
+        if (inputDone !== null) {
+          await inputDone.catch(() => undefined);
+          inputDone = null;
+        }
+
+        if (port !== null) {
+          await port.close().catch(() => undefined);
+          port = null;
+        }
+
+        connectButton.textContent = "Connect";
+        baudRateInput.disabled = false;
+        setConnectionState("idle", "Disconnected");
+      }
+
+      async function connectSerial() {
+        if (!("serial" in navigator)) {
+          browserNotice.textContent = "Web Serial requires Microsoft Edge or Google Chrome on localhost.";
+          browserNotice.classList.add("visible");
+          return;
+        }
+
+        const baudRate = Number(baudRateInput.value);
+
+        if (!Number.isInteger(baudRate) || baudRate < 1200 || baudRate > 2000000) {
+          setConnectionState("error", "Invalid baud rate");
+          return;
+        }
+
+        try {
+          stopDemo();
+          browserNotice.classList.remove("visible");
+          const authorizedPorts = await navigator.serial.getPorts();
+
+          if (authorizedPorts.length === 1) {
+            port = authorizedPorts[0];
+          } else {
+            port = await navigator.serial.requestPort();
+          }
+
+          await port.open({ baudRate, dataBits: 8, stopBits: 1, parity: "none", flowControl: "none" });
+          keepReading = true;
+          connectButton.textContent = "Disconnect";
+          baudRateInput.disabled = true;
+          setConnectionState("connected", `Connected at ${baudRate}`);
+          readSerial();
+        } catch (error) {
+          port = null;
+
+          if (error.name === "NotFoundError" || error.name === "AbortError") {
+            setConnectionState("idle", "No port selected");
+            browserNotice.textContent = "No serial port selected. Click Connect and choose the board's COM port.";
+            browserNotice.classList.add("visible");
+          } else {
+            setConnectionState("error", `Connection failed: ${error.message}`);
+          }
+        }
+      }
+
+      connectButton.addEventListener("click", () => {
+        if (port === null) {
+          connectSerial();
+        } else {
+          disconnectSerial();
+        }
+      });
+
+      imuConnectButton.addEventListener("click", () => {
+        if (imuDevice === null || imuServer === null || !imuServer.connected) {
+          connectImu();
+        } else {
+          disconnectImu();
+        }
+      });
+
+      demoButton.addEventListener("click", startDemo);
+      autoRangeInput.addEventListener("change", updateRangeControls);
+      rangeMinInput.addEventListener("input", updateRangeControls);
+      rangeMaxInput.addEventListener("input", updateRangeControls);
+
+      if (!("serial" in navigator)) {
+        browserNotice.textContent = "Web Serial requires Microsoft Edge or Google Chrome on localhost.";
+        browserNotice.classList.add("visible");
+        connectButton.disabled = true;
+      } else {
+        navigator.serial.addEventListener("disconnect", (event) => {
+          if (event.port === port) {
+            disconnectSerial();
+          }
+        });
+      }
+
+      if (!("bluetooth" in navigator)) {
+        setImuState("error", "Web Bluetooth requires Edge/Chrome");
+        imuConnectButton.disabled = true;
+      }
+    })();
+  </script>
+</body>
+</html>
