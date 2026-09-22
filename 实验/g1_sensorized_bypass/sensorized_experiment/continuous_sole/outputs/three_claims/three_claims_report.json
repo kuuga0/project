@@ -1,0 +1,76 @@
+{
+  "inputs": [
+    "biped_walking\\sensorized_experiment\\continuous_sole\\outputs\\uniform_speed_integrated\\rough_04_integrated.csv",
+    "biped_walking\\sensorized_experiment\\continuous_sole\\outputs\\uniform_speed_integrated\\slope2_04_integrated.csv",
+    "biped_walking\\sensorized_experiment\\continuous_sole\\outputs\\uniform_speed_integrated\\stairs_04_integrated.csv"
+  ],
+  "evidence_1_extra_information": "See same_macro_different_local.json; actual data contain macro-near pairs with distinct plantar/IMU observations.",
+  "evidence_2_early_warning": {
+    "fall_events": 1,
+    "events": [
+      {
+        "scene": "rough",
+        "episode": 1,
+        "event_time_s": 5.26,
+        "calibration_rows": 400,
+        "threshold_percentile": 99.0,
+        "persistence_samples": 3,
+        "macro_only": {
+          "threshold": 5.446614476633771,
+          "warning_time_s": null,
+          "lead_time_s": 0.0,
+          "detected": false
+        },
+        "plantar_plus_imu": {
+          "threshold": 5.818435579287053,
+          "warning_time_s": null,
+          "lead_time_s": 0.0,
+          "detected": false
+        }
+      }
+    ],
+    "limitation": "Only observed fall episodes are evaluated; this is a case study, not a failure-rate estimate."
+  },
+  "evidence_3_directional_loading_margin": {
+    "stance_foot_samples": 564,
+    "sample_stride": 5,
+    "assumptions": {
+      "friction_coefficient": 1.0,
+      "external_load_height_m": 0.5,
+      "normal_load_frozen": true,
+      "minimum_stance_load_n": 20.0
+    },
+    "directions": {
+      "forward": {
+        "macro_median_n": 71.03149281337873,
+        "array_lower_median_n": 60.13351218357343,
+        "array_upper_median_n": 68.95186161198774,
+        "array_upper_to_macro_ratio_median": 1.0,
+        "fraction_array_upper_at_least_20pct_smaller": 0.06205673758865248
+      },
+      "backward": {
+        "macro_median_n": 47.20687674809982,
+        "array_lower_median_n": 26.946728402344377,
+        "array_upper_median_n": 35.03420122762748,
+        "array_upper_to_macro_ratio_median": 1.0,
+        "fraction_array_upper_at_least_20pct_smaller": 0.23404255319148937
+      },
+      "left": {
+        "macro_median_n": 27.589056042787174,
+        "array_lower_median_n": 19.402649375750478,
+        "array_upper_median_n": 25.686024515503917,
+        "array_upper_to_macro_ratio_median": 1.0,
+        "fraction_array_upper_at_least_20pct_smaller": 0.06914893617021277
+      },
+      "right": {
+        "macro_median_n": 25.355972188669135,
+        "array_lower_median_n": 12.504977260565452,
+        "array_upper_median_n": 21.051696959459235,
+        "array_upper_to_macro_ratio_median": 1.0,
+        "fraction_array_upper_at_least_20pct_smaller": 0.0797872340425532
+      }
+    },
+    "array_interval_definition": "lower uses active cell centers; upper uses full extents of active integration cells; true within-cell contact support is unresolved by the present CSV.",
+    "scope": "single-foot contact loading margin, not whole-robot fall stability"
+  }
+}

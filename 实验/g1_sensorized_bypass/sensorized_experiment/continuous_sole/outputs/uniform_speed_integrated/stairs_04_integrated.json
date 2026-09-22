@@ -1,0 +1,38 @@
+{
+  "scene": "stairs",
+  "direction": "f",
+  "speed_m_s": 0.4,
+  "duration_s": 8.0,
+  "episodes": [
+    {
+      "episode": 0,
+      "outcome": "timeout",
+      "survival_time_s": 8.0,
+      "logged_rows": 400,
+      "pelvis_delta_x_m": 1.2667767998980675,
+      "pelvis_delta_y_m": -0.13820424390119615,
+      "final_pelvis_z_m": 0.9360641515595732
+    },
+    {
+      "episode": 1,
+      "outcome": "timeout",
+      "survival_time_s": 8.0,
+      "logged_rows": 400,
+      "pelvis_delta_x_m": 1.2669625985639403,
+      "pelvis_delta_y_m": -0.3816200176261088,
+      "final_pelvis_z_m": 0.9359050485720187
+    }
+  ],
+  "rows": 800,
+  "dt_s": 0.002,
+  "logging_hz": 50.0,
+  "array_shape": [
+    8,
+    4,
+    3
+  ],
+  "array_cells_per_foot": 32,
+  "array_force_channels_both_feet": 192,
+  "pressure_definition": "nominal sole-normal cell resultant divided by full cell area",
+  "policy_path": "C:\\Users\\Lenovo\\Desktop\\foot-contact-wrench-sim\\biped_walking\\external\\candidates\\humanoid-sim-eval-learning\\assets\\g1\\motion.pt"
+}

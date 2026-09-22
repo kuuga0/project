@@ -1,0 +1,347 @@
+{
+  "inputs": [
+    "outputs\\warning_validation\\rough_04_20episodes.csv"
+  ],
+  "purpose": "same current landing point, nominal attitude versus sensor-informed virtual pitch/roll correction",
+  "examples": [
+    {
+      "snapshot": {
+        "scene": "rough",
+        "episode": 12,
+        "time_s": 1.6,
+        "foot": "right",
+        "outcome": "fall",
+        "total_normal_n": 238.13242835149038,
+        "cop_x_m": 0.13545249488940203,
+        "cop_y_m": 0.023169807490542545,
+        "active_cells": 2,
+        "imu_gyro_norm_rad_s": 1.6426631672105017,
+        "imu_specific_force_norm_m_s2": 9.837007247806357,
+        "bounds": {
+          "macro": [
+            -0.08,
+            0.15,
+            -0.06,
+            0.06
+          ],
+          "array_upper": [
+            -0.08,
+            0.15,
+            -0.06,
+            0.03
+          ]
+        },
+        "candidates": {
+          "hold": {
+            "shift_x_m": 0.0,
+            "shift_y_m": 0.0,
+            "cop_x_m": 0.13545249488940203,
+            "cop_y_m": 0.023169807490542545,
+            "macro": {
+              "forward": 6.928465436884819,
+              "backward": 102.61245160480075,
+              "left": 17.54092635785995,
+              "right": 39.610856446497735
+            },
+            "macro_min_n": 6.928465436884819,
+            "array_upper": {
+              "forward": 6.928465436884819,
+              "backward": 102.61245160480075,
+              "left": 3.252980656770527,
+              "right": 39.610856446497735
+            },
+            "array_upper_min_n": 3.252980656770527
+          },
+          "pitch_+3deg": {
+            "shift_x_m": 0.023583500677368543,
+            "shift_y_m": 0.0,
+            "cop_x_m": 0.11186899421203349,
+            "cop_y_m": 0.023169807490542545,
+            "macro": {
+              "forward": 18.1604580075464,
+              "backward": 91.38045903413918,
+              "left": 17.54092635785995,
+              "right": 39.610856446497735
+            },
+            "macro_min_n": 17.54092635785995,
+            "array_upper": {
+              "forward": 18.1604580075464,
+              "backward": 91.38045903413918,
+              "left": 3.252980656770527,
+              "right": 39.610856446497735
+            },
+            "array_upper_min_n": 3.252980656770527
+          },
+          "pitch_-3deg": {
+            "shift_x_m": -0.023583500677368543,
+            "shift_y_m": 0.0,
+            "cop_x_m": 0.15903599556677056,
+            "cop_y_m": 0.023169807490542545,
+            "macro": {
+              "forward": 0.0,
+              "backward": 113.84444417546233,
+              "left": 17.54092635785995,
+              "right": 39.610856446497735
+            },
+            "macro_min_n": 0.0,
+            "array_upper": {
+              "forward": 0.0,
+              "backward": 113.84444417546233,
+              "left": 3.252980656770527,
+              "right": 39.610856446497735
+            },
+            "array_upper_min_n": 0.0
+          },
+          "roll_+3deg": {
+            "shift_x_m": 0.0,
+            "shift_y_m": 0.023583500677368543,
+            "cop_x_m": 0.13545249488940203,
+            "cop_y_m": -0.0004136931868259988,
+            "macro": {
+              "forward": 6.928465436884819,
+              "backward": 102.61245160480075,
+              "left": 28.772918928521527,
+              "right": 28.37886387583616
+            },
+            "macro_min_n": 6.928465436884819,
+            "array_upper": {
+              "forward": 6.928465436884819,
+              "backward": 102.61245160480075,
+              "left": 14.484973227432105,
+              "right": 28.37886387583616
+            },
+            "array_upper_min_n": 6.928465436884819
+          },
+          "roll_-3deg": {
+            "shift_x_m": 0.0,
+            "shift_y_m": -0.023583500677368543,
+            "cop_x_m": 0.13545249488940203,
+            "cop_y_m": 0.04675330816791109,
+            "macro": {
+              "forward": 6.928465436884819,
+              "backward": 102.61245160480075,
+              "left": 6.30893378719837,
+              "right": 50.842849017159324
+            },
+            "macro_min_n": 6.30893378719837,
+            "array_upper": {
+              "forward": 6.928465436884819,
+              "backward": 102.61245160480075,
+              "left": 0.0,
+              "right": 50.842849017159324
+            },
+            "array_upper_min_n": 0.0
+          }
+        }
+      },
+      "macro_only": {
+        "chosen": "hold",
+        "reason": "nominal strategy keeps commanded attitude",
+        "hold_min_margin_n": 6.928465436884819,
+        "best_candidate": "pitch_+3deg",
+        "best_candidate_min_margin_n": 17.54092635785995,
+        "final_min_margin_n": 6.928465436884819,
+        "hold_stable": true,
+        "final_stable": true,
+        "imu_used": false
+      },
+      "plantar_plus_imu": {
+        "chosen": "roll_+3deg",
+        "reason": "active plantar margin below threshold",
+        "hold_min_margin_n": 3.252980656770527,
+        "best_candidate": "roll_+3deg",
+        "best_candidate_min_margin_n": 6.928465436884819,
+        "final_min_margin_n": 6.928465436884819,
+        "hold_stable": false,
+        "final_stable": true,
+        "imu_used": true
+      },
+      "classification": {
+        "nominal_macro_path": "hold_original_attitude",
+        "nominal_macro_margin_interpretation": "macro observer says hold",
+        "local_support_interpretation": "hidden local-support failure",
+        "recorded_episode_outcome": "fall",
+        "sensor_fusion_path": "success",
+        "interpretation": "same landing point; only the virtual foot attitude is changed"
+      }
+    },
+    {
+      "snapshot": {
+        "scene": "rough",
+        "episode": 17,
+        "time_s": 0.04,
+        "foot": "right",
+        "outcome": "fall",
+        "total_normal_n": 764.0113999298036,
+        "cop_x_m": 0.017428709510763488,
+        "cop_y_m": -0.05698457196055025,
+        "active_cells": 3,
+        "imu_gyro_norm_rad_s": 0.8064554768529573,
+        "imu_specific_force_norm_m_s2": 9.824862557265563,
+        "bounds": {
+          "macro": [
+            -0.08,
+            0.15,
+            -0.06,
+            0.06
+          ],
+          "array_upper": [
+            -0.08,
+            0.15,
+            -0.06,
+            0.06
+          ]
+        },
+        "candidates": {
+          "hold": {
+            "shift_x_m": 0.0,
+            "shift_y_m": 0.0,
+            "cop_x_m": 0.017428709510763488,
+            "cop_y_m": -0.05698457196055025,
+            "macro": {
+              "forward": 202.57195447436445,
+              "backward": 148.87328949334517,
+              "left": 178.75509318753768,
+              "right": 4.607642795615172
+            },
+            "macro_min_n": 4.607642795615172,
+            "array_upper": {
+              "forward": 202.57195447436445,
+              "backward": 148.87328949334517,
+              "left": 178.75509318753768,
+              "right": 4.607642795615172
+            },
+            "array_upper_min_n": 4.607642795615172
+          },
+          "pitch_+3deg": {
+            "shift_x_m": 0.023583500677368543,
+            "shift_y_m": 0.0,
+            "cop_x_m": -0.006154791166605056,
+            "cop_y_m": -0.05698457196055025,
+            "macro": {
+              "forward": 238.6080812098881,
+              "backward": 112.83716275782155,
+              "left": 178.75509318753768,
+              "right": 4.607642795615172
+            },
+            "macro_min_n": 4.607642795615172,
+            "array_upper": {
+              "forward": 238.6080812098881,
+              "backward": 112.83716275782155,
+              "left": 178.75509318753768,
+              "right": 4.607642795615172
+            },
+            "array_upper_min_n": 4.607642795615172
+          },
+          "pitch_-3deg": {
+            "shift_x_m": -0.023583500677368543,
+            "shift_y_m": 0.0,
+            "cop_x_m": 0.04101221018813203,
+            "cop_y_m": -0.05698457196055025,
+            "macro": {
+              "forward": 166.53582773884085,
+              "backward": 184.9094162288688,
+              "left": 178.75509318753768,
+              "right": 4.607642795615172
+            },
+            "macro_min_n": 4.607642795615172,
+            "array_upper": {
+              "forward": 166.53582773884085,
+              "backward": 184.9094162288688,
+              "left": 178.75509318753768,
+              "right": 4.607642795615172
+            },
+            "array_upper_min_n": 4.607642795615172
+          },
+          "roll_+3deg": {
+            "shift_x_m": 0.0,
+            "shift_y_m": 0.023583500677368543,
+            "cop_x_m": 0.017428709510763488,
+            "cop_y_m": -0.08056807263791879,
+            "macro": {
+              "forward": 202.57195447436445,
+              "backward": 148.87328949334517,
+              "left": 214.7912199230613,
+              "right": 0.0
+            },
+            "macro_min_n": 0.0,
+            "array_upper": {
+              "forward": 202.57195447436445,
+              "backward": 148.87328949334517,
+              "left": 214.7912199230613,
+              "right": 0.0
+            },
+            "array_upper_min_n": 0.0
+          },
+          "roll_-3deg": {
+            "shift_x_m": 0.0,
+            "shift_y_m": -0.023583500677368543,
+            "cop_x_m": 0.017428709510763488,
+            "cop_y_m": -0.033401071283181705,
+            "macro": {
+              "forward": 202.57195447436445,
+              "backward": 148.87328949334517,
+              "left": 142.71896645201406,
+              "right": 40.643769531138794
+            },
+            "macro_min_n": 40.643769531138794,
+            "array_upper": {
+              "forward": 202.57195447436445,
+              "backward": 148.87328949334517,
+              "left": 142.71896645201406,
+              "right": 40.643769531138794
+            },
+            "array_upper_min_n": 40.643769531138794
+          }
+        }
+      },
+      "macro_only": {
+        "chosen": "hold",
+        "reason": "nominal strategy keeps commanded attitude",
+        "hold_min_margin_n": 4.607642795615172,
+        "best_candidate": "roll_-3deg",
+        "best_candidate_min_margin_n": 40.643769531138794,
+        "final_min_margin_n": 4.607642795615172,
+        "hold_stable": false,
+        "final_stable": false,
+        "imu_used": false
+      },
+      "plantar_plus_imu": {
+        "chosen": "roll_-3deg",
+        "reason": "active plantar margin below threshold",
+        "hold_min_margin_n": 4.607642795615172,
+        "best_candidate": "roll_-3deg",
+        "best_candidate_min_margin_n": 40.643769531138794,
+        "final_min_margin_n": 40.643769531138794,
+        "hold_stable": false,
+        "final_stable": true,
+        "imu_used": true
+      },
+      "classification": {
+        "nominal_macro_path": "hold_original_attitude",
+        "nominal_macro_margin_interpretation": "macro observer would still be outside threshold",
+        "local_support_interpretation": "direct macro-margin failure",
+        "recorded_episode_outcome": "fall",
+        "sensor_fusion_path": "success",
+        "interpretation": "same landing point; only the virtual foot attitude is changed"
+      }
+    }
+  ],
+  "assumptions": {
+    "attitude_height_m": 0.45,
+    "candidate_angle_deg": 3.0,
+    "equivalent_load_line_shift_m": 0.023583500677368543,
+    "stability_margin_n": 5.0,
+    "imu_urgent_gyro_rad_s": 0.5,
+    "friction_coefficient": 1.0,
+    "external_load_height_m": 0.5,
+    "normal_load_frozen": true
+  },
+  "interpretation": {
+    "macro_only": "ankle wrench/CoP is evaluated against the nominal full rectangular sole; if it is above the margin threshold it keeps the commanded attitude",
+    "plantar_plus_imu": "active-cell support interval supplies the local boundary and ankle gyro supplies urgency; the best small pitch/roll correction is selected offline",
+    "success_definition": "all four directional margins after the virtual correction are at least the threshold",
+    "not_claimed": "This is not a closed-loop controller, a new MuJoCo trajectory, or a whole-robot fall guarantee. It is a reproducible one-step counterfactual showing whether the new measurements contain an actionable attitude cue."
+  }
+}
+wrote outputs\posture_adjustment_demo\position_adjustment_report.json

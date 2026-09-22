@@ -1,0 +1,64 @@
+{
+  "files": [
+    {
+      "file": "biped_walking\\sensorized_experiment\\continuous_sole\\outputs\\uniform_speed_integrated\\rough_04_integrated.csv",
+      "rows": 662,
+      "feet": {
+        "left": {
+          "mean_abs_force_closure_error_n": 1.2467763294771127e-14,
+          "max_abs_force_closure_error_n": 1.3406493525361332e-13,
+          "mean_outside_force_n": 0.0,
+          "mean_nonzero_normal_cells": 1.4682779456193353,
+          "max_nonzero_normal_cells": 4
+        },
+        "right": {
+          "mean_abs_force_closure_error_n": 1.464520006752187e-14,
+          "max_abs_force_closure_error_n": 1.302446348448666e-13,
+          "mean_outside_force_n": 0.0,
+          "mean_nonzero_normal_cells": 1.5906344410876132,
+          "max_nonzero_normal_cells": 6
+        }
+      }
+    },
+    {
+      "file": "biped_walking\\sensorized_experiment\\continuous_sole\\outputs\\uniform_speed_integrated\\slope2_04_integrated.csv",
+      "rows": 800,
+      "feet": {
+        "left": {
+          "mean_abs_force_closure_error_n": 1.5486655504363065e-14,
+          "max_abs_force_closure_error_n": 2.3437142008433856e-13,
+          "mean_outside_force_n": 0.0,
+          "mean_nonzero_normal_cells": 1.83375,
+          "max_nonzero_normal_cells": 4
+        },
+        "right": {
+          "mean_abs_force_closure_error_n": 1.531850876073417e-14,
+          "max_abs_force_closure_error_n": 1.180442248897588e-13,
+          "mean_outside_force_n": 0.0,
+          "mean_nonzero_normal_cells": 1.86875,
+          "max_nonzero_normal_cells": 4
+        }
+      }
+    },
+    {
+      "file": "biped_walking\\sensorized_experiment\\continuous_sole\\outputs\\uniform_speed_integrated\\stairs_04_integrated.csv",
+      "rows": 800,
+      "feet": {
+        "left": {
+          "mean_abs_force_closure_error_n": 1.458750840307416e-14,
+          "max_abs_force_closure_error_n": 1.1506624801925828e-13,
+          "mean_outside_force_n": 0.0,
+          "mean_nonzero_normal_cells": 1.98625,
+          "max_nonzero_normal_cells": 4
+        },
+        "right": {
+          "mean_abs_force_closure_error_n": 1.6558664076634134e-14,
+          "max_abs_force_closure_error_n": 1.149153234055395e-13,
+          "mean_outside_force_n": 0.0,
+          "mean_nonzero_normal_cells": 2.1775,
+          "max_nonzero_normal_cells": 4
+        }
+      }
+    }
+  ]
+}

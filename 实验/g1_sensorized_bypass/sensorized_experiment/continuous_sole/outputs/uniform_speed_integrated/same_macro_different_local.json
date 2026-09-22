@@ -1,0 +1,182 @@
+{
+  "inputs": [
+    "biped_walking\\sensorized_experiment\\continuous_sole\\outputs\\uniform_speed_integrated\\rough_04_integrated.csv",
+    "biped_walking\\sensorized_experiment\\continuous_sole\\outputs\\uniform_speed_integrated\\slope2_04_integrated.csv",
+    "biped_walking\\sensorized_experiment\\continuous_sole\\outputs\\uniform_speed_integrated\\stairs_04_integrated.csv"
+  ],
+  "macro_definition": [
+    "left_ankle_fx",
+    "left_ankle_fy",
+    "left_ankle_fz",
+    "left_ankle_tx",
+    "left_ankle_ty",
+    "left_ankle_tz",
+    "right_ankle_fx",
+    "right_ankle_fy",
+    "right_ankle_fz",
+    "right_ankle_tx",
+    "right_ankle_ty",
+    "right_ankle_tz",
+    "left_cop_x_m",
+    "left_cop_y_m",
+    "right_cop_x_m",
+    "right_cop_y_m"
+  ],
+  "pair_rule": "same scene, different episode, nearest standardized macro state",
+  "macro_tolerance": 0.75,
+  "pairs": 1944,
+  "macro_distance_median": 0.05058746863698633,
+  "plantar_distance_median": 0.026018994533640424,
+  "imu_distance_median": 0.06906632071994104,
+  "plantar_to_macro_distance_ratio": 0.5143367564080286,
+  "imu_to_macro_distance_ratio": 1.36528517004,
+  "fraction_plantar_distance_gt_1": 0.04218106995884774,
+  "fraction_imu_distance_gt_1": 0.06327160493827161,
+  "fraction_plantar_gt_1_when_macro_gt_0.5": 0.017643710870802503,
+  "fraction_plantar_gt_1_when_macro_gt_0.25": 0.0,
+  "per_scene": {
+    "rough": {
+      "pairs": 363,
+      "macro_distance_median": 0.4786520333469961,
+      "plantar_distance_median": 0.23798983330471096,
+      "imu_distance_median": 0.7227951455074455,
+      "plantar_gt_1_fraction": 0.22589531680440772
+    },
+    "slope2": {
+      "pairs": 793,
+      "macro_distance_median": 0.05849214832451562,
+      "plantar_distance_median": 0.032322017285491444,
+      "imu_distance_median": 0.07290494651771158,
+      "plantar_gt_1_fraction": 0.0
+    },
+    "stairs": {
+      "pairs": 788,
+      "macro_distance_median": 0.0190020067984355,
+      "plantar_distance_median": 0.006865936805615931,
+      "imu_distance_median": 0.028510295490006502,
+      "plantar_gt_1_fraction": 0.0
+    }
+  },
+  "examples": [
+    {
+      "scene": "rough",
+      "i": 202,
+      "j": 458,
+      "macro_distance": 0.6910476441848447,
+      "plantar_distance": 5.962664890183197,
+      "imu_distance": 0.7660052122896576,
+      "time_i_s": 4.0600000000000005,
+      "time_j_s": 1.18,
+      "episode_i": 0,
+      "episode_j": 1
+    },
+    {
+      "scene": "rough",
+      "i": 518,
+      "j": 276,
+      "macro_distance": 0.6434345517879649,
+      "plantar_distance": 3.839601666342252,
+      "imu_distance": 2.1555260773557228,
+      "time_i_s": 2.38,
+      "time_j_s": 5.54,
+      "episode_i": 1,
+      "episode_j": 0
+    },
+    {
+      "scene": "rough",
+      "i": 95,
+      "j": 588,
+      "macro_distance": 0.5772825837690466,
+      "plantar_distance": 3.6969337757285183,
+      "imu_distance": 1.7775029632891954,
+      "time_i_s": 1.92,
+      "time_j_s": 3.7800000000000002,
+      "episode_i": 0,
+      "episode_j": 1
+    },
+    {
+      "scene": "rough",
+      "i": 189,
+      "j": 437,
+      "macro_distance": 0.7332552003452497,
+      "plantar_distance": 3.2862719932252356,
+      "imu_distance": 0.4591810480974367,
+      "time_i_s": 3.8000000000000003,
+      "time_j_s": 0.76,
+      "episode_i": 0,
+      "episode_j": 1
+    },
+    {
+      "scene": "rough",
+      "i": 524,
+      "j": 11,
+      "macro_distance": 0.6301652233261655,
+      "plantar_distance": 2.687390251387989,
+      "imu_distance": 1.2693732675647984,
+      "time_i_s": 2.5,
+      "time_j_s": 0.24,
+      "episode_i": 1,
+      "episode_j": 0
+    },
+    {
+      "scene": "rough",
+      "i": 287,
+      "j": 471,
+      "macro_distance": 0.7135643543711381,
+      "plantar_distance": 2.6034775219135677,
+      "imu_distance": 1.195440369794554,
+      "time_i_s": 5.76,
+      "time_j_s": 1.44,
+      "episode_i": 0,
+      "episode_j": 1
+    },
+    {
+      "scene": "rough",
+      "i": 309,
+      "j": 505,
+      "macro_distance": 0.5143978273579578,
+      "plantar_distance": 2.128162026397349,
+      "imu_distance": 1.304566911410956,
+      "time_i_s": 6.2,
+      "time_j_s": 2.12,
+      "episode_i": 0,
+      "episode_j": 1
+    },
+    {
+      "scene": "rough",
+      "i": 505,
+      "j": 310,
+      "macro_distance": 0.4722819435421763,
+      "plantar_distance": 2.084680712920201,
+      "imu_distance": 1.210371588540074,
+      "time_i_s": 2.12,
+      "time_j_s": 6.22,
+      "episode_i": 1,
+      "episode_j": 0
+    },
+    {
+      "scene": "rough",
+      "i": 535,
+      "j": 11,
+      "macro_distance": 0.355290921322769,
+      "plantar_distance": 2.0563604488032374,
+      "imu_distance": 0.7249107108948327,
+      "time_i_s": 2.72,
+      "time_j_s": 0.24,
+      "episode_i": 1,
+      "episode_j": 0
+    },
+    {
+      "scene": "rough",
+      "i": 534,
+      "j": 11,
+      "macro_distance": 0.39241700366507754,
+      "plantar_distance": 2.0442124088302744,
+      "imu_distance": 0.7196820395596986,
+      "time_i_s": 2.7,
+      "time_j_s": 0.24,
+      "episode_i": 1,
+      "episode_j": 0
+    }
+  ]
+}

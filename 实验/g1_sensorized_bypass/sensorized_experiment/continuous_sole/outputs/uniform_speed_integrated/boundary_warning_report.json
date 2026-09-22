@@ -1,0 +1,99 @@
+{
+  "inputs": [
+    "biped_walking\\sensorized_experiment\\continuous_sole\\outputs\\uniform_speed_integrated\\rough_04_integrated.csv",
+    "biped_walking\\sensorized_experiment\\continuous_sole\\outputs\\uniform_speed_integrated\\slope2_04_integrated.csv",
+    "biped_walking\\sensorized_experiment\\continuous_sole\\outputs\\uniform_speed_integrated\\stairs_04_integrated.csv"
+  ],
+  "friction_coefficient": 1.0,
+  "anomaly_thresholds": {
+    "macro_only_99pct_normal": 8.300122028786843,
+    "array_plus_imu_99pct_normal": 54.484891816288496
+  },
+  "false_positive_fraction_on_normal_rows": {
+    "macro_only": 0.01,
+    "array_plus_imu": 0.01
+  },
+  "fall_warnings": [
+    {
+      "scene": "rough",
+      "episode": 1,
+      "method": "macro_only",
+      "event_time_s": 5.26,
+      "warning_time_s": 1.74,
+      "lead_time_s": 3.5199999999999996,
+      "detected": true
+    },
+    {
+      "scene": "rough",
+      "episode": 1,
+      "method": "array_plus_imu",
+      "event_time_s": 5.26,
+      "warning_time_s": 1.34,
+      "lead_time_s": 3.92,
+      "detected": true
+    }
+  ],
+  "imu_dynamic_scales": {
+    "gyro_norm_95pct": 4.197116905160445,
+    "accel_norm_deviation_95pct": 1.6245034263447935
+  },
+  "margin_summary": {
+    "force_x_pos": {
+      "macro_median": 254.9594727247336,
+      "array_median": 254.95947272473362,
+      "array_imu_median": 188.83816586763297,
+      "array_vs_macro_median_ratio": 1.0000000000000002,
+      "array_imu_vs_array_median_ratio": 0.7406595403164786
+    },
+    "force_x_neg": {
+      "macro_median": 330.53962346233163,
+      "array_median": 330.9523182050342,
+      "array_imu_median": 240.1078849511055,
+      "array_vs_macro_median_ratio": 1.0012485484747022,
+      "array_imu_vs_array_median_ratio": 0.725505976973855
+    },
+    "force_y_pos": {
+      "macro_median": 288.74530257993126,
+      "array_median": 288.3289296972225,
+      "array_imu_median": 215.6823479267537,
+      "array_vs_macro_median_ratio": 0.9985579925318665,
+      "array_imu_vs_array_median_ratio": 0.7480426891371746
+    },
+    "force_y_neg": {
+      "macro_median": 295.93612958731666,
+      "array_median": 294.52526241448453,
+      "array_imu_median": 216.6758685877199,
+      "array_vs_macro_median_ratio": 0.995232528130987,
+      "array_imu_vs_array_median_ratio": 0.7356783822597621
+    },
+    "pitch_pos_nm": {
+      "macro_median": 43.11863033106323,
+      "array_median": 37.55413799026952,
+      "array_imu_median": 25.85692765477844,
+      "array_vs_macro_median_ratio": 0.8709492324299323,
+      "array_imu_vs_array_median_ratio": 0.6885240625541215
+    },
+    "pitch_neg_nm": {
+      "macro_median": 27.016533416262533,
+      "array_median": 18.253667291963417,
+      "array_imu_median": 12.573871300428507,
+      "array_vs_macro_median_ratio": 0.675648019333808,
+      "array_imu_vs_array_median_ratio": 0.6888408284928275
+    },
+    "roll_pos_nm": {
+      "macro_median": 20.832159238400024,
+      "array_median": 14.736582576613042,
+      "array_imu_median": 8.020548363775832,
+      "array_vs_macro_median_ratio": 0.7073958300707026,
+      "array_imu_vs_array_median_ratio": 0.5442610810259662
+    },
+    "roll_neg_nm": {
+      "macro_median": 18.94934237671602,
+      "array_median": 11.794287823027624,
+      "array_imu_median": 6.85007838566584,
+      "array_vs_macro_median_ratio": 0.6224114583269041,
+      "array_imu_vs_array_median_ratio": 0.5807962709110321
+    }
+  },
+  "interpretation": "array margins use local fixed-normal friction cones and active support bounds; array_imu margins conservatively discount those static margins using measured ankle IMU activity. These are sensor-conditioned feasibility margins, not measured fall limits."
+}

@@ -1,0 +1,93 @@
+{
+  "inputs": [
+    "biped_walking\\sensorized_experiment\\outputs\\uniform_speed_4x2\\rough_04_sensorized.csv",
+    "biped_walking\\sensorized_experiment\\outputs\\uniform_speed_4x2\\slope2_04_sensorized.csv",
+    "biped_walking\\sensorized_experiment\\outputs\\uniform_speed_4x2\\stairs_04_sensorized.csv"
+  ],
+  "rows_after_stride": 480,
+  "stride": 5,
+  "scenes": {
+    "rough": 160,
+    "slope2": 160,
+    "stairs": 160
+  },
+  "feature_dimensions": {
+    "macro_ankle_wrench_plus_cop": 16,
+    "plantar_array_triaxial": 48,
+    "ankle_imu": 12,
+    "combined": 76
+  },
+  "array_shape": [
+    4,
+    2,
+    3
+  ],
+  "array_occupancy": {
+    "cells_per_foot": 8,
+    "mean_nonzero_cells_fraction_per_foot": 0.3323913043478261
+  },
+  "contact_distribution": {
+    "contact_foot_frames": 575,
+    "mean_nonzero_cells": 2.659130434782609,
+    "median_nonzero_cells": 3.0,
+    "mean_active_cells_above_1pct": 2.6278260869565218,
+    "median_active_cells_above_1pct": 3.0,
+    "mean_cell_concentration": 0.5663118236220188,
+    "median_cell_concentration": 0.4966042822292102
+  },
+  "macro_neighbor_test": {
+    "pairs": 480,
+    "macro_distance_median": 0.2723557133774217,
+    "rich_distance_median": 0.4004842823634561,
+    "array_distance_median": 0.3389725877452237,
+    "rich_to_macro_neighbor_ratio": 1.470445680750152
+  },
+  "terrain_classification": {
+    "macro_only": {
+      "samples": 480,
+      "correct": 260,
+      "accuracy": 0.5416666666666666,
+      "per_scene_accuracy": {
+        "rough": 0.54375,
+        "slope2": 0.28125,
+        "stairs": 0.8
+      }
+    },
+    "array_plus_imu": {
+      "samples": 480,
+      "correct": 311,
+      "accuracy": 0.6479166666666667,
+      "per_scene_accuracy": {
+        "rough": 0.50625,
+        "slope2": 0.60625,
+        "stairs": 0.83125
+      }
+    },
+    "macro_plus_array": {
+      "samples": 480,
+      "correct": 294,
+      "accuracy": 0.6125,
+      "per_scene_accuracy": {
+        "rough": 0.49375,
+        "slope2": 0.51875,
+        "stairs": 0.825
+      }
+    },
+    "macro_plus_array_plus_imu": {
+      "samples": 480,
+      "correct": 323,
+      "accuracy": 0.6729166666666667,
+      "per_scene_accuracy": {
+        "rough": 0.54375,
+        "slope2": 0.59375,
+        "stairs": 0.88125
+      }
+    }
+  },
+  "macro_to_array_prediction": {
+    "samples": 480,
+    "normalized_rmse": 0.6366349781572294,
+    "unexplained_fraction": 0.4053040954132559,
+    "explained_fraction": 0.5946959045867442
+  }
+}

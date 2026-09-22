@@ -1,0 +1,200 @@
+{
+  "scene": "rough",
+  "direction": "f",
+  "speed_m_s": 0.4,
+  "duration_s": 8.0,
+  "episodes": [
+    {
+      "episode": 0,
+      "outcome": "timeout",
+      "survival_time_s": 8.0,
+      "logged_rows": 400,
+      "pelvis_delta_x_m": 0.7751158216510917,
+      "pelvis_delta_y_m": -0.6818322782238846,
+      "final_pelvis_z_m": 0.7969026045472557
+    },
+    {
+      "episode": 1,
+      "outcome": "fall",
+      "survival_time_s": 5.244,
+      "logged_rows": 262,
+      "pelvis_delta_x_m": 0.9813245721808058,
+      "pelvis_delta_y_m": -0.2998120620103994,
+      "final_pelvis_z_m": 0.41199970858927837
+    },
+    {
+      "episode": 2,
+      "outcome": "fall",
+      "survival_time_s": 3.742,
+      "logged_rows": 187,
+      "pelvis_delta_x_m": 2.1010636233708975,
+      "pelvis_delta_y_m": -0.29987370284523257,
+      "final_pelvis_z_m": 0.40725635112396563
+    },
+    {
+      "episode": 3,
+      "outcome": "fall",
+      "survival_time_s": 3.004,
+      "logged_rows": 150,
+      "pelvis_delta_x_m": 0.2994546668661604,
+      "pelvis_delta_y_m": -1.7263515748239777,
+      "final_pelvis_z_m": 0.4086711915561633
+    },
+    {
+      "episode": 4,
+      "outcome": "fall",
+      "survival_time_s": 3.846,
+      "logged_rows": 192,
+      "pelvis_delta_x_m": 1.1298176385464787,
+      "pelvis_delta_y_m": -0.17069260421300592,
+      "final_pelvis_z_m": 0.41882262437449214
+    },
+    {
+      "episode": 5,
+      "outcome": "fall",
+      "survival_time_s": 5.184,
+      "logged_rows": 259,
+      "pelvis_delta_x_m": 0.9978698171324044,
+      "pelvis_delta_y_m": -0.7134777159325802,
+      "final_pelvis_z_m": 0.41267498354611054
+    },
+    {
+      "episode": 6,
+      "outcome": "timeout",
+      "survival_time_s": 8.0,
+      "logged_rows": 400,
+      "pelvis_delta_x_m": 1.081587316034476,
+      "pelvis_delta_y_m": -0.3910370546300916,
+      "final_pelvis_z_m": 0.825329003813769
+    },
+    {
+      "episode": 7,
+      "outcome": "fall",
+      "survival_time_s": 2.7680000000000002,
+      "logged_rows": 138,
+      "pelvis_delta_x_m": 0.9458878036636249,
+      "pelvis_delta_y_m": 0.17420234289296221,
+      "final_pelvis_z_m": 0.423273406226059
+    },
+    {
+      "episode": 8,
+      "outcome": "fall",
+      "survival_time_s": 1.764,
+      "logged_rows": 88,
+      "pelvis_delta_x_m": 0.3836989877384456,
+      "pelvis_delta_y_m": -0.9858506264687085,
+      "final_pelvis_z_m": 0.4107532624512359
+    },
+    {
+      "episode": 9,
+      "outcome": "fall",
+      "survival_time_s": 2.166,
+      "logged_rows": 108,
+      "pelvis_delta_x_m": 1.5443366918475034,
+      "pelvis_delta_y_m": 0.3385111078335256,
+      "final_pelvis_z_m": 0.4187388137241657
+    },
+    {
+      "episode": 10,
+      "outcome": "timeout",
+      "survival_time_s": 8.0,
+      "logged_rows": 400,
+      "pelvis_delta_x_m": 0.7362261411877467,
+      "pelvis_delta_y_m": -0.05412900783140514,
+      "final_pelvis_z_m": 0.8003381033817952
+    },
+    {
+      "episode": 11,
+      "outcome": "fall",
+      "survival_time_s": 2.932,
+      "logged_rows": 146,
+      "pelvis_delta_x_m": 1.3207617698633423,
+      "pelvis_delta_y_m": -0.3667488223471221,
+      "final_pelvis_z_m": 0.4305404292450964
+    },
+    {
+      "episode": 12,
+      "outcome": "fall",
+      "survival_time_s": 2.744,
+      "logged_rows": 137,
+      "pelvis_delta_x_m": 0.9534635948434015,
+      "pelvis_delta_y_m": 0.3662233174427226,
+      "final_pelvis_z_m": 0.411562246550571
+    },
+    {
+      "episode": 13,
+      "outcome": "fall",
+      "survival_time_s": 3.512,
+      "logged_rows": 175,
+      "pelvis_delta_x_m": 1.0803661240179763,
+      "pelvis_delta_y_m": -0.3093529980098163,
+      "final_pelvis_z_m": 0.4305477168250384
+    },
+    {
+      "episode": 14,
+      "outcome": "fall",
+      "survival_time_s": 7.668,
+      "logged_rows": 383,
+      "pelvis_delta_x_m": 0.9328186485768996,
+      "pelvis_delta_y_m": 2.3284770207459977,
+      "final_pelvis_z_m": 0.42210797194322175
+    },
+    {
+      "episode": 15,
+      "outcome": "fall",
+      "survival_time_s": 1.162,
+      "logged_rows": 58,
+      "pelvis_delta_x_m": -0.07865098988937765,
+      "pelvis_delta_y_m": -0.8126495681557535,
+      "final_pelvis_z_m": 0.40632426559185825
+    },
+    {
+      "episode": 16,
+      "outcome": "fall",
+      "survival_time_s": 3.548,
+      "logged_rows": 177,
+      "pelvis_delta_x_m": 1.1489426717313072,
+      "pelvis_delta_y_m": -0.32552231016922306,
+      "final_pelvis_z_m": 0.42253413946028057
+    },
+    {
+      "episode": 17,
+      "outcome": "fall",
+      "survival_time_s": 3.686,
+      "logged_rows": 184,
+      "pelvis_delta_x_m": 1.119188985938653,
+      "pelvis_delta_y_m": 0.3664320100349755,
+      "final_pelvis_z_m": 0.41718472570013093
+    },
+    {
+      "episode": 18,
+      "outcome": "fall",
+      "survival_time_s": 1.762,
+      "logged_rows": 88,
+      "pelvis_delta_x_m": -0.17780158734449156,
+      "pelvis_delta_y_m": -1.6458457961333735,
+      "final_pelvis_z_m": 0.40814759773623804
+    },
+    {
+      "episode": 19,
+      "outcome": "timeout",
+      "survival_time_s": 8.0,
+      "logged_rows": 400,
+      "pelvis_delta_x_m": 0.770976465967642,
+      "pelvis_delta_y_m": -0.7501550520709059,
+      "final_pelvis_z_m": 0.8407492439442608
+    }
+  ],
+  "rows": 4332,
+  "dt_s": 0.002,
+  "logging_hz": 50.0,
+  "array_shape": [
+    8,
+    4,
+    3
+  ],
+  "array_cells_per_foot": 32,
+  "array_force_channels_both_feet": 192,
+  "pressure_definition": "nominal sole-normal cell resultant divided by full cell area",
+  "policy_path": "C:\\Users\\Lenovo\\Desktop\\foot-contact-wrench-sim\\biped_walking\\external\\candidates\\humanoid-sim-eval-learning\\assets\\g1\\motion.pt"
+}
