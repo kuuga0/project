@@ -1,0 +1,64 @@
+name: stage_b_quasistatic_partial_support
+base_config: configs/bench/stage_b_bench.yml
+
+# These patches are continuous environment geometry, not pressure cells and
+# not contact modes used by the estimator.
+support_geom_prefix: support_surface_
+support_height_m: 0.01
+support_friction: [0.8, 0.005, 0.0001]
+support_normal_world: [0.0, 0.0, 1.0]
+
+# The foot starts tangent to z=0 with zero velocity. Gravity and the external
+# point load create only a small compliant settling displacement; there is no
+# drop or landing impact.
+settle_duration_s: 0.20
+preload_ramp_duration_s: 0.80
+reference_hold_duration_s: 0.50
+sweep_duration_s: 5.00
+applied_normal_force_n: 60.0
+load_application_height_m: 0.025
+sample_stride: 5
+pressure_active_threshold_n: 0.01
+failure_persistence_s: 0.02
+failure_tilt_angle_rad: 0.008726646259971648
+
+# Scenarios are validation conditions hidden from the estimator. They do not
+# form a finite catalogue in the theoretical model.
+scenarios:
+  - name: full_reference
+    label_zh: 完整矩形支撑（参考）
+    support_boxes:
+      - center_xy_m: [0.0, 0.0]
+        size_xy_m: [0.20, 0.10]
+    load_path:
+      start_xy_m: [0.0, 0.0]
+      end_xy_m: [0.20, 0.0]
+
+  - name: heel_partial
+    label_zh: 后部连续支撑
+    support_boxes:
+      - center_xy_m: [-0.045, 0.0]
+        size_xy_m: [0.11, 0.10]
+    load_path:
+      start_xy_m: [-0.04, 0.0]
+      end_xy_m: [0.08, 0.0]
+
+  - name: lateral_partial
+    label_zh: 外侧连续支撑
+    support_boxes:
+      - center_xy_m: [0.0, -0.02]
+        size_xy_m: [0.20, 0.06]
+    load_path:
+      start_xy_m: [0.0, -0.02]
+      end_xy_m: [0.0, 0.07]
+
+  - name: missing_corner
+    label_zh: 缺角不规则连续支撑
+    support_boxes:
+      - center_xy_m: [-0.04, 0.0]
+        size_xy_m: [0.12, 0.10]
+      - center_xy_m: [0.06, 0.025]
+        size_xy_m: [0.08, 0.05]
+    load_path:
+      start_xy_m: [-0.03, 0.01]
+      end_xy_m: [0.11, -0.06]

@@ -1,0 +1,5 @@
+base_config: stage_a_baseline.yml
+friction_coefficients:
+  - 0.30
+  - 0.50
+  - 0.80

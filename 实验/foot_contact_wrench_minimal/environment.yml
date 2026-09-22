@@ -1,0 +1,18 @@
+name: foot-wrench
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - pyyaml
+  - jupyterlab
+  - ipykernel
+  - cvxpy
+  - pytest
+  - pip:
+      # 3.3.7 supports the NumPy 2 ABI used by current conda-forge packages.
+      - mujoco==3.3.7

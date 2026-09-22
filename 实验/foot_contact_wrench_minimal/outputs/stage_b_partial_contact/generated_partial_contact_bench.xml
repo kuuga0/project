@@ -1,0 +1,82 @@
+<mujoco model="single_foot_grid_bench">
+  <compiler angle="radian" autolimits="true" />
+  <option timestep="0.002" gravity="0 0 -9.81" integrator="implicitfast" cone="elliptic" />
+  <visual>
+    <headlight ambient="0.4 0.4 0.4" diffuse="0.8 0.8 0.8" specular="0.2 0.2 0.2" />
+  </visual>
+  <default>
+    <geom contype="1" conaffinity="1" friction="0.5 0.005 0.0001" solref="0.01 1" solimp="0.95 0.99 0.001" />
+    <default class="cell">
+      <geom type="sphere" size="0.001" mass="0" condim="3" rgba="0.1 0.7 0.2 1" />
+    </default>
+  </default>
+  <worldbody>
+    <light name="top" pos="0 0 1" />
+    <geom name="ground" type="plane" pos="0 0 0" size="2 2 0.01" rgba="0.7 0.7 0.7 0.04" contype="0" conaffinity="0" />
+    <body name="foot" pos="0 0 0.026" quat="1 0 0 0">
+      <freejoint name="foot_freejoint" />
+      <geom name="foot_visual" type="box" pos="0 0 0" size="0.10 0.05 0.025" mass="4.0" contype="0" conaffinity="0" rgba="0.2 0.45 0.75 1" />
+      <site name="foot_imu" pos="0 0 0" size="0.005" rgba="0.9 0.2 0.1 1" />
+      <site name="contact_plane_center" pos="0 0 -0.026" size="0.004" rgba="0.95 0.8 0.1 1" />
+      <geom class="cell" name="contact_00" pos="-0.09 -0.04 -0.025" />
+      <geom class="cell" name="contact_01" pos="-0.07 -0.04 -0.025" />
+      <geom class="cell" name="contact_02" pos="-0.05 -0.04 -0.025" />
+      <geom class="cell" name="contact_03" pos="-0.03 -0.04 -0.025" />
+      <geom class="cell" name="contact_04" pos="-0.01 -0.04 -0.025" />
+      <geom class="cell" name="contact_05" pos="0.01 -0.04 -0.025" />
+      <geom class="cell" name="contact_06" pos="0.03 -0.04 -0.025" />
+      <geom class="cell" name="contact_07" pos="0.05 -0.04 -0.025" />
+      <geom class="cell" name="contact_08" pos="0.07 -0.04 -0.025" />
+      <geom class="cell" name="contact_09" pos="0.09 -0.04 -0.025" />
+      <geom class="cell" name="contact_10" pos="-0.09 -0.02 -0.025" />
+      <geom class="cell" name="contact_11" pos="-0.07 -0.02 -0.025" />
+      <geom class="cell" name="contact_12" pos="-0.05 -0.02 -0.025" />
+      <geom class="cell" name="contact_13" pos="-0.03 -0.02 -0.025" />
+      <geom class="cell" name="contact_14" pos="-0.01 -0.02 -0.025" />
+      <geom class="cell" name="contact_15" pos="0.01 -0.02 -0.025" />
+      <geom class="cell" name="contact_16" pos="0.03 -0.02 -0.025" />
+      <geom class="cell" name="contact_17" pos="0.05 -0.02 -0.025" />
+      <geom class="cell" name="contact_18" pos="0.07 -0.02 -0.025" />
+      <geom class="cell" name="contact_19" pos="0.09 -0.02 -0.025" />
+      <geom class="cell" name="contact_20" pos="-0.09 0 -0.025" />
+      <geom class="cell" name="contact_21" pos="-0.07 0 -0.025" />
+      <geom class="cell" name="contact_22" pos="-0.05 0 -0.025" />
+      <geom class="cell" name="contact_23" pos="-0.03 0 -0.025" />
+      <geom class="cell" name="contact_24" pos="-0.01 0 -0.025" />
+      <geom class="cell" name="contact_25" pos="0.01 0 -0.025" />
+      <geom class="cell" name="contact_26" pos="0.03 0 -0.025" />
+      <geom class="cell" name="contact_27" pos="0.05 0 -0.025" />
+      <geom class="cell" name="contact_28" pos="0.07 0 -0.025" />
+      <geom class="cell" name="contact_29" pos="0.09 0 -0.025" />
+      <geom class="cell" name="contact_30" pos="-0.09 0.02 -0.025" />
+      <geom class="cell" name="contact_31" pos="-0.07 0.02 -0.025" />
+      <geom class="cell" name="contact_32" pos="-0.05 0.02 -0.025" />
+      <geom class="cell" name="contact_33" pos="-0.03 0.02 -0.025" />
+      <geom class="cell" name="contact_34" pos="-0.01 0.02 -0.025" />
+      <geom class="cell" name="contact_35" pos="0.01 0.02 -0.025" />
+      <geom class="cell" name="contact_36" pos="0.03 0.02 -0.025" />
+      <geom class="cell" name="contact_37" pos="0.05 0.02 -0.025" />
+      <geom class="cell" name="contact_38" pos="0.07 0.02 -0.025" />
+      <geom class="cell" name="contact_39" pos="0.09 0.02 -0.025" />
+      <geom class="cell" name="contact_40" pos="-0.09 0.04 -0.025" />
+      <geom class="cell" name="contact_41" pos="-0.07 0.04 -0.025" />
+      <geom class="cell" name="contact_42" pos="-0.05 0.04 -0.025" />
+      <geom class="cell" name="contact_43" pos="-0.03 0.04 -0.025" />
+      <geom class="cell" name="contact_44" pos="-0.01 0.04 -0.025" />
+      <geom class="cell" name="contact_45" pos="0.01 0.04 -0.025" />
+      <geom class="cell" name="contact_46" pos="0.03 0.04 -0.025" />
+      <geom class="cell" name="contact_47" pos="0.05 0.04 -0.025" />
+      <geom class="cell" name="contact_48" pos="0.07 0.04 -0.025" />
+      <geom class="cell" name="contact_49" pos="0.09 0.04 -0.025" />
+    </body>
+    <geom name="support_surface_full_reference_00" type="box" pos="0 0 -0.005" size="0.1 0.05 0.005" friction="0.8 0.005 0.0001" condim="3" contype="1" conaffinity="1" rgba="0.72 0.55 0.18 0.05" />
+    <geom name="support_surface_heel_partial_00" type="box" pos="-0.045 0 -0.005" size="0.055 0.05 0.005" friction="0.8 0.005 0.0001" condim="3" contype="1" conaffinity="1" rgba="0.72 0.55 0.18 0.05" />
+    <geom name="support_surface_lateral_partial_00" type="box" pos="0 -0.02 -0.005" size="0.1 0.03 0.005" friction="0.8 0.005 0.0001" condim="3" contype="1" conaffinity="1" rgba="0.72 0.55 0.18 0.05" />
+    <geom name="support_surface_missing_corner_00" type="box" pos="-0.04 0 -0.005" size="0.06 0.05 0.005" friction="0.8 0.005 0.0001" condim="3" contype="1" conaffinity="1" rgba="0.72 0.55 0.18 0.05" />
+    <geom name="support_surface_missing_corner_01" type="box" pos="0.06 0.025 -0.005" size="0.04 0.025 0.005" friction="0.8 0.005 0.0001" condim="3" contype="1" conaffinity="1" rgba="0.72 0.55 0.18 0.05" />
+  </worldbody>
+  <sensor>
+    <gyro name="foot_gyro" site="foot_imu" />
+    <accelerometer name="foot_accelerometer" site="foot_imu" />
+  </sensor>
+</mujoco>

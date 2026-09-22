@@ -1,0 +1,31 @@
+name: stage_b_single_foot_grid_bench
+model_xml: models/bench/single_foot_bench.xml
+duration_s: 1.5
+timestep_s: 0.002
+gravity_mps2: [0.0, 0.0, -9.81]
+foot_mass_kg: 4.0
+foot_size_m: [0.20, 0.10]
+contact_grid:
+  size_m: [0.20, 0.10]
+  resolution_m: [0.02, 0.02]
+  # Contact plane is 26 mm below the foot COM; local wrenches are about COM.
+  z_m: -0.026
+normal: [0.0, 0.0, 1.0]
+tangent_basis:
+  - [1.0, 0.0]
+  - [0.0, 1.0]
+  - [0.0, 0.0]
+normal_load_n: 39.24
+# 10 kgf/单元，按 g=9.81 m/s^2 换算为 98.1 N/单元。
+normal_force_max_n: 98.1
+friction_coefficients: 0.50
+initial_position_m: [0.0, 0.0, 0.026]
+initial_linear_velocity_mps: [0.0, 0.0, 0.0]
+initial_angular_velocity_radps: [0.0, 0.0, 0.0]
+solver: CLARABEL
+solver_tolerance: 1.0e-7
+viewer:
+  force_scale_m_per_n: 0.003
+  moment_scale_m_per_nm: 0.04
+  cone_direction_count: 32
+  realtime_factor: 1.0

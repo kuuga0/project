@@ -1,0 +1,19 @@
+name: stage_b_imu_pressure_sensor_bench
+base_config: configs/bench/stage_b_bench.yml
+duration_s: 6.0
+warmup_duration_s: 0.5
+sample_stride: 1
+# Small known external excitation at the foot COM. It remains inside the
+# static local-set margin and is subtracted in the inertial estimator.
+excitation:
+  force_x_n: 5.0
+  force_y_n: 3.0
+  force_z_n: 0.0
+  moment_x_nm: 0.20
+  moment_y_nm: 0.30
+  moment_z_nm: 0.10
+  force_x_hz: 0.70
+  force_y_hz: 0.90
+  moment_x_hz: 0.50
+  moment_y_hz: 0.60
+  moment_z_hz: 0.80

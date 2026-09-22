@@ -1,0 +1,164 @@
+[
+  {
+    "scenario": "full_reference",
+    "scenario_label_zh": "完整矩形支撑（参考）",
+    "support_surface_count_truth": 1,
+    "support_boxes_truth": [
+      {
+        "center_xy_m": [
+          0.0,
+          0.0
+        ],
+        "size_xy_m": [
+          0.2,
+          0.1
+        ]
+      }
+    ],
+    "sample_count": 536,
+    "reference_active_count": 50,
+    "reference_normal_load_n": 99.24000000000001,
+    "theory_path_progress": 0.744299992293752,
+    "theory_boundary_wrench_foot": [
+      -4.107825191113079e-15,
+      -8.931599907525019,
+      -2.9099447290198986e-31,
+      -1.5875752596847198e-17,
+      -5.805781805384901e-31,
+      99.23999999999991
+    ],
+    "last_stable_path_progress": 0.7619999999999274,
+    "first_failure_path_progress": 0.7627999999999273,
+    "confirmed_failure_path_progress": 0.7663999999999269,
+    "failure_detected": true,
+    "reduced_wrench_rmse_mx_my_fz": [
+      3.284335383048398e-16,
+      0.0001246025451452162,
+      0.00011102829988613338
+    ]
+  },
+  {
+    "scenario": "heel_partial",
+    "scenario_label_zh": "后部连续支撑",
+    "support_surface_count_truth": 1,
+    "support_boxes_truth": [
+      {
+        "center_xy_m": [
+          -0.045,
+          0.0
+        ],
+        "size_xy_m": [
+          0.11,
+          0.1
+        ]
+      }
+    ],
+    "sample_count": 397,
+    "reference_active_count": 30,
+    "reference_normal_load_n": 99.23999999999991,
+    "theory_path_progress": 0.47113271252576044,
+    "theory_boundary_wrench_foot": [
+      6.397295589838644e-16,
+      -0.9923998158922149,
+      -1.504134765698627e-28,
+      -1.3033912003997042e-16,
+      -1.9774503035954664e-28,
+      99.23999999999992
+    ],
+    "last_stable_path_progress": 0.4859999999999577,
+    "first_failure_path_progress": 0.48639999999995764,
+    "confirmed_failure_path_progress": 0.48999999999995725,
+    "failure_detected": true,
+    "reduced_wrench_rmse_mx_my_fz": [
+      2.530205074231247e-16,
+      8.512578561798702e-06,
+      0.0005260997539877896
+    ]
+  },
+  {
+    "scenario": "lateral_partial",
+    "scenario_label_zh": "外侧连续支撑",
+    "support_surface_count_truth": 1,
+    "support_boxes_truth": [
+      {
+        "center_xy_m": [
+          0.0,
+          -0.02
+        ],
+        "size_xy_m": [
+          0.2,
+          0.06
+        ]
+      }
+    ],
+    "sample_count": 272,
+    "reference_active_count": 30,
+    "reference_normal_load_n": 99.23999999999998,
+    "theory_path_progress": 0.22212399171698474,
+    "theory_boundary_wrench_foot": [
+      -5.167733297148982e-09,
+      -8.881784196427184e-16,
+      3.6487099093455895e-28,
+      -1.612509002444698e-30,
+      -3.854910820935746e-16,
+      99.24000000000004
+    ],
+    "last_stable_path_progress": 0.23399999999998547,
+    "first_failure_path_progress": 0.23479999999998538,
+    "confirmed_failure_path_progress": 0.23839999999998499,
+    "failure_detected": true,
+    "reduced_wrench_rmse_mx_my_fz": [
+      0.00019103859736995703,
+      4.564995121859099e-16,
+      0.0026441285983788768
+    ]
+  },
+  {
+    "scenario": "missing_corner",
+    "scenario_label_zh": "缺角不规则连续支撑",
+    "support_surface_count_truth": 2,
+    "support_boxes_truth": [
+      {
+        "center_xy_m": [
+          -0.04,
+          0.0
+        ],
+        "size_xy_m": [
+          0.12,
+          0.1
+        ]
+      },
+      {
+        "center_xy_m": [
+          0.06,
+          0.025
+        ],
+        "size_xy_m": [
+          0.08,
+          0.05
+        ]
+      }
+    ],
+    "sample_count": 509,
+    "reference_active_count": 42,
+    "reference_normal_load_n": 99.23999999999997,
+    "theory_path_progress": 0.7102189577938727,
+    "theory_boundary_wrench_foot": [
+      -2.382896140152728,
+      -4.165807672431566,
+      -2.0526401943549512e-20,
+      -7.339283868131964e-18,
+      -1.4806744315242446e-18,
+      99.23999999999998
+    ],
+    "last_stable_path_progress": 0.7079999999999333,
+    "first_failure_path_progress": 0.7091999999999332,
+    "confirmed_failure_path_progress": 0.7127999999999328,
+    "failure_detected": true,
+    "reduced_wrench_rmse_mx_my_fz": [
+      5.505854578878283e-05,
+      4.4017265194134016e-05,
+      0.00031460844961157043
+    ]
+  }
+]

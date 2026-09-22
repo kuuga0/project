@@ -1,0 +1,202 @@
+[
+  {
+    "name": "force_x_positive",
+    "label_zh": "正向切向合力 Fx",
+    "failure_mode": "slip",
+    "unit": "N",
+    "theory_limit": 19.619999978571073,
+    "simulation_failure_load": 20.523827977583917,
+    "simulation_to_theory_ratio": 1.046066666666667,
+    "signed_relative_error": 0.04606666666666682,
+    "failure_time_s": 4.828,
+    "detected": true,
+    "theory_boundary_wrench": [
+      9.71445146547012e-17,
+      0.0,
+      -1.3877787807814457e-16,
+      -19.619999978571077,
+      -1.1839233340242129e-24,
+      39.24
+    ]
+  },
+  {
+    "name": "force_x_negative",
+    "label_zh": "负向切向合力 Fx",
+    "failure_mode": "slip",
+    "unit": "N",
+    "theory_limit": 19.61999997857107,
+    "simulation_failure_load": 20.523827977583913,
+    "simulation_to_theory_ratio": 1.046066666666667,
+    "signed_relative_error": 0.046066666666666825,
+    "failure_time_s": 4.828,
+    "detected": true,
+    "theory_boundary_wrench": [
+      -3.8163916471489756e-17,
+      4.440892098500626e-16,
+      5.377642775528102e-17,
+      19.619999978571084,
+      -1.3036758707032228e-24,
+      39.24000000000001
+    ]
+  },
+  {
+    "name": "force_y_positive",
+    "label_zh": "正向切向合力 Fy",
+    "failure_mode": "slip",
+    "unit": "N",
+    "theory_limit": 19.61999999370908,
+    "simulation_failure_load": 20.319779993484705,
+    "simulation_to_theory_ratio": 1.0356666666666667,
+    "signed_relative_error": 0.03566666666666674,
+    "failure_time_s": 4.78,
+    "detected": true,
+    "theory_boundary_wrench": [
+      2.8449465006019636e-16,
+      -2.7755575615628914e-17,
+      6.938893903907228e-17,
+      2.824007286081416e-25,
+      -19.619999993709072,
+      39.240000000000016
+    ]
+  },
+  {
+    "name": "force_y_negative",
+    "label_zh": "负向切向合力 Fy",
+    "failure_mode": "slip",
+    "unit": "N",
+    "theory_limit": 19.61999999370906,
+    "simulation_failure_load": 20.319779993484687,
+    "simulation_to_theory_ratio": 1.0356666666666667,
+    "signed_relative_error": 0.03566666666666678,
+    "failure_time_s": 4.78,
+    "detected": true,
+    "theory_boundary_wrench": [
+      -1.3183898417423734e-16,
+      1.1102230246251565e-16,
+      -1.0408340855860843e-17,
+      1.3854500303031447e-24,
+      19.61999999370906,
+      39.23999999999998
+    ]
+  },
+  {
+    "name": "moment_x_positive",
+    "label_zh": "正向滚转合力矩 Mx",
+    "failure_mode": "tip",
+    "unit": "N m",
+    "theory_limit": 1.5695999946336505,
+    "simulation_failure_load": 1.6351046344096951,
+    "simulation_to_theory_ratio": 1.0417333333333334,
+    "signed_relative_error": 0.04173333333333349,
+    "failure_time_s": 4.808,
+    "detected": true,
+    "theory_boundary_wrench": [
+      -1.5695999946336536,
+      1.665334126190862e-16,
+      -7.772552963983168e-18,
+      -1.144626395207721e-31,
+      8.558342481725985e-16,
+      39.2399999999999
+    ]
+  },
+  {
+    "name": "moment_x_negative",
+    "label_zh": "负向滚转合力矩 Mx",
+    "failure_mode": "tip",
+    "unit": "N m",
+    "theory_limit": 1.5695999946336532,
+    "simulation_failure_load": 1.6351046344096978,
+    "simulation_to_theory_ratio": 1.0417333333333334,
+    "signed_relative_error": 0.04173333333333342,
+    "failure_time_s": 4.808,
+    "detected": true,
+    "theory_boundary_wrench": [
+      1.5695999946336563,
+      5.551115123125783e-17,
+      -1.2274183573982414e-17,
+      1.1856014874974714e-30,
+      2.3235011057822516e-15,
+      39.24000000000002
+    ]
+  },
+  {
+    "name": "moment_y_positive",
+    "label_zh": "正向俯仰合力矩 My",
+    "failure_mode": "tip",
+    "unit": "N m",
+    "theory_limit": 3.5315999885185767,
+    "simulation_failure_load": 3.7019408279647896,
+    "simulation_to_theory_ratio": 1.0482333333333334,
+    "signed_relative_error": 0.0482333333333334,
+    "failure_time_s": 4.838,
+    "detected": true,
+    "theory_boundary_wrench": [
+      1.1102230246251565e-16,
+      -3.53159998851858,
+      -7.651597309950221e-20,
+      8.961305087490144e-17,
+      -2.3247228919998554e-31,
+      39.24
+    ]
+  },
+  {
+    "name": "moment_y_negative",
+    "label_zh": "负向俯仰合力矩 My",
+    "failure_mode": "tip",
+    "unit": "N m",
+    "theory_limit": 3.531599988518575,
+    "simulation_failure_load": 3.7019408279647874,
+    "simulation_to_theory_ratio": 1.0482333333333334,
+    "signed_relative_error": 0.0482333333333333,
+    "failure_time_s": 4.838,
+    "detected": true,
+    "theory_boundary_wrench": [
+      7.680596248497387e-17,
+      3.531599988518575,
+      -1.6541989116647233e-19,
+      6.2274775417651086e-18,
+      4.074107718857144e-32,
+      39.240000000000016
+    ]
+  },
+  {
+    "name": "moment_z_positive",
+    "label_zh": "正向偏航合力矩 Mz",
+    "failure_mode": "yaw_slip",
+    "unit": "N m",
+    "theory_limit": 1.932345892264911,
+    "simulation_failure_load": 1.9108324413310285,
+    "simulation_to_theory_ratio": 0.9888666666666667,
+    "signed_relative_error": -0.01113333333333328,
+    "failure_time_s": 4.564,
+    "detected": true,
+    "theory_boundary_wrench": [
+      1.1102230246251565e-16,
+      4.440892098500626e-16,
+      -1.9323458922649115,
+      2.220446049250313e-16,
+      -8.881784197001252e-16,
+      39.23999999999998
+    ]
+  },
+  {
+    "name": "moment_z_negative",
+    "label_zh": "负向偏航合力矩 Mz",
+    "failure_mode": "yaw_slip",
+    "unit": "N m",
+    "theory_limit": 1.9323458922649244,
+    "simulation_failure_load": 1.9108324413310416,
+    "simulation_to_theory_ratio": 0.9888666666666667,
+    "signed_relative_error": -0.011133333333333318,
+    "failure_time_s": 4.564,
+    "detected": true,
+    "theory_boundary_wrench": [
+      2.220446049250313e-16,
+      6.661338147750939e-16,
+      1.9323458922649244,
+      0.0,
+      8.881784197001252e-16,
+      39.24000000000001
+    ]
+  }
+]

@@ -1,0 +1,61 @@
+name: stage_b_quasistatic_wrench_sweep
+base_config: configs/bench/stage_b_bench.yml
+settle_duration_s: 0.75
+ramp_duration_s: 6.0
+ramp_to_theory_ratio: 1.30
+failure_persistence_s: 0.04
+failure_thresholds:
+  slip_speed_mps: 0.015
+  tip_angle_rad: 0.017453292519943295
+  yaw_rate_radps: 0.08
+cases:
+  - name: force_x_positive
+    label_zh: 正向切向合力 Fx
+    failure_mode: slip
+    external_wrench_direction: [0, 0, 0, 1, 0, 0]
+    unit: N
+  - name: force_x_negative
+    label_zh: 负向切向合力 Fx
+    failure_mode: slip
+    external_wrench_direction: [0, 0, 0, -1, 0, 0]
+    unit: N
+  - name: force_y_positive
+    label_zh: 正向切向合力 Fy
+    failure_mode: slip
+    external_wrench_direction: [0, 0, 0, 0, 1, 0]
+    unit: N
+  - name: force_y_negative
+    label_zh: 负向切向合力 Fy
+    failure_mode: slip
+    external_wrench_direction: [0, 0, 0, 0, -1, 0]
+    unit: N
+  - name: moment_x_positive
+    label_zh: 正向滚转合力矩 Mx
+    failure_mode: tip
+    external_wrench_direction: [1, 0, 0, 0, 0, 0]
+    unit: N m
+  - name: moment_x_negative
+    label_zh: 负向滚转合力矩 Mx
+    failure_mode: tip
+    external_wrench_direction: [-1, 0, 0, 0, 0, 0]
+    unit: N m
+  - name: moment_y_positive
+    label_zh: 正向俯仰合力矩 My
+    failure_mode: tip
+    external_wrench_direction: [0, 1, 0, 0, 0, 0]
+    unit: N m
+  - name: moment_y_negative
+    label_zh: 负向俯仰合力矩 My
+    failure_mode: tip
+    external_wrench_direction: [0, -1, 0, 0, 0, 0]
+    unit: N m
+  - name: moment_z_positive
+    label_zh: 正向偏航合力矩 Mz
+    failure_mode: yaw_slip
+    external_wrench_direction: [0, 0, 1, 0, 0, 0]
+    unit: N m
+  - name: moment_z_negative
+    label_zh: 负向偏航合力矩 Mz
+    failure_mode: yaw_slip
+    external_wrench_direction: [0, 0, -1, 0, 0, 0]
+    unit: N m

@@ -1,0 +1,19 @@
+name: stage_a_four_point_validation
+frame: foot
+reference_point_m: [0.0, 0.0, 0.0]
+normal: [0.0, 0.0, 1.0]
+tangent_basis:
+  - [1.0, 0.0]
+  - [0.0, 1.0]
+  - [0.0, 0.0]
+contact_points_m:
+  - [0.10, 0.045, 0.0]
+  - [0.10, -0.045, 0.0]
+  - [-0.08, 0.045, 0.0]
+  - [-0.08, -0.045, 0.0]
+active_mask: [true, true, true, true]
+normal_load_n: 400.0
+normal_force_max_n: [160.0, 160.0, 160.0, 160.0]
+friction_coefficients: [0.50, 0.50, 0.50, 0.50]
+solver: CLARABEL
+solver_tolerance: 1.0e-7
