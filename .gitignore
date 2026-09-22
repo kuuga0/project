@@ -1,0 +1,25 @@
+# OS / editor / Python cache
+Thumbs.db
+Desktop.ini
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.env
+
+# Re-generable build output (keep project metadata, source and launch files)
+工程/09_DUAL_M0404_PARSER/Debug/
+工程/09_DUAL_M0404_PARSER/Release/
+实验/foot_contact_wrench_minimal/.coverage
+实验/foot_contact_wrench_minimal/htmlcov/
+
+# Local IDE/user state
+.vscode/
+.idea/
+
+# Generated experiment output remains a candidate until reviewed; do not blanket-ignore
+# models, assets, scenes, outputs, motion.pt, meshes, height_field.png or lock files.
