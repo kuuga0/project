@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-15",
+  "evidence": "assistant-run Windows checks; not H2 or Ubuntu validation",
+  "python": "3.13.12",
+  "python_executable": "E:/miniconda3/python.exe",
+  "mujoco_available": false,
+  "syntax_check": {
+    "target_grammar": "3.11",
+    "exit_code": 0
+  },
+  "tests": {
+    "command": "python -m unittest discover -s 实验/h2_contact_lab/tests -v",
+    "exit_code": 0,
+    "total": 13,
+    "passed": 10,
+    "skipped": 3,
+    "skip_reason": "MuJoCo is absent"
+  },
+  "real_h2_model_run": false,
+  "ubuntu_run": false,
+  "source_sha256": {
+    "scripts/inspect_h2_model.py": "f478e203a9e4abfd6e500253d6a76be60a5755885300afa2939eb6e8ed3edadd",
+    "tests/test_inspect_h2_model.py": "b4db1004d967f972948118b595b004c1aa95cb92ed9bd1dcabd52b4198881c1b"
+  }
+}
