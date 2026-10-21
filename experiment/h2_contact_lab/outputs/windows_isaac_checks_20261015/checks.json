@@ -1,0 +1,70 @@
+{
+  "checked_at_utc": "2026-10-15T05:32:47.909Z",
+  "host": "Windows local assistant checks",
+  "tests": {
+    "exit_code": 0,
+    "total": 34,
+    "passed": 31,
+    "skipped": 3,
+    "skip_reason": "MuJoCo not installed; no installation attempted"
+  },
+  "python": "3.13.12 | packaged by Anaconda, Inc. | (main, Feb 24 2026, 16:05:56) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "win32",
+  "python_311_syntax_files": [
+    "h2_contact/__init__.py",
+    "h2_contact/isaac_runtime.py",
+    "h2_contact/math3d.py",
+    "h2_contact/model.py",
+    "h2_contact/recording.py",
+    "h2_contact/tactile.py",
+    "scripts/inspect_h2_model.py",
+    "scripts/run_h2_contact.py",
+    "scripts/validate_h2_recording.py",
+    "tests/test_h2_contact.py",
+    "tests/test_inspect_h2_model.py"
+  ],
+  "dependencies_present": {
+    "mujoco": false,
+    "isaaclab": false,
+    "isaacsim": false,
+    "torch": false,
+    "numpy": false
+  },
+  "recipe_from_user_inventory": {
+    "joint_count": 31,
+    "body_count": 32,
+    "grid_shapes": {
+      "left": [
+        25,
+        11
+      ],
+      "right": [
+        25,
+        11
+      ]
+    },
+    "root_pose_at_2mm_clearance": [
+      0,
+      0,
+      1.0445215625022746,
+      1,
+      0,
+      0,
+      0
+    ],
+    "source_mass_kg": 71.28785031782905
+  },
+  "cli_help_exit_codes": [
+    {
+      "script": "run_h2_contact.py",
+      "exit_code": 0
+    },
+    {
+      "script": "validate_h2_recording.py",
+      "exit_code": 0
+    }
+  ],
+  "isaac_runtime_executed": false,
+  "h2_model_loaded_here": false,
+  "scope": "Syntax, pure Python math, user-returned inventory mapping, synthetic recorder/CLI checks. Not Isaac simulation, standing, sensor calibration or real H2 data."
+}

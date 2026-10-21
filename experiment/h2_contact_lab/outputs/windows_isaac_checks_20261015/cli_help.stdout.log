@@ -1,0 +1,40 @@
+usage: run_h2_contact.py [-h] --mode {probe,inspect,collect} [--model MODEL]
+                         [--inventory INVENTORY] --output-dir OUTPUT_DIR
+                         [--config CONFIG]
+                         [--sensor-reference SENSOR_REFERENCE]
+                         [--contact-probe CONTACT_PROBE]
+                         [--sole-mode {original,tiled}] [--episodes EPISODES]
+                         [--duration DURATION] [--headless] [--device DEVICE]
+
+Convert/inspect H2, probe PhysX contact reporting, or collect tactile
+trajectories. Run inside the user's EXISTING Isaac Lab environment; --help
+needs only stdlib.
+
+options:
+  -h, --help            show this help message and exit
+  --mode {probe,inspect,collect}
+  --model MODEL         Unmodified source MJCF; required for inspect/collect
+  --inventory INVENTORY
+                        Successful inspect_h2_model.py JSON for this MJCF
+  --output-dir OUTPUT_DIR
+                        NEW directory for USD, logs and records
+  --config CONFIG
+  --sensor-reference SENSOR_REFERENCE
+  --contact-probe CONTACT_PROBE
+                        Successful contact_probe.json; required for collect
+  --sole-mode {original,tiled}
+                        Override configured collision mode
+  --episodes EPISODES   Override episode count
+  --duration DURATION   Override seconds per episode
+  --headless
+  --device DEVICE       Physics device; start with cpu, then probe again for
+                        cuda:0
+
+usage: validate_h2_recording.py [-h] --run-dir RUN_DIR --output OUTPUT
+
+Read a completed recording on any stdlib-only Python, without Isaac or NumPy.
+
+options:
+  -h, --help         show this help message and exit
+  --run-dir RUN_DIR
+  --output OUTPUT    NEW readback JSON

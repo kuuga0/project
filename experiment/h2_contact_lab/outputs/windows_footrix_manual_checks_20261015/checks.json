@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "success": true,
+  "checked_at_utc": "2026-10-15T06:25:44.560Z",
+  "scope": "Windows ordinary tests, Python 3.11 syntax parsing and offline manual-envelope derivation only; no Isaac/H2 simulation or hardware validation",
+  "tests": {
+    "run": 44,
+    "passed": 41,
+    "skipped": 3,
+    "exitcode": 0,
+    "command": "python -X utf8 -m unittest discover -s tests -v",
+    "skip_reason": "MuJoCo absent; no installation attempted"
+  },
+  "syntax": {
+    "python": "3.13.12 | packaged by Anaconda, Inc. | (main, Feb 24 2026, 16:05:56) [MSC v.1942 64 bit (AMD64)]",
+    "syntax_target": "3.11",
+    "python_files_checked": 14,
+    "modules_available": {
+      "mujoco": false,
+      "isaaclab": false,
+      "isaacsim": false
+    },
+    "files": [
+      "h2_contact/__init__.py",
+      "h2_contact/footrix.py",
+      "h2_contact/isaac_runtime.py",
+      "h2_contact/math3d.py",
+      "h2_contact/model.py",
+      "h2_contact/recording.py",
+      "h2_contact/tactile.py",
+      "scripts/inspect_footrix_layout.py",
+      "scripts/inspect_h2_model.py",
+      "scripts/run_h2_contact.py",
+      "scripts/validate_h2_recording.py",
+      "tests/test_footrix.py",
+      "tests/test_h2_contact.py",
+      "tests/test_inspect_h2_model.py"
+    ]
+  },
+  "manual_source": {
+    "kind": "user_supplied_manufacturer_manual",
+    "filename": "足底多维触觉传感器-用户手册-20260915.pdf",
+    "relative_to_project": "../share/产品资料/帕西尼传感/PXSR-STDSL04A 标准版足底传感器/PXSR-STDSL04A 标准版足底传感器/【03】说明书/足底多维触觉传感器-用户手册-20260915.pdf",
+    "sha256": "dcabf7a3816ac656bf70de086bb51638c34a433b9b91ff833d977eb3a820fe06",
+    "size_bytes": 1507455,
+    "reviewed_on": "2026-10-15",
+    "page_numbering": "printed pages; PDF page = printed page + 3",
+    "sections": {
+      "model_and_dimensions": "1.3 / p1; 2.1 / p3",
+      "specifications": "1.4 / p2",
+      "layout": "2.3 / p3",
+      "regions": "3.1 / p4",
+      "spi": "4.2 / p6-7",
+      "registers": "4.3.2 / p8"
+    },
+    "runtime_dependency": false,
+    "supersedes": "Earlier generic PX-FOOTRIX webshop reference; original implementation check logs are retained"
+  },
+  "layout": {
+    "exitcode": 0,
+    "virtual_shape_xy": [
+      22,
+      9
+    ],
+    "virtual_cells_per_foot": 198,
+    "collision_tiles_per_foot": 275,
+    "hardware_taxel_count": null
+  },
+  "git_diff_check": {
+    "exitcode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "not_run": [
+    "Isaac loading and contact probe",
+    "H2 standing or recording",
+    "FOOTRIX physical device, SPI, calibration",
+    "H2 Plus model matching"
+  ],
+  "implementation": [
+    {
+      "path": "h2_contact/footrix.py",
+      "sha256": "12e7f96cf6c96c7a6f1081dc6f74d4e77f9333edcade1d567ecf90261c5b3e78"
+    },
+    {
+      "path": "h2_contact/tactile.py",
+      "sha256": "7d38e15879bbfef151bcc9f1eaee6a3678ea8e2d685259e976868de638d2a364"
+    },
+    {
+      "path": "h2_contact/model.py",
+      "sha256": "86b1cf159e8e36a48f1c376241910e77ab7ec78f012fe2ba8bad2787092be46e"
+    },
+    {
+      "path": "h2_contact/recording.py",
+      "sha256": "4ada7262ffde3202a9959b16077ded634e7e9bc057f2c715cb3d858793b0d233"
+    },
+    {
+      "path": "h2_contact/isaac_runtime.py",
+      "sha256": "1ed3614b5bfcfa848efb0c9567860f0a85eb52116dbce56884c06492ea37bae4"
+    },
+    {
+      "path": "h2_contact/__init__.py",
+      "sha256": "386b4599129780546f4ace3da56ac8d374fe4409c3b330a1a3d450e7e11d0565"
+    },
+    {
+      "path": "scripts/run_h2_contact.py",
+      "sha256": "941fa92589b73b764886a9912bdfba4ce06d6ba69d8c60d2993555c660bd7ba4"
+    },
+    {
+      "path": "scripts/inspect_footrix_layout.py",
+      "sha256": "0b212d263fbaed39031d5fa32f6ee848a2bd0bbd56369ead46e76156c14f58a2"
+    },
+    {
+      "path": "tests/test_footrix.py",
+      "sha256": "ee06bf1c0c683b1a126e2bb84a923206d9eeec920b8732bad1be8f258f0d21ee"
+    },
+    {
+      "path": "tests/test_h2_contact.py",
+      "sha256": "fc013f864a63d5128debdae23985a59e1fc6842594fb5b91f4da4eef7b141a47"
+    },
+    {
+      "path": "configs/footrix_reference.json",
+      "sha256": "71b4e35857b10af7590aff1ecb2bfe91b252102295a4d858fb2e3d0d05446d45"
+    }
+  ]
+}

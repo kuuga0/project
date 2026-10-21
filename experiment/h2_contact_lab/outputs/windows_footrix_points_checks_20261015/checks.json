@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "success": true,
+  "checked_at_utc": "2026-10-15T08:18:50.007Z",
+  "scope": "Windows ordinary tests, Python 3.11 syntax and image-point extraction/embedding only; no Isaac/H2 simulation or hardware calibration",
+  "tests": {
+    "run": 52,
+    "passed": 49,
+    "skipped": 3,
+    "exitcode": 0,
+    "command": "python -X utf8 -m unittest discover -s tests -v",
+    "skip_reason": "MuJoCo absent; no installation attempted"
+  },
+  "syntax": {
+    "python": "3.13.12 | packaged by Anaconda, Inc. | (main, Feb 24 2026, 16:05:56) [MSC v.1942 64 bit (AMD64)]",
+    "syntax_target": "3.11",
+    "files": [
+      "h2_contact/__init__.py",
+      "h2_contact/footrix.py",
+      "h2_contact/isaac_runtime.py",
+      "h2_contact/math3d.py",
+      "h2_contact/model.py",
+      "h2_contact/recording.py",
+      "h2_contact/tactile.py",
+      "scripts/inspect_footrix_layout.py",
+      "scripts/inspect_h2_model.py",
+      "scripts/run_h2_contact.py",
+      "scripts/validate_h2_recording.py",
+      "tests/test_footrix.py",
+      "tests/test_footrix_points.py",
+      "tests/test_h2_contact.py",
+      "tests/test_inspect_h2_model.py"
+    ],
+    "modules_available": {
+      "mujoco": false,
+      "isaaclab": false,
+      "isaacsim": false
+    }
+  },
+  "image_source": {
+    "kind": "user_supplied_point_diagram",
+    "filename": "codex-clipboard-53c26e68-5fff-4085-be45-135486ed52a4.png",
+    "sha256": "86c2e0d2c28762a00fa0c499c703d10093383319efc29b98f1c59c0d7251aedb",
+    "image_size_px": [
+      512,
+      1072
+    ],
+    "user_confirmed_side": "left",
+    "user_confirmed_top": "forefoot",
+    "runtime_dependency": false
+  },
+  "image_extraction": {
+    "method": "8-connected teal components; R<100, G>70, B>70, G-R>35, B-R>35; pixel centroid",
+    "point_count": 154,
+    "component_pixel_area_range": [
+      68,
+      85
+    ],
+    "index_order": "ascending image pixel y, then pixel x; img_000...; NOT hardware register order",
+    "source_unchanged": true
+  },
+  "layout": {
+    "schema": 3,
+    "site_count_per_foot": 154,
+    "array_shape": [
+      154,
+      3
+    ],
+    "left_orientation": "user confirmed left / forefoot at top",
+    "right": "unverified mirrored simulation assumption",
+    "metric_coordinates": "estimated from manual dimensions and explicit margins",
+    "hardware_register_ids": null
+  },
+  "git_diff_check": {
+    "exitcode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "not_run": [
+    "Isaac contact probe and H2 loading",
+    "standing or physical data capture",
+    "hardware calibration, packet decoding or right-foot matching",
+    "H2 Plus matching"
+  ],
+  "implementation": [
+    {
+      "path": "h2_contact/__init__.py",
+      "sha256": "4ce04c8e622e0dba99f2cd78a95be0c0357358d5b8402f6bfc6ef380b7774ef3"
+    },
+    {
+      "path": "h2_contact/footrix.py",
+      "sha256": "d2ef14d88dae0a035e7a84c04aa09d0d8c9457ae6e7b874ca75211bcbb781438"
+    },
+    {
+      "path": "h2_contact/isaac_runtime.py",
+      "sha256": "6302a5b7f9cabcfd743775b88e89ecaa44af6be3cfbd223ba61e38217a8a6b9f"
+    },
+    {
+      "path": "h2_contact/math3d.py",
+      "sha256": "bed2f55bd1eaa7edd6e2aef231ce36b40316ba5dd9bce68ac46bf8d3186ae2a6"
+    },
+    {
+      "path": "h2_contact/model.py",
+      "sha256": "86b1cf159e8e36a48f1c376241910e77ab7ec78f012fe2ba8bad2787092be46e"
+    },
+    {
+      "path": "h2_contact/recording.py",
+      "sha256": "5288ebbbf0fd1c02a95c30fc415ca3258a560936800a07c1e0bbca8070b141c3"
+    },
+    {
+      "path": "h2_contact/tactile.py",
+      "sha256": "63cb9f6396f3e4d020a4ea4d9e1173c5a585f97a8cac7339a89c3eedba536680"
+    },
+    {
+      "path": "scripts/inspect_footrix_layout.py",
+      "sha256": "32d6399efeee1f5d9c07c34f449c19c2589357f1826ce63e2aa9f0070713f262"
+    },
+    {
+      "path": "scripts/inspect_h2_model.py",
+      "sha256": "f478e203a9e4abfd6e500253d6a76be60a5755885300afa2939eb6e8ed3edadd"
+    },
+    {
+      "path": "scripts/run_h2_contact.py",
+      "sha256": "941fa92589b73b764886a9912bdfba4ce06d6ba69d8c60d2993555c660bd7ba4"
+    },
+    {
+      "path": "scripts/validate_h2_recording.py",
+      "sha256": "31f3fefc93551b968c552585eb4629691ac27132ab18e0889082f5d1ff65e2e0"
+    },
+    {
+      "path": "tests/test_footrix.py",
+      "sha256": "8d05ca394ec5bd10a318e70804ebfa4924f25d2e7df540253c4019ef8d7b98a8"
+    },
+    {
+      "path": "tests/test_footrix_points.py",
+      "sha256": "1566cb814d62220e1b652d63032b2e3225354e9c236c5e4abef90ed158454789"
+    },
+    {
+      "path": "tests/test_h2_contact.py",
+      "sha256": "fc013f864a63d5128debdae23985a59e1fc6842594fb5b91f4da4eef7b141a47"
+    },
+    {
+      "path": "tests/test_inspect_h2_model.py",
+      "sha256": "b4db1004d967f972948118b595b004c1aa95cb92ed9bd1dcabd52b4198881c1b"
+    },
+    {
+      "path": "configs/footrix_reference.json",
+      "sha256": "0805272e5c295f5d4084547ceb5a5e0e318e21341c296afed931f19e9e8b31e1"
+    },
+    {
+      "path": "configs/footrix_manual_envelope.json",
+      "sha256": "71b4e35857b10af7590aff1ecb2bfe91b252102295a4d858fb2e3d0d05446d45"
+    }
+  ]
+}
