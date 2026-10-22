@@ -1,7 +1,7 @@
 H2 Plus Isaac Lab 环境说明
 ==========================
 
-用户现有 Ubuntu 环境已经包含采集器需要的运行时。此前记录的版本为 Python 3.11、Isaac Lab 2.3.2、Isaac Sim 5.1.0 和 PyTorch 2.7.0+cu126；本轮未重新连接 Ubuntu 核验。
+用户现有 Ubuntu 环境已经包含采集器需要的运行时；当前开发受限于 Windows，实际运行将等代码准备完成后统一进行。此前记录的版本为 Python 3.11、Isaac Lab 2.3.2、Isaac Sim 5.1.0 和 PyTorch 2.7.0+cu126；本轮未重新连接 Ubuntu 核验。
 
 本项目在 Isaac 环境之外只用 Python 标准库，没有额外 pip 依赖。`requirements.txt` 因此保留为注释说明，没有可安装的包；已有环境直接激活即可，**不需要运行 pip install -r 来重装 Isaac**。
 

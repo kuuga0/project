@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Load H2 Plus in Isaac Lab and collect a compact joint/root/contact trajectory."""
+"""Load H2 Plus, author terrain scenes, and collect joint/root/contact trajectories."""
 
 from __future__ import annotations
 
@@ -19,6 +19,208 @@ PROJECT_DIR = LAB_DIR.parents[1]
 DEFAULT_URDF = PROJECT_DIR / "experiment" / "robot_asset" / "h2_plus" / "H2_Plus_with_footrix_no_dex_hands.urdf"
 DEFAULT_OUTPUT_ROOT = LAB_DIR / "outputs" / "h2_plus_runs"
 EXPECTED_REVOLUTE_JOINTS = 31
+
+def _rigid_surface(name, size_m, local_position_m, friction, color):
+    return {
+        "name": name,
+        "size_m": size_m,
+        "local_position_m": local_position_m,
+        "static_friction": friction[0],
+        "dynamic_friction": friction[1],
+        "color": color,
+    }
+
+
+TERRAIN_VARIANTS = (
+    {
+        "name": "ordinary_hard",
+        "description": "完整普通硬地基线；保留正常支撑，不故意削弱基线。",
+        "physics_model": "rigid_static_ground",
+        "surfaces": (
+            _rigid_surface("ground", (4.0, 4.0, 0.10), (0.0, 0.0, -0.05), (0.8, 0.7), (0.38, 0.38, 0.38)),
+        ),
+    },
+    {
+        "name": "low_friction_and_difference",
+        "description": "同一几何下正Y侧低摩擦、负Y侧普通摩擦；用于左右异质支撑预览。",
+        "physics_model": "rigid_static_two_friction_regions",
+        "surfaces": (
+            _rigid_surface("positive_y_low_friction", (4.0, 2.0, 0.10), (0.0, 1.0, -0.05), (0.25, 0.20), (0.25, 0.43, 0.62)),
+            _rigid_surface("negative_y_ordinary_friction", (4.0, 2.0, 0.10), (0.0, -1.0, -0.05), (0.8, 0.7), (0.42, 0.48, 0.52)),
+        ),
+    },
+    {
+        "name": "mild_deformable_covering_proxy",
+        "description": "有限厚度家用铺设外形预览；当前碰撞体是刚性代理，不模拟压缩、剪切、倾转或恢复。",
+        "physics_model": "rigid_static_proxy_deformable_material_not_configured",
+        "surfaces": (
+            _rigid_surface("finite_thickness_mat", (3.0, 3.0, 0.06), (0.0, 0.0, 0.03), (0.65, 0.55), (0.55, 0.35, 0.22)),
+        ),
+    },
+    {
+        "name": "local_support_edge",
+        "description": "相邻完整支撑面之间设置小高度差，表现边缘／接缝附近的局部支撑变化。",
+        "physics_model": "rigid_static_adjacent_panels_with_height_offset",
+        "surfaces": (
+            _rigid_surface("lower_panel", (2.0, 4.0, 0.10), (-1.0, 0.0, -0.05), (0.8, 0.7), (0.42, 0.42, 0.42)),
+            _rigid_surface("raised_panel_25mm", (2.0, 4.0, 0.10), (1.0, 0.0, -0.025), (0.8, 0.7), (0.58, 0.58, 0.58)),
+        ),
+    },
+)
+def make_terrain_layouts(spacing: float, root_height: float) -> list[dict]:
+    """Build a serializable four-terrain scene plan without importing Isaac Lab."""
+    if not math.isfinite(spacing) or spacing < 4.5:
+        raise ValueError("terrain spacing must be finite and at least 4.5 m")
+    if not math.isfinite(root_height) or root_height <= 0:
+        raise ValueError("root height must be finite and positive")
+    layouts = []
+    for index, variant in enumerate(TERRAIN_VARIANTS):
+        offset_x = index * spacing
+        surfaces = []
+        for surface in variant["surfaces"]:
+            surfaces.append({
+                **surface,
+                "world_position_m": (
+                    offset_x + surface["local_position_m"][0],
+                    surface["local_position_m"][1],
+                    surface["local_position_m"][2],
+                ),
+            })
+        layouts.append({
+            "name": variant["name"],
+            "description": variant["description"],
+            "physics_model": variant["physics_model"],
+            "world_offset_m": (offset_x, 0.0, 0.0),
+            "robot_prim_path": f"/World/Robots/{variant['name']}",
+            "robot_root_position_m": (offset_x, 0.0, root_height),
+            "terrain_prim_path": f"/World/TerrainVariants/{variant['name']}",
+            "surfaces": surfaces,
+        })
+    return layouts
+
+
+def validate_terrain_runtime_parameters(args) -> None:
+    """Validate values used to initialize a terrain-only stage."""
+    if not math.isfinite(args.physics_hz) or args.physics_hz <= 0:
+        raise ValueError("physics-hz must be finite and positive")
+    for name in ("position_stiffness", "position_damping"):
+        value = getattr(args, name)
+        if not math.isfinite(value) or value < 0:
+            raise ValueError(f"{name.replace('_', '-')} must be finite and non-negative")
+
+
+def _default_terrain_output_dir() -> Path:
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    root = LAB_DIR / "outputs" / "h2_plus_terrain_scenes"
+    candidate = root / stamp
+    suffix = 0
+    while candidate.exists():
+        suffix += 1
+        candidate = root / f"{stamp}_{suffix:02d}"
+    return candidate
+
+
+def generate_terrain_scene(args, audit: dict, layouts: list[dict]) -> Path:
+    """Author a USD stage with terrain and robot references; do not run simulation."""
+    from isaaclab.app import AppLauncher
+
+    output = (args.output_dir.expanduser().resolve() if args.output_dir else _default_terrain_output_dir())
+    if output.exists():
+        raise FileExistsError(f"Output directory already exists: {output}")
+    output.mkdir(parents=True, exist_ok=False)
+    simulation_app = AppLauncher(args).app
+    try:
+        import isaaclab
+        import isaaclab.sim as sim_utils
+        from isaaclab.sim.converters import UrdfConverter, UrdfConverterCfg
+
+        usd_dir = args.usd_dir.expanduser().resolve()
+        usd_dir.mkdir(parents=True, exist_ok=True)
+        converter = UrdfConverter(UrdfConverterCfg(
+            asset_path=str(audit["path"]),
+            usd_dir=str(usd_dir),
+            usd_file_name="H2_Plus_sensorized.usd",
+            force_usd_conversion=True,
+            fix_base=False,
+            merge_fixed_joints=False,
+            self_collision=False,
+            joint_drive=UrdfConverterCfg.JointDriveCfg(target_type="none"),
+        ))
+        usd_path = Path(converter.usd_path)
+        sim = sim_utils.SimulationContext(sim_utils.SimulationCfg(dt=1.0 / args.physics_hz, device=args.device))
+        light = sim_utils.DomeLightCfg(intensity=1500.0, color=(0.8, 0.8, 0.8))
+        light.func("/World/Light", light)
+        for layout in layouts:
+            for surface in layout["surfaces"]:
+                cfg = sim_utils.CuboidCfg(
+                    size=surface["size_m"],
+                    collision_props=sim_utils.CollisionPropertiesCfg(),
+                    physics_material=sim_utils.RigidBodyMaterialCfg(
+                        static_friction=surface["static_friction"],
+                        dynamic_friction=surface["dynamic_friction"],
+                    ),
+                    visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=surface["color"]),
+                )
+                cfg.func(
+                    f"{layout['terrain_prim_path']}/{surface['name']}",
+                    cfg,
+                    translation=surface["world_position_m"],
+                )
+            robot_spawn = sim_utils.UsdFileCfg(usd_path=str(usd_path), activate_contact_sensors=True)
+            robot_spawn.func(
+                layout["robot_prim_path"],
+                robot_spawn,
+                translation=layout["robot_root_position_m"],
+            )
+        center_x = (len(layouts) - 1) * args.terrain_spacing / 2.0
+        sim.set_camera_view(eye=(center_x, 9.0, 7.0), target=(center_x, 0.0, 0.7))
+        # The USD robot references retain their authored root transforms. No reset or step is needed.
+
+        scene_path = output / "h2_plus_four_terrain_variants.usd"
+        if not sim.stage.Export(str(scene_path)) or not scene_path.is_file():
+            raise RuntimeError(f"Failed to export terrain scene: {scene_path}")
+        metadata = {
+            "schema_version": 1,
+            "scene_status": "authored_no_physics_steps",
+            "physics_steps": 0,
+            "simulation_context_reset": False,
+            "simulation_step_called": False,
+            "runtime": {
+                "isaaclab": getattr(isaaclab, "__version__", "unknown"),
+                "device": args.device,
+            },
+            "source": {
+                "urdf": audit["path"].as_posix(),
+                "urdf_sha256": _sha256(audit["path"]),
+                "usd": usd_path.as_posix(),
+                "usd_sha256": _sha256(usd_path),
+                "generator_script_sha256": _sha256(Path(__file__).resolve()),
+                "meshes": [
+                    {"reference": reference, "path": mesh_path.as_posix(), "sha256": _sha256(mesh_path)}
+                    for reference, mesh_path in audit["meshes"]
+                ],
+            },
+            "scene": scene_path.as_posix(),
+            "terrain_spacing_m": args.terrain_spacing,
+            "robot_root_height_m": args.root_height,
+            "terrain_variants": layouts,
+            "limitations": [
+                "Scene geometry and robot USD references are authored; no simulation reset or physics time step was run.",
+                "The finite-thickness covering currently uses a rigid static collision proxy; deformable response is not configured.",
+                "Friction coefficients and the 25 mm support offset are scene parameters, not measurements of household surfaces.",
+                "Robot Articulation runtime loading is unverified; a saved initial pose does not establish contact or standing capability.",
+            ],
+        }
+        _write_json(output / "terrain_manifest.json", metadata)
+        print(f"Terrain scene saved: {scene_path}")
+        print(f"Variants: {', '.join(item['name'] for item in layouts)}")
+        print("Physics steps: 0; no simulation reset or step was called.")
+        print(f"Manifest: {output / 'terrain_manifest.json'}")
+        return scene_path
+    finally:
+        simulation_app.close()
+
+
 DEX_HAND_NAME = re.compile(r"finger|thumb|index|middle|ring|pinky|sharpa|_mcp|_pip|_dip|elastomer", re.I)
 
 
@@ -32,8 +234,14 @@ def inspect_urdf(path: Path) -> dict:
         raise ValueError(f"Expected a URDF <robot> root, got <{root.tag}>")
 
     links = [item.get("name", "") for item in root.findall("link")]
+    if not all(links):
+        raise ValueError("URDF contains a link without a name")
     if len(links) != len(set(links)):
         raise ValueError("URDF contains duplicate link names")
+    joint_nodes = root.findall("joint")
+    joint_names = [node.get("name", "") for node in joint_nodes]
+    if not all(joint_names) or len(joint_names) != len(set(joint_names)):
+        raise ValueError("URDF joint names must be present and unique")
     link_set = set(links)
 
     joints = []
@@ -52,7 +260,10 @@ def inspect_urdf(path: Path) -> dict:
             limit = node.find("limit")
             if limit is None or limit.get("effort") is None:
                 raise ValueError(f"Revolute joint {name!r} has no effort limit")
-            joints.append({"name": name, "effort_limit": float(limit.get("effort"))})
+            effort_limit = float(limit.get("effort"))
+            if not math.isfinite(effort_limit) or effort_limit <= 0:
+                raise ValueError(f"Revolute joint {name!r} has invalid effort limit {effort_limit}")
+            joints.append({"name": name, "effort_limit": effort_limit})
 
     if len(child_links) != len(set(child_links)):
         raise ValueError("URDF gives a link more than one parent joint")
@@ -107,10 +318,13 @@ def inspect_urdf(path: Path) -> dict:
 
 def make_parser(AppLauncher=None) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mode", choices=("check", "smoke", "collect"), default="check")
+    parser.add_argument("--mode", choices=("check", "smoke", "collect", "validate", "terrain"), default="check")
     parser.add_argument("--urdf", type=Path, default=DEFAULT_URDF)
     parser.add_argument("--usd-dir", type=Path, default=LAB_DIR / "outputs" / "h2_plus_usd")
     parser.add_argument("--output-dir", type=Path, default=None)
+    parser.add_argument("--run-dir", type=Path, default=None, help="Existing collect output directory for validate mode")
+    parser.add_argument("--terrain-spacing", type=float, default=6.0, help="Spacing between terrain variants in the generated scene [m]")
+    parser.add_argument("--dry-run", action="store_true", help="Print and validate a terrain scene plan without launching Isaac Lab")
     parser.add_argument("--duration", type=float, default=10.0, help="Simulation duration for collect mode")
     parser.add_argument("--physics-hz", type=float, default=240.0)
     parser.add_argument("--record-hz", type=float, default=60.0)
@@ -178,6 +392,200 @@ def _default_output_dir() -> Path:
     return candidate
 
 
+def _strict_json_loads(text: str):
+    def reject_constant(value):
+        raise ValueError(f"non-standard JSON constant: {value}")
+    return json.loads(text, parse_constant=reject_constant)
+
+
+def _finite_vector(value, size: int) -> bool:
+    return isinstance(value, list) and len(value) == size and all(
+        isinstance(item, (int, float)) and math.isfinite(item) for item in value
+    )
+
+
+def validate_run(run_dir: Path) -> dict:
+    """Validate a completed collect run using only the Python standard library."""
+    run_dir = run_dir.expanduser().resolve()
+    metadata_path, trajectory_path = run_dir / "metadata.json", run_dir / "trajectory.jsonl"
+    if not metadata_path.is_file() or not trajectory_path.is_file():
+        raise FileNotFoundError(f"Expected metadata.json and trajectory.jsonl in {run_dir}")
+    try:
+        metadata = _strict_json_loads(metadata_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, ValueError) as error:
+        return {"success": False, "run_dir": run_dir.as_posix(), "errors": [f"invalid metadata.json: {error}"]}
+    if not isinstance(metadata, dict):
+        return {"success": False, "run_dir": run_dir.as_posix(), "errors": ["metadata root must be a JSON object"]}
+    errors = []
+    if metadata.get("mode") != "collect":
+        errors.append(f"mode must be 'collect', got {metadata.get('mode')!r}")
+    if metadata.get("run_status") != "complete":
+        errors.append(f"run_status must be 'complete', got {metadata.get('run_status')!r}")
+
+    joint_info = metadata.get("joints")
+    if not isinstance(joint_info, dict):
+        joint_info = {}
+    joint_names = joint_info.get("names_in_articulation_order")
+    if not isinstance(joint_names, list) or not joint_names or not all(isinstance(n, str) for n in joint_names):
+        errors.append("metadata has no valid Articulation joint-name order")
+        joint_count = 0
+    else:
+        joint_count = len(joint_names)
+
+    sampling = metadata.get("sampling", {})
+    if not isinstance(sampling, dict):
+        sampling = {}
+    try:
+        physics_hz = float(sampling["physics_hz"])
+        record_hz = float(sampling["record_hz"])
+        stride = int(sampling["record_stride_physics_steps"])
+        duration = float(sampling["requested_duration_s"])
+        if min(physics_hz, record_hz, duration) <= 0 or stride < 1:
+            raise ValueError("sampling values must be positive")
+        if not math.isclose(physics_hz / stride, record_hz, rel_tol=1e-8):
+            raise ValueError("record_hz does not match physics_hz / stride")
+    except (KeyError, TypeError, ValueError, ZeroDivisionError) as error:
+        errors.append(f"invalid sampling metadata: {error}")
+        physics_hz = record_hz = duration = 0.0
+        stride = 0
+
+    source = metadata.get("source", {})
+    if not isinstance(source, dict):
+        source = {}
+    for name in ("urdf_sha256", "usd_sha256", "collector_script_sha256"):
+        digest = source.get(name)
+        if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+            errors.append(f"invalid or missing source digest: {name}")
+    meshes = source.get("meshes")
+    if not isinstance(meshes, list) or not meshes:
+        errors.append("metadata has no mesh asset digests")
+    else:
+        for index, mesh in enumerate(meshes):
+            digest = mesh.get("sha256") if isinstance(mesh, dict) else None
+            if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+                errors.append(f"invalid mesh digest at index {index}")
+
+    state_vectors = {
+        "command_joint_pos_rad": joint_count, "joint_pos_rad": joint_count,
+        "joint_vel_rad_s": joint_count, "root_pos_w_m": 3, "root_quat_wxyz": 4,
+        "root_lin_vel_w_m_s": 3, "root_ang_vel_w_rad_s": 3,
+    }
+    contact_vectors = (
+        "left_foot_net_normal_force_w_n", "right_foot_net_normal_force_w_n",
+        "left_foot_ground_normal_force_w_n", "right_foot_ground_normal_force_w_n",
+        "left_foot_ground_friction_force_w_n", "right_foot_ground_friction_force_w_n",
+        "left_foot_average_ground_contact_pos_w_m", "right_foot_average_ground_contact_pos_w_m",
+    )
+    rows, previous_time, previous_step = [], None, None
+    with trajectory_path.open("r", encoding="utf-8") as stream:
+        for line_number, line in enumerate(stream, 1):
+            if not line.strip():
+                errors.append(f"blank JSONL row at line {line_number}")
+                continue
+            try:
+                row = _strict_json_loads(line)
+            except (json.JSONDecodeError, ValueError) as error:
+                errors.append(f"invalid JSONL at line {line_number}: {error}")
+                continue
+            if not isinstance(row, dict):
+                errors.append(f"JSONL row {line_number} is not an object")
+                continue
+            rows.append(row)
+            if row.get("sample_index") != len(rows) - 1:
+                errors.append(f"non-consecutive sample_index at line {line_number}")
+            try:
+                sim_time, step = float(row["simulation_time_s"]), int(row["physics_step"])
+                if not math.isfinite(sim_time) or sim_time <= 0:
+                    raise ValueError("simulation time must be finite and positive")
+                if previous_time is not None and sim_time <= previous_time:
+                    errors.append(f"simulation time is not increasing at line {line_number}")
+                if previous_step is not None and step - previous_step != stride:
+                    errors.append(f"physics step spacing differs from stride at line {line_number}")
+                if step < 1 or (stride and (step - 1) % stride != 0):
+                    errors.append(f"physics_step does not match record stride at line {line_number}")
+                if physics_hz and not math.isclose(sim_time, step / physics_hz, rel_tol=1e-7, abs_tol=1e-9):
+                    errors.append(f"simulation_time_s does not match physics_step at line {line_number}")
+                previous_time, previous_step = sim_time, step
+            except (KeyError, TypeError, ValueError, OverflowError) as error:
+                errors.append(f"invalid time/step at line {line_number}: {error}")
+            for name, size in state_vectors.items():
+                if not _finite_vector(row.get(name), size):
+                    errors.append(f"invalid {name} vector at line {line_number}")
+            for name in contact_vectors:
+                value = row.get(name)
+                if value is not None and not _finite_vector(value, 3):
+                    errors.append(f"invalid {name} contact vector at line {line_number}")
+            for side in ("left", "right"):
+                valid = row.get(f"{side}_foot_ground_contact_valid")
+                position = row.get(f"{side}_foot_average_ground_contact_pos_w_m")
+                if not isinstance(valid, bool):
+                    errors.append(f"missing {side} contact-valid flag at line {line_number}")
+                elif valid != _finite_vector(position, 3):
+                    errors.append(f"{side} contact-valid flag disagrees with contact position at line {line_number}")
+                elif valid:
+                    for field in (f"{side}_foot_ground_normal_force_w_n", f"{side}_foot_ground_friction_force_w_n"):
+                        if not _finite_vector(row.get(field), 3):
+                            errors.append(f"valid {side} contact lacks finite {field} at line {line_number}")
+
+    expected_steps = round(duration * physics_hz) if physics_hz else 0
+    expected_records = math.ceil(expected_steps / stride) if stride and expected_steps else 0
+    if not rows:
+        errors.append("trajectory contains no samples")
+    if metadata.get("steps_completed") != expected_steps:
+        errors.append(f"completed steps {metadata.get('steps_completed')} != requested {expected_steps}")
+    if metadata.get("records_written") != len(rows):
+        errors.append(f"metadata record count {metadata.get('records_written')} != JSONL rows {len(rows)}")
+    if expected_records and len(rows) != expected_records:
+        errors.append(f"JSONL rows {len(rows)} != expected {expected_records}")
+    if rows and expected_steps and previous_step != expected_steps - ((expected_steps - 1) % stride):
+        errors.append("last recorded physics_step does not match requested duration")
+    contact_summary = {}
+    for side in ("left", "right"):
+        valid_count = sum(row.get(f"{side}_foot_ground_contact_valid") is True for row in rows)
+        normal_peaks, friction_peaks = [], []
+        for row in rows:
+            for field, target in ((f"{side}_foot_ground_normal_force_w_n", normal_peaks),
+                                  (f"{side}_foot_ground_friction_force_w_n", friction_peaks)):
+                vector = row.get(field)
+                if _finite_vector(vector, 3):
+                    target.append(math.sqrt(sum(value * value for value in vector)))
+        contact_summary[side] = {
+            "valid_samples": valid_count,
+            "valid_fraction": valid_count / len(rows) if rows else 0.0,
+            "peak_filtered_normal_force_norm_n": max(normal_peaks, default=None),
+            "peak_filtered_friction_force_norm_n": max(friction_peaks, default=None),
+        }
+
+    root_heights = [row["root_pos_w_m"][2] for row in rows if _finite_vector(row.get("root_pos_w_m"), 3)]
+    root_linear_speeds = [math.sqrt(sum(v * v for v in row["root_lin_vel_w_m_s"]))
+                           for row in rows if _finite_vector(row.get("root_lin_vel_w_m_s"), 3)]
+    root_angular_speeds = [math.sqrt(sum(v * v for v in row["root_ang_vel_w_rad_s"]))
+                           for row in rows if _finite_vector(row.get("root_ang_vel_w_rad_s"), 3)]
+    joint_ranges = {}
+    for index, name in enumerate(joint_names if joint_count else []):
+        values = [row["joint_pos_rad"][index] for row in rows
+                  if _finite_vector(row.get("joint_pos_rad"), joint_count)]
+        if values:
+            joint_ranges[name] = {"min_rad": min(values), "max_rad": max(values)}
+
+    return {
+        "success": not errors, "run_dir": run_dir.as_posix(),
+        "run_status": metadata.get("run_status"), "steps_completed": metadata.get("steps_completed"),
+        "records_written": len(rows), "expected_records": expected_records,
+        "joint_count": joint_count,
+        "summary": {
+            "simulated_duration_s": previous_time,
+            "root_height_min_m": min(root_heights, default=None),
+            "root_height_max_m": max(root_heights, default=None),
+            "root_linear_speed_peak_m_s": max(root_linear_speeds, default=None),
+            "root_angular_speed_peak_rad_s": max(root_angular_speeds, default=None),
+            "joint_position_ranges": joint_ranges,
+            "foot_contacts": contact_summary,
+        },
+        "errors": errors,
+    }
+
+
 def _contact_sensor(ContactSensor, ContactSensorCfg, robot_prim: str, side: str):
     return ContactSensor(ContactSensorCfg(
         prim_path=f"{robot_prim}/.*{side}_ankle_pitch_link",
@@ -190,22 +598,17 @@ def _contact_sensor(ContactSensor, ContactSensorCfg, robot_prim: str, side: str)
     ))
 
 
-def main(argv=None) -> int:
-    check_args, _ = make_parser().parse_known_args(argv)
-    if check_args.mode == "check":
-        audit = inspect_urdf(check_args.urdf)
-        print(f"URDF check passed: root={audit['root_link']}, links={audit['link_count']}, "
-              f"revolute_joints={len(audit['joint_names'])}, meshes={audit['mesh_count']}")
-        print("URDF:", audit["path"])
-        if audit["imu_links"]:
-            print("IMU-like links:", ", ".join(audit["imu_links"]))
-        else:
-            print("IMU: no link/frame in URDF; no IMU reading will be synthesized")
-        return 0
-
-    from isaaclab.app import AppLauncher
-
-    args = make_parser(AppLauncher).parse_args(argv)
+def validate_runtime_parameters(args) -> tuple[int, float]:
+    """Validate simulation CLI values without importing Isaac Lab."""
+    numeric_inputs = {
+        "duration": args.duration, "physics-hz": args.physics_hz, "record-hz": args.record_hz,
+        "root-height": args.root_height, "position-stiffness": args.position_stiffness,
+        "position-damping": args.position_damping, "perturb-amplitude": args.perturb_amplitude,
+        "perturb-frequency": args.perturb_frequency,
+    }
+    non_finite = [name for name, value in numeric_inputs.items() if not math.isfinite(value)]
+    if non_finite:
+        raise ValueError("numeric arguments must be finite: " + ", ".join(non_finite))
     if args.duration <= 0 or args.physics_hz <= 0 or args.record_hz <= 0:
         raise ValueError("duration, physics-hz, and record-hz must be positive")
     if args.steps < 1 or args.root_height <= 0:
@@ -217,13 +620,59 @@ def main(argv=None) -> int:
     record_stride = round(args.physics_hz / args.record_hz)
     if record_stride < 1 or not math.isclose(args.physics_hz / record_stride, args.record_hz, rel_tol=1e-8):
         raise ValueError("record-hz must divide physics-hz evenly")
-    actual_record_hz = args.physics_hz / record_stride
+    if args.output_dir is not None and args.output_dir.expanduser().exists():
+        raise FileExistsError(f"Output directory already exists: {args.output_dir}")
+    return record_stride, args.physics_hz / record_stride
+
+def main(argv=None) -> int:
+    check_args, _ = make_parser().parse_known_args(argv)
+    if check_args.mode == "validate":
+        args = make_parser().parse_args(argv)
+        if args.run_dir is None:
+            raise ValueError("--run-dir is required for validate mode")
+        try:
+            report = validate_run(args.run_dir)
+        except (OSError, ValueError) as error:
+            report = {"success": False, "run_dir": args.run_dir.expanduser().resolve().as_posix(),
+                      "errors": [f"validation could not read the run: {error}"]}
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return 0 if report["success"] else 1
+    if check_args.mode == "check":
+        args = make_parser().parse_args(argv)
+        audit = inspect_urdf(args.urdf)
+        print(f"URDF check passed: root={audit['root_link']}, links={audit['link_count']}, "
+              f"revolute_joints={len(audit['joint_names'])}, meshes={audit['mesh_count']}")
+        print("URDF:", audit["path"])
+        if audit["imu_links"]:
+            print("IMU-like links:", ", ".join(audit["imu_links"]))
+        else:
+            print("IMU: no link/frame in URDF; no IMU reading will be synthesized")
+        return 0
+    if check_args.mode == "terrain":
+        validate_terrain_runtime_parameters(check_args)
+        audit = inspect_urdf(check_args.urdf)
+        layouts = make_terrain_layouts(check_args.terrain_spacing, check_args.root_height)
+        if check_args.dry_run:
+            args = make_parser().parse_args(argv)
+            print(json.dumps({"urdf": audit["path"].as_posix(), "terrain_variants": layouts, "physics_steps": 0}, ensure_ascii=False, indent=2))
+            return 0
+        if check_args.output_dir is not None and check_args.output_dir.expanduser().exists():
+            raise FileExistsError(f"Output directory already exists: {check_args.output_dir}")
+        from isaaclab.app import AppLauncher
+        args = make_parser(AppLauncher).parse_args(argv)
+        return 0 if generate_terrain_scene(args, audit, layouts).is_file() else 1
+    validate_runtime_parameters(check_args)
+    inspect_urdf(check_args.urdf)
+    from isaaclab.app import AppLauncher
+    args = make_parser(AppLauncher).parse_args(argv)
+    record_stride, actual_record_hz = validate_runtime_parameters(args)
     audit = inspect_urdf(args.urdf)
 
     simulation_app = AppLauncher(args).app
     output = None
     metadata = None
     started = time.monotonic()
+    run_exit_code = 0
     try:
         import isaaclab
         import isaaclab.sim as sim_utils
@@ -312,6 +761,7 @@ def main(argv=None) -> int:
                 "urdf": audit["path"].as_posix(),
                 "urdf_sha256": _sha256(audit["path"]),
                 "usd": usd_path.as_posix(),
+                "usd_sha256": _sha256(usd_path),
                 "root_link": audit["root_link"],
                 "mesh_count": audit["mesh_count"],
                 "meshes": [
@@ -437,6 +887,8 @@ def main(argv=None) -> int:
                         "right_foot_ground_friction_force_w_n": _single_vector(right_contact.data.friction_forces_w),
                         "left_foot_average_ground_contact_pos_w_m": _single_vector(left_contact.data.contact_pos_w),
                         "right_foot_average_ground_contact_pos_w_m": _single_vector(right_contact.data.contact_pos_w),
+                        "left_foot_ground_contact_valid": _single_vector(left_contact.data.contact_pos_w) is not None,
+                        "right_foot_ground_contact_valid": _single_vector(right_contact.data.contact_pos_w) is not None,
                     }
                     trajectory.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")
                     trajectory.flush()
@@ -455,6 +907,8 @@ def main(argv=None) -> int:
         print(f"USD generated: {usd_path}")
         print(f"Isaac Lab loaded: bodies={robot.num_bodies}, joints={robot.num_joints}")
         print(f"Run status: {metadata['run_status']}; steps={completed_steps}; records={record_count}; output={output}")
+        if metadata["run_status"] != "complete":
+            run_exit_code = 1
 
         if not args.headless:
             while simulation_app.is_running():
@@ -471,7 +925,7 @@ def main(argv=None) -> int:
         raise
     finally:
         simulation_app.close()
-    return 0
+    return run_exit_code
 
 
 if __name__ == "__main__":
