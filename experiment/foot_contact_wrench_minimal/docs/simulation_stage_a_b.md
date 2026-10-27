@@ -1,21 +1,23 @@
 # Stage A/B 仿真说明
 
+> 2026-10-25文档核对：本页解释前期单足工程的实现与保存结果，不是本次新运行报告。命令工作目录为 `project/experiment/foot_contact_wrench_minimal/`，先设置 `PYTHONPATH=src` 并使用本单元环境；入口和数据批次见 [脚本目录](script_catalog.md)。本文各阶段不能直接当作当前H2 Plus整机结果。
+
 ## Stage A：纯数学局部集合
 
 `configs/local_set/stage_a_baseline.yml` 给出矩形足底离散网格、足底法向、切向基、总法向载荷、单元法向载荷上限和候选摩擦参数。正式基准为 `10×5=50` 个、边长 `20 mm` 的有限面积单元；四点配置 `stage_a_four_point_validation.yml` 仅用于回归校验。`DiscreteContactModel` 按
 
-\[
+$$
 \mathbf f_j=\lambda_j\mathbf n+\mathbf T\mathbf u_j,
 \qquad
 \|\mathbf u_j\|_2\leq\mu_j\lambda_j
-\]
+$$
 
 构造离散接触力，并用
 
-\[
+$$
 \mathbf w=\sum_j
 \begin{bmatrix}[\mathbf r_j]_{\times}\\\mathbf I_3\end{bmatrix}\mathbf f_j
-\]
+$$
 
 映射到六维扳手 `[tau_x, tau_y, tau_z, f_x, f_y, f_z]`。`LocalWrenchSet` 提供：
 
@@ -43,13 +45,13 @@
 
 `models/bench/single_foot_bench.xml` 是一个带自由基座的刚性足体。理论上将 `200 mm×100 mm` 足底划分为 `10×5=50` 个 `20 mm×20 mm` 有限面积单元；MuJoCo 验证模型在每个单元中心放置一个半径 `1 mm` 的点接触近似，使仿真作用位置与理论等效合力点一致。地面只用于生成仿真接触。`mujoco_io.bench` 读取 MuJoCo 的逐接触力，转换到世界坐标并汇总到足部质心；这是真值通道，不是压力阵列算法输入。
 
-Stage B 先验证接触力提取、法向合力和接触扳手。下一步可在相同配置下加入受控外力/外力矩加载，并将每个时刻的法向点载荷送入 Stage A 成员检验。完整 X1、整机动力学和瞬时可行扳手集合放在后续阶段。
+Stage B基础台架检查接触力提取、法向合力和接触扳手；受控扳手扫描、部分支撑和理想融合已另有代码与保存输出，见下文及脚本目录。X1是早期平台候选，不在当前本单元目录，也不是当前待接入主平台。整机动力学与瞬时可行扳手集合不能由这些单足结果推定已实现。
 
 ### Stage B 输出如何阅读
 
-运行 `experiments/stage_b_contact_bench/run_contact_bench.py` 和 `plot_contact_bench.py` 后，结果写入 `outputs/stage_b_bench`。`bench_contact_wrench.png` 上图为合力，中图为合力矩，下图为末时刻 `10×5` 阵列的法向载荷热图。当前自由落足工况最终进入对称静止状态，总法向力约为 `39.24 N`，对应 `4 kg` 足体的重力。
+运行 `experiments/stage_b_contact_bench/run_contact_bench.py` 和 `plot_contact_bench.py` 后，结果写入 `outputs/stage_b_bench`。`bench_contact_wrench.png` 上图为合力，中图为合力矩，下图为末时刻 `10×5` 阵列的法向载荷热图。保存的零速度水平贴合初始化工况最终进入对称静止状态，总法向力约为 `39.24 N`，对应 `4 kg` 足体的重力。
 
-当前基准从水平、全足接触状态初始化，因此主要用于检查稳态载荷分布和接触真值提取链路；尚未验证部分落足、压力阵列重建、整机动力学或动作可行扳手集合。
+本基础工况从水平、全足接触状态初始化，主要检查稳态载荷分布、接触真值提取及同源法向代理合成；不包含落足碰撞、真实阵列重建或整机能力验证。其他部分支撑工况另见 [stage_b_partial_contact.md](stage_b_partial_contact.md)，不能把本段范围理解为整个工程尚无部分支撑结果。
 
 ### Stage B 交互式查看器和对比图
 
@@ -67,36 +69,36 @@ Stage B 先验证接触力提取、法向合力和接触扳手。下一步可在
 
 `stage_b_sensor_bench.yml`、`experiments/stage_b_sensor_fusion/run_sensor_fusion.py` 和 `plot_sensor_fusion.py` 实现了理想传感器基准。足部质心处施加小幅、已知的正弦外部扳手；其作用是让接触扳手随时间变化，而不是模拟踝关节。估计阶段明确扣除该已知激励，因此比较对象始终是地面对足的接触扳手。
 
-MuJoCo 的足端陀螺仪读数为 \(\boldsymbol\omega_B\in\mathbb R^3\)，加速度计读数为比力 \(\mathbf f_B=\mathbf R_{WB}^T(\mathbf a_W-\mathbf g_W)\in\mathbb R^3\)。用足体质量 \(m\)、足体系主惯量 \(\mathbf I_B\in\mathbb R^{3\times3}\)、采样周期 \(\Delta t\) 和已知非接触外部扳手 \(\mathbf w_{\mathrm{ext}}\in\mathbb R^6\)，IMU 动力学估计为
+MuJoCo 的足端陀螺仪读数为 $\boldsymbol\omega_B\in\mathbb R^3$，加速度计读数为比力 $\mathbf f_B=\mathbf R_{WB}^T(\mathbf a_W-\mathbf g_W)\in\mathbb R^3$。用足体质量 $m$、足体系主惯量 $\mathbf I_B\in\mathbb R^{3\times3}$、采样周期 $\Delta t$ 和已知非接触外部扳手 $\mathbf w_{\mathrm{ext}}\in\mathbb R^6$，IMU 动力学估计为
 
-\[
+$$
 \hat{\mathbf F}_{\mathrm{imu},W}
 =m\mathbf R_{WB}\mathbf f_B-\mathbf F_{\mathrm{ext},W},
-\]
+$$
 
-\[
+$$
 \hat{\mathbf M}_{\mathrm{imu},W}
 =\mathbf R_{WB}\left[
 \mathbf I_B\frac{\boldsymbol\omega_B-\boldsymbol\omega^-_B}{\Delta t}
 +\boldsymbol\omega_B\times(\mathbf I_B\boldsymbol\omega_B)
 \right]-\mathbf M_{\mathrm{ext},W}.
-\]
+$$
 
-阵列第 \(j\) 点给出法向载荷 \(\lambda_j\ge0\)，以质心为原点、接触平面 \(z=z_c\) 表示时，阵列直接给出
+阵列第 $j$ 点给出法向载荷 $\lambda_j\ge0$，以质心为原点、接触平面 $z=z_c$ 表示时，阵列直接给出
 
-\[
+$$
 \hat F_z=\sum_j\lambda_j,\qquad
 \hat M_x^{(n)}=\sum_j y_j\lambda_j,\qquad
 \hat M_y^{(n)}=-\sum_j x_j\lambda_j.
-\]
+$$
 
-融合在足坐标系中进行。IMU 提供 \(F_x,F_y,M_z\)，阵列提供 \(F_z\) 和法向压力力矩；切向合力对质心力矩的公共力臂补偿为
+融合在足坐标系中进行。IMU 提供 $F_x,F_y,M_z$，阵列提供 $F_z$ 和法向压力力矩；切向合力对质心力矩的公共力臂补偿为
 
-\[
+$$
 \hat M_x=\hat M_x^{(n)}-z_c\hat F_y^{\mathrm{imu}},
 \qquad
 \hat M_y=\hat M_y^{(n)}+z_c\hat F_x^{\mathrm{imu}}.
-\]
+$$
 
 这不是假设压力阵列可测切向力，而是利用 IMU 估计的切向合力补偿其已知接触面力臂。若接触点高度并不相同、足变形明显或接触面有未建模的局部力矩，上式不再严格成立，需要升级为逐点接触几何模型。
 
@@ -110,13 +112,13 @@ MuJoCo 的足端陀螺仪读数为 \(\boldsymbol\omega_B\in\mathbb R^3\)，加�
 
 理论边界由
 
-\[
+$$
 \alpha_{\mathrm{th}}
 =
 \max\{\alpha\ge0\mid
 \mathbf w_0+\alpha\,\Delta\mathbf w
 \in\mathscr W_{\mathrm{loc}}\}
-\]
+$$
 
 得到。仿真失效由持续超过阈值的事件判定：切向速度对应滑移，足体倾角对应滚转/俯仰失稳，绕竖直轴角速度对应偏航滑移。输出包括理论边界、仿真失效载荷、逐工况轨迹和相对误差图。
 
@@ -127,7 +129,7 @@ conda run --no-capture-output -n foot-wrench python experiments/stage_b_boundary
 conda run --no-capture-output -n foot-wrench python experiments/stage_b_boundary_validation/plot_boundary_sweep.py
 ```
 
-当前理想点接触基准的结果为：切向合力边界比值约 `1.036--1.046`，滚转/俯仰合力矩约 `1.042--1.048`，偏航合力矩约 `0.989`。这验证的是当前固定载荷、固定 50 个候选单元和 MuJoCo 接触定律下的理论模型，不等同于真实机器人或未知地形的最终验证。
+已保存的 `outputs/stage_b_validation/validation_summary.json` 给出的理想点接触基准结果为：切向合力边界比值约 `1.036--1.046`，滚转/俯仰合力矩约 `1.042--1.048`，偏航合力矩约 `0.989`。这验证的是当前固定载荷、固定 50 个候选单元和 MuJoCo 接触定律下的理论模型，不等同于真实机器人或未知地形的最终验证。
 
 ### 动态观察边界逼近过程
 

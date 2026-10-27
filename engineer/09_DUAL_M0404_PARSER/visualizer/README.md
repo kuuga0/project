@@ -1,51 +1,42 @@
-# M0404 Pressure Map
+# M0404压力与蓝牙IMU可视化
 
-This browser tool displays the two 4x4 M0404 modules as one 4x8 color heatmap.
-The numeric 4x8 layout and the local timestamp are shown below the map.
+更新日期：2026-10-25。本页说明 `engineer/09_DUAL_M0404_PARSER/` 的配套页面。用户此前报告旧32点压力与IMU采集跑通；本次只核对固件、页面和工程配置，未重新编译、连接硬件或验证采样性能。项目状态见 [根README](../../../README.md)。
 
-## Run
+## 文件和工程状态
 
-Use Microsoft Edge or Google Chrome. Web Serial requires a secure browser
-context, so serve this directory from localhost instead of opening the HTML file
-directly:
+`../Core/`是STM32H743固件，`../Drivers/`是CMSIS／HAL厂商组件；`.ioc`、`.project`、`.cproject`、launch及链接脚本用于CubeIDE配置。`index.html`把两块4×4 M0404显示成4×8热图，并显示数值和时间戳。
 
-```powershell
-cd STM32CubeIDE\workspace_1.18.1\09_DUAL_M0404_PARSER\visualizer
+**当前待修：**`../.cproject` 的Debug和Release两个 `buildPath` 仍指向 `01_LED_Blink`；历史“已移除残留”的记录不代表当前配置。launch中的ST-LINK日志路径已指向 `09_DUAL_M0404_PARSER`。本次按范围未改配置，编译／下载须在后续处理时核对。
+
+## 页面运行
+
+从project根目录，在已有Python环境中运行：
+
+```bash
+cd engineer/09_DUAL_M0404_PARSER/visualizer
 python -m http.server 4173 --bind 127.0.0.1
 ```
 
-Open <http://localhost:4173>, select the board's serial port, and keep the
-baud rate at `115200`. Click **Demo** first to verify the color scale without
-hardware. The firmware must send lines in this form:
+以支持Web Serial／Web Bluetooth的Edge或Chrome环境打开 <http://127.0.0.1:4173/>。先用 **Demo** 查看模拟热图；它不是硬件数据。连接串口时选择板卡端口，页面默认波特率115200。
+
+## 压力帧与速率
+
+固件输出格式：
 
 ```text
 P32,t=123456,v0,v1,...,v31
 ```
 
-`t` is the MCU `HAL_GetTick()` value in milliseconds. Values are row-major:
-each row contains four points from M1 followed by four points from M2. The
-firmware sends this compact frame every 50 ms (20 Hz). The parser ignores all
-other serial lines, including the diagnostic and `GRID4x8` lines.
+`t`是MCU的 `HAL_GetTick()` 毫秒值。32个值按行排列，每行先M1四点，再M2四点；不是两块阵列的左右脚身份确认。解析器忽略其他诊断行，包括 `GRID4x8`。
 
-## Bluetooth IMU
+固件200 Hz定时节拍每10拍触发一次P32上报，目标约20 Hz，即每50 ms一帧；这只是上报安排，不是每个单元真实响应带宽或新采样速率的证明。数值是通道原始读数，没有在本页完成向N或Pa的标定。
 
-The page also connects directly to a BWT901BLECL5.0 in Microsoft Edge or Chrome
-through Web Bluetooth. Open the page from `http://127.0.0.1:4173/`, close
-`WitMotion.exe`, click **Connect IMU**, and select the paired sensor. The page
-uses the WIT Bluetooth 5.0 service `FFE5` and notification characteristic `FFE4`;
-it parses the 20-byte `55 61` frame and shows roll, pitch, yaw, acceleration,
-and gyro values. If the sensor is not configured for automatic streaming, the
-page polls the `FFE9` write characteristic for the same registers. IMU frames
-show the PC receive timestamp and an MCU timestamp synchronized to the latest
-pressure frame.
+## 蓝牙IMU通道
 
-On each IMU connection, the page sets the WIT bandwidth to 188 Hz and return
-rate to 200 Hz, then saves the setting. The IMU status line shows the received
-`0x55 0x61` frame rate once per second. The display itself is limited by the
-monitor refresh rate. Raw acceleration is shown in `g` and includes gravity;
-the `Linear` values subtract gravity estimated from roll and pitch.
-Angular acceleration is the filtered derivative of the gyro data and is shown
-in `deg/s2`.
+页面直接连接BWT901BLECL5.0，使用WIT BLE服务 `FFE5`、通知特征 `FFE4`，解析20字节 `55 61` 帧；无自动流时通过可写特征 `FFE9` 查询。页面显示姿态、加速度和角速度，不经过STM32串口。
 
-Only one application should own the IMU connection at a time. If the sensor is
-not listed, pair it in Windows Bluetooth settings first, then refresh the page.
+代码在连接时尝试写入188 Hz带宽、200 Hz返回率并保存设置；连接动作会改变设备设置。状态行每秒显示接收帧率，显示刷新受浏览器／屏幕刷新限制；设置值、实收帧率和压力20 Hz分别理解。若连接异常，先确认没有其他程序（如WitMotion）占用，并检查系统配对及浏览器权限。
+
+原始加速度以g显示，含静止重力响应；`Linear`是按roll／pitch估计并扣除重力后的显示值，角加速度是角速度的滤波差分，单位为 $\mathrm{deg/s^2}$。这些处理值不是独立参考传感器，也不等于已经完成安装外参或动态标定。
+
+IMU保留PC接收时间；页面还用最近压力帧的MCU时间，加上PC端经过时间，估算对应MCU时刻。该软件对齐受蓝牙／串口传输与接收延迟影响，**不是共同硬件时钟或严格同步**。保存研究数据前仍需单独验证时间记录、同步误差、连续性及回读链。

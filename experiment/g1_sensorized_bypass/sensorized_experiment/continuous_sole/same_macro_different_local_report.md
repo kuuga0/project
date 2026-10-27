@@ -4,7 +4,7 @@
 
 输入数据为 `outputs/uniform_speed_integrated/` 下 rough、slope2、stairs 三种地形的带时间戳 CSV。分析在同一地形内配对不同回合的样本：对每个样本寻找踝部六维接触力、双脚 CoP 相近的最近样本，再比较足底 8x4 三轴单元向量和双脚踝部 IMU。由于配对来自不同回合，因此不是简单地比较相邻时间点。
 
-完整数值见 `same_macro_different_local.json`。
+完整数值见 [outputs/uniform_speed_integrated/same_macro_different_local.json](outputs/uniform_speed_integrated/same_macro_different_local.json)。本次仅核对保存报告与位置，没有重新计算配对。
 
 ## 结果
 

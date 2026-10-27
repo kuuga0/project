@@ -1,5 +1,7 @@
 # 阶段 B：不完整连续支撑下的准静态单足试验
 
+> 本页为前期数字单足试验说明。2026-10-25核对了保存文件，未重跑仿真；它不是实体台架或H2 Plus结果。路径均相对 `project/experiment/foot_contact_wrench_minimal/`，入口见 [脚本目录](script_catalog.md)。
+
 ## 试验目的
 
 本试验验证第一阶段的局部接触扳手模型，而不是模拟落地碰撞。刚性足以零速度贴合支撑面开始，竖直外载先缓慢增加，再沿足底方向移动作用点，直至发生持续倾转。MuJoCo 中的支撑区域是连续共面几何；足底的 `10x5=50` 个小接触几何只用于离散记录法向载荷，二者不一一对应。
@@ -20,7 +22,10 @@
 
 ## 运行与结果
 
+从project根目录执行：
+
 ```powershell
+cd experiment/foot_contact_wrench_minimal
 $env:PYTHONPATH='src'
 conda run --no-capture-output -n foot-wrench python experiments/stage_b_partial_contact/run_partial_contact.py
 conda run --no-capture-output -n foot-wrench python experiments/stage_b_partial_contact/plot_partial_contact.py

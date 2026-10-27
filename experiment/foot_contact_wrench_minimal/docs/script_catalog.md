@@ -1,12 +1,12 @@
 # 脚本与数据通道目录
 
-本文档是工程的上手索引。脚本按实验目标归类，不按文件的创建时间归类。现有脚本不需要互相调用；通常先运行 `run_*.py` 生成记录，再运行对应的 `plot_*.py` 生成图表，`*_viewer.py` 只负责交互式观察。
+本文档是 `experiment/foot_contact_wrench_minimal/` 的上手索引（2026-10-25核对）。它是前期单足理论／数字基准，不是当前H2 Plus采集工程；项目状态见 [根README](../../../README.md)。脚本按实验目标归类：通常由 `run_*.py` 生成记录，`plot_*.py` 读取对应结果绘图；查看器提供交互式观察，其中实时台架查看器也会推进MuJoCo仿真。本次只读核对已有内容，没有运行这些入口。
 
 ## 先分清三类量
 
 工程中有三种容易混淆的量：
 
-1. **理论接触模型**：由 50 个离散候选单元、法向力上限和摩擦约束组成的优化模型。它产生理论上的 `W_loc`，不是传感器读数。
+1. **理论接触模型**：由 50 个离散候选单元、法向力上限和摩擦约束组成的优化模型。它产生理论上的 $W_{\mathrm{loc}}$，不是传感器读数。
 2. **MuJoCo 接触约束真值**：MuJoCo 接触求解器在每个仿真接触约束上得到的接触力/接触力矩。`mj_contactForce` 给出的是约束反力，表达在 MuJoCo 接触坐标系，再被转换并汇总到足部质心。它是数字仿真的接触真值，不是物理压力传感器的输出。
 3. **压力阵列理想化代理**：代码从上述接触约束力中取支撑法向分量，按 `contact_00` 到 `contact_49` 的 50 个预定义位置累加，得到 `normal_forces_n`，再计算 `[Mx, My, Fz]`。这等价于“理想、无噪声、已知位置的法向压力单元”，不是 MuJoCo 原生提供的真实压力阵列。
 
@@ -22,7 +22,14 @@ Stage A 数学集合
   -> Stage B 理想 IMU/压力融合
 ```
 
-所有命令从仓库根目录执行，并先设置 `PYTHONPATH=src`、激活 `foot-wrench` 环境。
+本单元文档里的 `src/`、`configs/`、`outputs/` 等均相对 **`project/experiment/foot_contact_wrench_minimal/`**，不是project根目录。PowerShell中从project根目录先执行：
+
+```powershell
+cd experiment/foot_contact_wrench_minimal
+$env:PYTHONPATH='src'
+```
+
+随后使用已准备好的 `foot-wrench` 环境；依赖声明见 [environment.yml](../environment.yml) 和 [pyproject.toml](../pyproject.toml)，本次未安装或核验运行环境。多数脚本写固定输出目录，重跑会覆盖同名结果，引用旧结果时应保留其批次。
 
 ## 脚本索引
 
@@ -33,13 +40,13 @@ Stage A 数学集合
 | `experiments/stage_a_local_set/run_local_set.py` | 读取基准 YAML，建立 `DiscreteContactModel` 和 `LocalWrenchSet`，执行支撑/径向查询 | `configs/local_set/stage_a_baseline.yml` | `working_point.json`、`support_queries.csv`、`radial_queries.csv` |
 | `experiments/stage_a_local_set/plot_local_set.py` | 读取 Stage A 查询结果并绘制集合投影、网格图 | `outputs/stage_a_baseline/*.csv/json` | `baseline_projections.png`、`contact_grid_layout.png` |
 
-`stage_a_four_point_validation.yml` 只用于小规模回归校验；`stage_a_parameter_sweep.yml` 用于扫描摩擦参数。它们不是另外两套算法。
+`stage_a_four_point_validation.yml` 是小规模回归配置；`stage_a_parameter_sweep.yml` 保存0.30／0.50／0.80的摩擦扫描候选，本地没有读取它的独立Python扫描入口，不能写成已完成参数扫描。它们都不是另外两套算法。
 
 ### Stage B：MuJoCo 接触约束台架
 
 | 文件 | 用途 | 主要输入 | 主要输出 |
 |---|---|---|---|
-| `experiments/stage_b_contact_bench/run_contact_bench.py` | 让自由刚性足在重力下落到地面，记录 MuJoCo 接触约束和法向分量 | `models/bench/single_foot_bench.xml`、`stage_b_bench.yml` | `contact_truth.jsonl`、`summary.csv` |
+| `experiments/stage_b_contact_bench/run_contact_bench.py` | 让零速度、水平贴合初始化的自由刚性足在重力下响应，记录MuJoCo接触约束和法向分量 | `models/bench/single_foot_bench.xml`、`stage_b_bench.yml` | `contact_truth.jsonl`、`summary.csv` |
 | `experiments/stage_b_contact_bench/plot_contact_bench.py` | 绘制接触约束合力、合力矩、法向单元分布 | Stage B JSONL/CSV | `bench_contact_wrench.png` |
 | `experiments/stage_b_contact_bench/plot_contact_comparison.py` | 比较完整 MuJoCo 接触约束扳手与法向压力代理扳手 | Stage B 记录 | `wrench_comparison.csv`、误差 JSON、对比图 |
 | `experiments/stage_b_contact_bench/run_contact_viewer.py` | 交互式显示接触约束真值、法向代理和局部集合见证 | MuJoCo 模型、配置 | 不覆盖离线输出 |
@@ -103,8 +110,8 @@ analysis/comparison.py + visualization/wrench_scene.py
 - `src/**` 是被实验脚本调用的库代码，不应直接运行。
 - `configs/**` 是参数，不是结果；改参数后应重新运行对应的 `run_*.py`。
 - `outputs/**` 是生成结果，不是输入真值数据库；旧输出可能对应旧代码或旧配置。
-- `models/**` 是 MuJoCo XML 模型。`models/x1_modified` 当前为空，X1 仍未接入。
-- `external/agibot_x1_infer` 是只读外部 Git 子模块，不属于本课题的接触算法。
+- `models/**` 是MuJoCo XML模型；当前本单元保存 `models/bench/single_foot_bench.xml`。旧说明中的 `models/x1_modified` 与 `external/agibot_x1_infer` 均不在当前本单元目录，不能当作现存模型或已配置子模块；X1只是历史候选。
+- `src/foot_contact_wrench/dynamics/` 与 `learning/` 当前仅有包占位文件，不代表整机动力学或学习方法已实现。
 - `__pycache__`、`.pytest_cache`、`MUJOCO_LOG.TXT` 是缓存或日志。
 
 ## 当前真实性等级
@@ -114,6 +121,18 @@ analysis/comparison.py + visualization/wrench_scene.py
 | L1 理论 | Stage A、`LocalWrenchSet` | 数学约束下哪些扳手可行 |
 | L2 数字接触 | MuJoCo `contact_wrench_*` | 当前 MuJoCo 接触约束产生的合力和合力矩 |
 | L3 理想观测 | `normal_forces_n`、`pressure_model_wrench_*`、理想 IMU | 在无噪声和已知几何条件下，观测方程是否自洽 |
-| L4 真实实验 | 当前不存在 | 需要真实压力/触觉阵列、标定和独立力/力矩真值 |
+| L4 真实实验 | 本单元未保存可据以验证的L4结果 | 需要真实压力／触觉阵列、标定和独立力／力矩真值 |
 
-项目目前完成到 L1-L3，没有 L4。
+这些是证据类型，不是自动升级的完成等级。现有保存结果属于L1—L3；本次未复现，不将此结论扩成“整个项目没有硬件采集基础”。
+
+## 保存结果入口
+
+| 目录（相对本单元根目录） | 本次核对的内容 | 阅读说明 |
+|---|---|---|
+| `outputs/stage_a_baseline/` | 查询CSV、工作点JSON及网格／投影图 | [阶段A结果说明](../outputs/stage_a_baseline/结果说明.md)；固定400 N截面。 |
+| `outputs/stage_b_bench/` | 750行接触记录、比较指标及图 | [阶段B结果说明](../outputs/stage_b_bench/结果说明.md)；4 kg足体基础工况。 |
+| `outputs/stage_b_validation/` | 十方向JSONL、摘要与图 | [Stage A/B说明](simulation_stage_a_b.md)；固定载荷和模型下的边界比较。 |
+| `outputs/stage_b_partial_contact/` | 四场景摘要、共1714行记录、生成／诊断XML及图 | [部分支撑说明](stage_b_partial_contact.md)；摘要列出的四场景才是对应结果，诊断XML不单独构成新实验。 |
+| `outputs/stage_b_sensor_bench/` | 3000行理想融合记录、RMSE及图 | [Stage A/B说明](simulation_stage_a_b.md)；同源无噪声输入与已知外部激励。 |
+
+[理论推导](single_foot_local_wrench_set_derivation.md)保留更广的集合定义与后续设想，不能由推导存在推定其中全部模块已实现。
