@@ -1,6 +1,6 @@
 # 课题资料入口
 
-更新日期：2026-10-25。本文说明当前研究定位、文件用途与证据状态；详细推导、候选方案和演变理由保存在 [研究主文档](research/research_main.md)。本次是 project 内的内容与文档核对，没有新增仿真、采集、训练或硬件实验结果。
+更新日期：2026-10-28。本文说明当前研究定位、文件用途与证据状态；详细推导、候选方案和演变理由保存在 [研究主文档](research/research_main.md)。本轮补齐了H2 Plus的模块化任务配置和训练入口，但没有启动仿真、采集、训练或硬件实验。
 
 ## 第一次阅读
 
@@ -33,12 +33,12 @@
 | E-01：STM32压力与IMU显示 | 固件、CubeIDE配置及浏览器可视化页面；用户此前报告旧32点压力与IMU采集跑通。代码目标压力输出约20 Hz。 | 本次未编译或连接硬件；200 Hz系统节拍／IMU设置不等于压力采样率。网页时间对齐不是硬件同步。 |
 | E-02：单足局部扳手与数字台架 | 理论推导、Stage A查询、Stage B基础接触／十方向扫描／部分支撑／理想融合，以及对应数据和图。 | 固定模型下的理论、MuJoCo接触及同源理想观测；没有由这些文件证明的真实传感器精度或整机任务结果。 |
 | E-03：G1旁路 | 原足接触分桶与连续足板两条路线；多地形、rough 20回合、离线预警和姿态反事实记录。 | 策略不接收新增传感反馈。预警正常样本仅4回合；单帧“达标”不是执行成功。G1日志扳手分量顺序与单足理论不同，读取时须按字段转换。 |
-| H2 Plus：Isaac Lab主入口 | `run_h2_plus.py` 含 `check`、`smoke`、`collect`、`validate`、`terrain`。此前记录Windows静态／合成数据检查通过。 | project中未见当前H2 Plus的Isaac USD或采集目录；Ubuntu加载、物理步进、接触输出及真实记录回读仍待验证。 |
+| H2 Plus：Isaac Lab主入口 | `run_h2_plus.py` 含 `check`、`smoke`、`collect`、`validate`、`terrain`；`h2_plus_lab` 增加资产、地形、接触传感器、盲走MDP、Gym注册和RSL-RL启动入口。 | project中未见当前H2 Plus的Isaac USD或采集目录；Ubuntu加载、物理步进、任务注册、接触输出及真实记录回读仍待验证。 |
 | H2 Plus：MuJoCo展示辅助入口 | `view_h2_plus_mujoco_terrains.py` 及已保存的 `outputs/h2_plus_four_terrains.xml`。四块地形、一个机器人；代码不调用 `mj_step`。 | 当前导出关节树不完整，且没有差异摩擦参数，不能作为已验证的完整H2 Plus模型或物理场景；详见下方待修项。 |
 
-Isaac Lab默认资产为 [H2_Plus_with_footrix_no_dex_hands.urdf](experiment/robot_asset/h2_plus/H2_Plus_with_footrix_no_dex_hands.urdf)；MuJoCo展示脚本默认读取同目录的 `H2_Plus_mujoco_with_footrix_no_dex_hands.urdf`。去除XML注释后，两者均为32个link、31个转动关节、49个可解析网格引用；均未声明IMU安装frame／外参。带手的 `H2_Plus_mujoco_with_footrix.urdf` 为98个link、75个转动关节和22个固定关节，不能只凭名称中的FOOTRIX把它当作去手默认版。
+Isaac Lab默认资产为 [H2_Plus_with_footrix_no_dex_hands.urdf](experiment/robot_asset/h2_plus/H2_Plus_with_footrix_no_dex_hands.urdf)；MuJoCo展示脚本默认读取同目录的 `H2_Plus_mujoco_with_footrix_no_dex_hands.urdf`。去除XML注释后，两者均为32个link、31个转动关节、49个可解析网格引用；URDF本身未声明IMU安装frame／外参，项目任务配置已在 `sensor_cfg.py` 中给出躯干和双足 IMU 的安装参数。带手的 `H2_Plus_mujoco_with_footrix.urdf` 为98个link、75个转动关节和22个固定关节，不能只凭名称中的FOOTRIX把它当作去手默认版。H2 Plus模块化任务配置、盲走动作空间和Ubuntu启动命令见 [H2实验README](experiment/h2_contact_lab/README.md)；这些代码配置尚未升级为运行或训练证据。
 
-Isaac `terrain` 计划导出一份含四个机器人初始姿态的USD，不调用reset或物理步；铺设物当前仍是刚性代理。`smoke`／`collect` 才会推进物理步，且使用单一普通地面，并非自动在四类地形上采集。采集代码记录聚合法向／摩擦接触量，不是FOOTRIX逐单元三轴读数；没有IMU字段，也没有能力标签或正式训练集。
+Isaac `terrain` 计划导出一份含四个机器人初始姿态的USD，不调用reset或物理步；H2 Plus任务配置现在包含独立低摩擦双区域和PhysX体积柔性地面场景，但尚未启动运行验证。`smoke`／`collect` 才会推进物理步，且旧采集入口仍使用单一普通地面，并非自动在全部地形上采集。采集代码记录聚合法向／摩擦接触量和三路 IMU 的带噪声记录值，不是FOOTRIX逐单元三轴读数；没有能力标签或正式训练集。
 
 ### 本次确认、尚未修改的工程问题
 
@@ -85,4 +85,4 @@ JSON／JSONL／CSV是结果、配置或摘要，须结合所在单元和字段�
 
 2026-09-22的E-01／02／03迁移检查是历史静态记录，不是实验结果；当前发现的配置差异以上方待修项为准。旧H2 MJCF清单和2026-10-15检查见H2实验README，不能移作当前H2 Plus采集通过的证明。已有文献地图保留原来源身份，本次未联网查新或重新复现论文。
 
-本次只修改已有Markdown，核对文件用途、内部链接、字段／批次身份和保存结果结构；不改代码、配置、原始数据、第三方原件或资产，不创建额外文件，不暂存、提交、拉取或推送。科学结论、硬件状态和个人贡献均不因这次文档整理而升级。
+本轮修改了H2 Plus任务代码和已有README，核对文件用途、内部链接、字段／批次身份和保存结果结构；未改Isaac Lab源码、原始数据、第三方原件或资产，没有留下编译缓存或运行输出，也未暂存、提交、拉取或推送。科学结论、硬件状态和个人贡献均不因本轮代码配置而升级。

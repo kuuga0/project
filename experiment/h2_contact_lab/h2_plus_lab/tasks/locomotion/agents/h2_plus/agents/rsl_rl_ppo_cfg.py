@@ -1,19 +1,23 @@
-# Copyright (c) 2022-2026, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
+"""RSL-RL runner configuration for H2 Plus blind locomotion."""
+
+from __future__ import annotations
 
 from isaaclab.utils import configclass
-
-from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlPpoActorCriticCfg, RslRlPpoAlgorithmCfg
+from isaaclab_rl.rsl_rl import (
+    RslRlOnPolicyRunnerCfg,
+    RslRlPpoActorCriticCfg,
+    RslRlPpoAlgorithmCfg,
+)
 
 
 @configclass
-class H1RoughPPORunnerCfg(RslRlOnPolicyRunnerCfg):
+class H2PlusBlindPPORunnerCfg(RslRlOnPolicyRunnerCfg):
+    """Initial PPO settings; observation/action dimensions are inferred by the environment."""
+
     num_steps_per_env = 24
     max_iterations = 3000
     save_interval = 50
-    experiment_name = "h1_rough"
+    experiment_name = "h2_plus_blind_locomotion"
     policy = RslRlPpoActorCriticCfg(
         init_noise_std=1.0,
         actor_obs_normalization=False,
@@ -38,12 +42,4 @@ class H1RoughPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     )
 
 
-@configclass
-class H1FlatPPORunnerCfg(H1RoughPPORunnerCfg):
-    def __post_init__(self):
-        super().__post_init__()
-
-        self.max_iterations = 1000
-        self.experiment_name = "h1_flat"
-        self.policy.actor_hidden_dims = [128, 128, 128]
-        self.policy.critic_hidden_dims = [128, 128, 128]
+__all__ = ["H2PlusBlindPPORunnerCfg"]

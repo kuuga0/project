@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Load H2 Plus, author terrain scenes, and collect joint/root/contact trajectories."""
+"""Load H2 Plus, author terrain scenes, and collect state/contact/IMU trajectories."""
 
 from __future__ import annotations
 
@@ -278,9 +278,11 @@ def inspect_urdf(path: Path) -> dict:
     if len(joints) != EXPECTED_REVOLUTE_JOINTS:
         raise ValueError(f"Expected {EXPECTED_REVOLUTE_JOINTS} revolute joints, found {len(joints)}")
 
-    required_feet = {"left_ankle_pitch_link", "right_ankle_pitch_link"}
-    if not required_feet.issubset(link_set):
-        raise ValueError(f"Missing foot links: {', '.join(sorted(required_feet - link_set))}")
+    required_imu_parent_links = {"torso_link", "left_ankle_pitch_link", "right_ankle_pitch_link"}
+    if not required_imu_parent_links.issubset(link_set):
+        raise ValueError(
+            "Missing IMU parent links: " + ", ".join(sorted(required_imu_parent_links - link_set))
+        )
 
     meshes = []
     for node in root.findall(".//mesh"):
@@ -327,7 +329,7 @@ def make_parser(AppLauncher=None) -> argparse.ArgumentParser:
     parser.add_argument("--dry-run", action="store_true", help="Print and validate a terrain scene plan without launching Isaac Lab")
     parser.add_argument("--duration", type=float, default=10.0, help="Simulation duration for collect mode")
     parser.add_argument("--physics-hz", type=float, default=240.0)
-    parser.add_argument("--record-hz", type=float, default=60.0)
+    parser.add_argument("--record-hz", type=float, default=120.0)
     parser.add_argument("--steps", type=int, default=240, help="Physics steps for smoke mode")
     parser.add_argument("--root-height", type=float, default=1.01, help="Initial pelvis height for the zero-joint pose [m]")
     parser.add_argument("--position-stiffness", type=float, default=80.0, help="Provisional position-hold gain")
@@ -476,6 +478,11 @@ def validate_run(run_dir: Path) -> dict:
         "left_foot_ground_friction_force_w_n", "right_foot_ground_friction_force_w_n",
         "left_foot_average_ground_contact_pos_w_m", "right_foot_average_ground_contact_pos_w_m",
     )
+    imu_vectors = (
+        "torso_imu_linear_accel_b_m_s2", "torso_imu_angular_velocity_b_rad_s",
+        "left_foot_imu_linear_accel_b_m_s2", "left_foot_imu_angular_velocity_b_rad_s",
+        "right_foot_imu_linear_accel_b_m_s2", "right_foot_imu_angular_velocity_b_rad_s",
+    )
     rows, previous_time, previous_step = [], None, None
     with trajectory_path.open("r", encoding="utf-8") as stream:
         for line_number, line in enumerate(stream, 1):
@@ -515,6 +522,10 @@ def validate_run(run_dir: Path) -> dict:
                 value = row.get(name)
                 if value is not None and not _finite_vector(value, 3):
                     errors.append(f"invalid {name} contact vector at line {line_number}")
+            if isinstance(metadata.get("imu"), dict) and metadata["imu"].get("status") == "configured_for_recording_only":
+                for name in imu_vectors:
+                    if not _finite_vector(row.get(name), 3):
+                        errors.append(f"invalid {name} at line {line_number}")
             for side in ("left", "right"):
                 valid = row.get(f"{side}_foot_ground_contact_valid")
                 position = row.get(f"{side}_foot_average_ground_contact_pos_w_m")
@@ -598,6 +609,24 @@ def _contact_sensor(ContactSensor, ContactSensorCfg, robot_prim: str, side: str)
     ))
 
 
+def _imu_sensor(Imu, cfg, robot_prim: str, link_name: str):
+    """Instantiate an IMU on an existing rigid link with its configured offset."""
+
+    return Imu(cfg.replace(prim_path=f"{robot_prim}/{link_name}"))
+
+
+def _noisy_imu_vector(sensor, field: str, torch, bias, standard_deviation: float):
+    """Return one noisy three-vector for recording without changing simulation state."""
+
+    value = getattr(sensor.data, field, None)
+    if value is None:
+        return None
+    if value.ndim > 1:
+        value = value[0]
+    noisy_value = value + bias + torch.randn_like(value) * standard_deviation
+    return _to_json(noisy_value)
+
+
 def validate_runtime_parameters(args) -> tuple[int, float]:
     """Validate simulation CLI values without importing Isaac Lab."""
     numeric_inputs = {
@@ -646,7 +675,7 @@ def main(argv=None) -> int:
         if audit["imu_links"]:
             print("IMU-like links:", ", ".join(audit["imu_links"]))
         else:
-            print("IMU: no link/frame in URDF; no IMU reading will be synthesized")
+            print("IMU: configured sensors attach to torso_link and ankle_pitch_link with scene offsets")
         return 0
     if check_args.mode == "terrain":
         validate_terrain_runtime_parameters(check_args)
@@ -679,9 +708,18 @@ def main(argv=None) -> int:
         import torch
         from isaaclab.actuators import ImplicitActuatorCfg
         from isaaclab.assets import Articulation, ArticulationCfg
-        from isaaclab.sensors import ContactSensor, ContactSensorCfg
+        from isaaclab.sensors import ContactSensor, ContactSensorCfg, Imu
         from isaaclab.sim.converters import UrdfConverter, UrdfConverterCfg
         from isaaclab.utils.version import get_isaac_sim_version
+        from h2_plus_lab.tasks.locomotion.sensor_cfg import (
+            H2_PLUS_IMU_GRAVITY_BIAS_M_S2,
+            H2_PLUS_IMU_HISTORY_LENGTH,
+            H2_PLUS_IMU_NOISE_CFG,
+            H2_PLUS_IMU_UPDATE_PERIOD_S,
+            H2_PLUS_LEFT_FOOT_IMU_CFG,
+            H2_PLUS_RIGHT_FOOT_IMU_CFG,
+            H2_PLUS_TORSO_IMU_CFG,
+        )
 
         usd_dir = args.usd_dir.expanduser().resolve()
         usd_dir.mkdir(parents=True, exist_ok=True)
@@ -723,11 +761,33 @@ def main(argv=None) -> int:
         ))
         left_contact = _contact_sensor(ContactSensor, ContactSensorCfg, robot_prim, "left")
         right_contact = _contact_sensor(ContactSensor, ContactSensorCfg, robot_prim, "right")
+        torso_imu = _imu_sensor(Imu, H2_PLUS_TORSO_IMU_CFG, robot_prim, "torso_link")
+        left_foot_imu = _imu_sensor(Imu, H2_PLUS_LEFT_FOOT_IMU_CFG, robot_prim, "left_ankle_pitch_link")
+        right_foot_imu = _imu_sensor(Imu, H2_PLUS_RIGHT_FOOT_IMU_CFG, robot_prim, "right_ankle_pitch_link")
         sim.set_camera_view(eye=(2.5, 2.5, 1.8), target=(0.0, 0.0, 0.8))
         sim.reset()
         robot.update(sim_dt)
         left_contact.update(sim_dt)
         right_contact.update(sim_dt)
+        torso_imu.update(sim_dt)
+        left_foot_imu.update(sim_dt)
+        right_foot_imu.update(sim_dt)
+
+        imu_device = robot.data.joint_pos.device
+        imu_biases = {
+            "torso": {
+                "lin_acc": torch.randn(3, device=imu_device) * H2_PLUS_IMU_NOISE_CFG.linear_acceleration_bias_std_m_s2,
+                "ang_vel": torch.randn(3, device=imu_device) * H2_PLUS_IMU_NOISE_CFG.angular_velocity_bias_std_rad_s,
+            },
+            "left_foot": {
+                "lin_acc": torch.randn(3, device=imu_device) * H2_PLUS_IMU_NOISE_CFG.linear_acceleration_bias_std_m_s2,
+                "ang_vel": torch.randn(3, device=imu_device) * H2_PLUS_IMU_NOISE_CFG.angular_velocity_bias_std_rad_s,
+            },
+            "right_foot": {
+                "lin_acc": torch.randn(3, device=imu_device) * H2_PLUS_IMU_NOISE_CFG.linear_acceleration_bias_std_m_s2,
+                "ang_vel": torch.randn(3, device=imu_device) * H2_PLUS_IMU_NOISE_CFG.angular_velocity_bias_std_rad_s,
+            },
+        }
 
         imported_names = list(robot.joint_names)
         expected_names = set(audit["joint_names"])
@@ -753,7 +813,7 @@ def main(argv=None) -> int:
         output.mkdir(parents=True, exist_ok=False)
         metadata = {
             "schema_version": 2,
-            "record_schema_version": 1,
+            "record_schema_version": 2,
             "run_id": datetime.now(timezone.utc).isoformat(),
             "run_status": "running",
             "mode": args.mode,
@@ -822,7 +882,40 @@ def main(argv=None) -> int:
             },
             "imu": {
                 "links_found_by_name": audit["imu_links"],
-                "status": "not_configured_no_verified_mount_transform",
+                "status": "configured_for_recording_only",
+                "update_hz": 1.0 / H2_PLUS_IMU_UPDATE_PERIOD_S,
+                "history_length": H2_PLUS_IMU_HISTORY_LENGTH,
+                "gravity_bias_m_s2": list(H2_PLUS_IMU_GRAVITY_BIAS_M_S2),
+                "linear_acceleration_includes_gravity_bias": True,
+                "axis_convention": {
+                    "torso": "x-forward, y-left, z-up",
+                    "feet": "x-right, y-forward, z-up",
+                },
+                "mounts": {
+                    "torso": {
+                        "parent_link": "torso_link",
+                        "translation_m": [0.0, 0.0, 0.0],
+                        "rotation_wxyz": [1.0, 0.0, 0.0, 0.0],
+                    },
+                    "left_foot": {
+                        "parent_link": "left_ankle_pitch_link",
+                        "translation_m": [-0.047, 0.0373, -0.0222],
+                        "rotation_wxyz": [0.7071067812, 0.0, 0.0, -0.7071067812],
+                    },
+                    "right_foot": {
+                        "parent_link": "right_ankle_pitch_link",
+                        "translation_m": [-0.047, -0.0373, -0.0222],
+                        "rotation_wxyz": [0.7071067812, 0.0, 0.0, -0.7071067812],
+                    },
+                },
+                "noise": {
+                    "linear_acceleration_std_m_s2": H2_PLUS_IMU_NOISE_CFG.linear_acceleration_std_m_s2,
+                    "angular_velocity_std_rad_s": H2_PLUS_IMU_NOISE_CFG.angular_velocity_std_rad_s,
+                    "linear_acceleration_bias_std_m_s2": H2_PLUS_IMU_NOISE_CFG.linear_acceleration_bias_std_m_s2,
+                    "angular_velocity_bias_std_rad_s": H2_PLUS_IMU_NOISE_CFG.angular_velocity_bias_std_rad_s,
+                    "application": "recording_only",
+                    "calibration_status": "provisional_simulation_parameters",
+                },
             },
             "excitation": {
                 "joint": args.perturb_joint or None,
@@ -838,6 +931,9 @@ def main(argv=None) -> int:
                     "left_foot_ground_normal_force_w_n", "right_foot_ground_normal_force_w_n",
                     "left_foot_ground_friction_force_w_n", "right_foot_ground_friction_force_w_n",
                     "left_foot_average_ground_contact_pos_w_m", "right_foot_average_ground_contact_pos_w_m",
+                    "torso_imu_linear_accel_b_m_s2", "torso_imu_angular_velocity_b_rad_s",
+                    "left_foot_imu_linear_accel_b_m_s2", "left_foot_imu_angular_velocity_b_rad_s",
+                    "right_foot_imu_linear_accel_b_m_s2", "right_foot_imu_angular_velocity_b_rad_s",
                 ] if args.mode == "collect" else [],
             },
         }
@@ -865,6 +961,9 @@ def main(argv=None) -> int:
                 robot.update(sim_dt)
                 left_contact.update(sim_dt)
                 right_contact.update(sim_dt)
+                torso_imu.update(sim_dt)
+                left_foot_imu.update(sim_dt)
+                right_foot_imu.update(sim_dt)
                 completed_steps = step + 1
 
                 if args.mode == "collect" and step % record_stride == 0:
@@ -889,6 +988,30 @@ def main(argv=None) -> int:
                         "right_foot_average_ground_contact_pos_w_m": _single_vector(right_contact.data.contact_pos_w),
                         "left_foot_ground_contact_valid": _single_vector(left_contact.data.contact_pos_w) is not None,
                         "right_foot_ground_contact_valid": _single_vector(right_contact.data.contact_pos_w) is not None,
+                        "torso_imu_linear_accel_b_m_s2": _noisy_imu_vector(
+                            torso_imu, "lin_acc_b", torch, imu_biases["torso"]["lin_acc"],
+                            H2_PLUS_IMU_NOISE_CFG.linear_acceleration_std_m_s2,
+                        ),
+                        "torso_imu_angular_velocity_b_rad_s": _noisy_imu_vector(
+                            torso_imu, "ang_vel_b", torch, imu_biases["torso"]["ang_vel"],
+                            H2_PLUS_IMU_NOISE_CFG.angular_velocity_std_rad_s,
+                        ),
+                        "left_foot_imu_linear_accel_b_m_s2": _noisy_imu_vector(
+                            left_foot_imu, "lin_acc_b", torch, imu_biases["left_foot"]["lin_acc"],
+                            H2_PLUS_IMU_NOISE_CFG.linear_acceleration_std_m_s2,
+                        ),
+                        "left_foot_imu_angular_velocity_b_rad_s": _noisy_imu_vector(
+                            left_foot_imu, "ang_vel_b", torch, imu_biases["left_foot"]["ang_vel"],
+                            H2_PLUS_IMU_NOISE_CFG.angular_velocity_std_rad_s,
+                        ),
+                        "right_foot_imu_linear_accel_b_m_s2": _noisy_imu_vector(
+                            right_foot_imu, "lin_acc_b", torch, imu_biases["right_foot"]["lin_acc"],
+                            H2_PLUS_IMU_NOISE_CFG.linear_acceleration_std_m_s2,
+                        ),
+                        "right_foot_imu_angular_velocity_b_rad_s": _noisy_imu_vector(
+                            right_foot_imu, "ang_vel_b", torch, imu_biases["right_foot"]["ang_vel"],
+                            H2_PLUS_IMU_NOISE_CFG.angular_velocity_std_rad_s,
+                        ),
                     }
                     trajectory.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")
                     trajectory.flush()

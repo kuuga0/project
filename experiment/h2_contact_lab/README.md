@@ -1,6 +1,6 @@
 # H2 Plus：Isaac Lab接入与采集、MuJoCo展示
 
-更新日期：2026-10-25。本页区分现行代码、已保存文件和运行证据。研究目标见 [项目README](../../README.md) 与 [研究正文6.5](../../research/research_main.md)。本次仅核对文件和更新说明，没有启动仿真或重新运行检查。
+更新日期：2026-10-28。本页区分现行代码、已保存文件和运行证据。研究目标见 [项目README](../../README.md) 与 [研究正文6.5](../../research/research_main.md)。本次完成H2 Plus模块化任务配置和训练入口编写，没有启动仿真或重新运行Isaac运行时检查。
 
 ## 两个入口及当前状态
 
@@ -8,6 +8,41 @@
 |---|---|---|
 | [run_h2_plus.py](run_h2_plus.py) | Isaac Lab主入口：`check`、`terrain`、`smoke`、`collect`、`validate`。 | 此前记录Windows语法、URDF检查、合成记录校验和地形dry-run通过；当前目录没有H2 Plus的Isaac USD或collect结果。目标Ubuntu环境运行仍待验证。 |
 | [view_h2_plus_mujoco_terrains.py](view_h2_plus_mujoco_terrains.py) | MuJoCo静态展示辅助脚本：四块地形和一个机器人，不调用 `mj_step`。 | 已保存 [h2_plus_four_terrains.xml](outputs/h2_plus_four_terrains.xml)，但静态核对发现导出关节树不完整、未配置差异摩擦，详见本页“MuJoCo展示的待修项”。不能作为已验证展示结果。 |
+
+## H2 Plus模块化任务配置（当前代码）
+
+`h2_plus_lab`是项目内的Isaac Lab扩展包，Isaac Lab源码仍位于外部的IsaacLab检出目录，不复制或修改 `source/isaaclab_tasks`。当前代码按以下职责组织：
+
+| 文件 | 职责 | 当前状态 |
+|---|---|---|
+| `h2_plus_lab/assets/h2_plus.py` | H2 Plus URDF→USD、`pelvis`根部、初始高度1.02 m和驱动分组 | 已写入，躯干 IMU 挂载接口已落实 |
+| `h2_plus_lab/tasks/locomotion/terrain_cfg.py` | 普通硬地、低摩擦双区域、局部崎岖地形和体积柔性地面 | 已写入，柔性体使用 Isaac Lab 2.3.x 的 PhysX deformable 配置 |
+| `h2_plus_lab/tasks/locomotion/sensor_cfg.py` | 左右足接触、躯干接触、躯干与双足 IMU、RayCaster接口和FOOTRIX接口 | IMU已挂载用于记录；首版策略不读取 IMU，雷达和FOOTRIX仍未启用 |
+| `h2_plus_lab/tasks/locomotion/env_cfg.py` | 场景、地形、接触传感器和三路 IMU 挂载 | 已写入 |
+| `h2_plus_lab/tasks/locomotion/h2_plus_env_cfg.py` | Manager-based盲走环境的动作、观测、指令、奖励、终止和重置事件 | 已写入 |
+| `h2_plus_lab/tasks/locomotion/mdp/h2_plus.py` | 分离左右脚传感器后的H2专用足部和躯干项 | 已写入 |
+| `h2_plus_lab/tasks/locomotion/agents/h2_plus/` | RSL-RL PPO配置和任务注册所需的训练入口 | 已写入 |
+| `run_h2_plus_rl.py` | 先导入项目任务注册，再调用Isaac Lab自带的RSL-RL `train.py`或`play.py` | 已写入 |
+
+已注册的地形任务包括：普通硬地 `Isaac-H2Plus-Blind-Locomotion-v0`、双区域低摩擦 `Isaac-H2Plus-Blind-Locomotion-LowFriction-v0` 和体积柔性地面 `Isaac-H2Plus-Blind-Locomotion-Deformable-v0`。低摩擦场景由两个独立刚性区域组成，柔性场景由四米见方的 PhysX 体积可变形地面和刚性支撑层组成；这些配置尚未在 Ubuntu 中启动验证。
+
+首版策略是盲走：观测包含根部状态、投影重力、23个主动关节的位置／速度、速度指令和上一时刻动作，不包含高度扫描。动作由双腿12个、腰部3个、双肩6个和双肘2个自由度组成，共23个；头部、腕部及尚未纳入策略的上肢自由度保留在模型和接口中。
+
+RayCaster配置仍保存在 `sensor_cfg.py`，但没有挂载到首版场景。躯干 IMU 挂在 `torso_link` 原点，双足 IMU 挂在各自 `ankle_pitch_link` 并使用已给出的偏移和旋转；三路 IMU 以120 Hz更新、保留6帧历史、输出含重力的机体坐标系加速度和角速度，并在记录层加入暂定噪声。IMU不进入首版策略观测，FOOTRIX没有被伪造成Isaac ContactSensor的逐单元数据。以上是代码配置状态，不是Ubuntu运行成功或训练成功的证据。
+
+在Ubuntu中，从IsaacLab根目录使用现有环境启动项目入口：
+
+```bash
+cd /wyp/IsaacLab
+./isaaclab.sh -p /wyp/project/experiment/h2_contact_lab/run_h2_plus_rl.py \
+  --mode train --headless --task Isaac-H2Plus-Blind-Locomotion-v0
+
+./isaaclab.sh -p /wyp/project/experiment/h2_contact_lab/run_h2_plus_rl.py \
+  --mode play --headless --task Isaac-H2Plus-Blind-Locomotion-Play-v0 \
+  --checkpoint /path/to/checkpoint.pt
+```
+
+如果IsaacLab不在 `/wyp/IsaacLab`，设置 `ISAACLAB_ROOT` 指向实际检出目录。当前没有新增pip依赖；训练和回放依赖Ubuntu中已经配置好的Isaac Lab、Isaac Sim、PyTorch和RSL-RL环境。上述命令尚未在本轮运行。
 
 下文命令均从 **project根目录** 执行。文档列出的是使用入口；本次整理未执行这些命令。
 
@@ -50,7 +85,7 @@ python experiment/h2_contact_lab/run_h2_plus.py --mode terrain --headless --devi
 |---|---|
 | 普通完整硬地 | 4×4 m刚性地面，静／动摩擦暂设0.8／0.7。 |
 | 低摩擦与摩擦差异 | Y方向两半平面：正Y侧0.25／0.20，负Y侧0.8／0.7；左右脚与场景轴向的对应仍需查看USD。 |
-| 轻度可变形铺设的外形代理 | 3×3 m、厚6 cm；当前仍是刚性碰撞体，没有压缩、剪切、倾转或恢复的可变形物理。 |
+| 体积柔性铺设 | 4×4 m、厚20 cm；使用 `DeformableObjectCfg`、`DeformableBodyPropertiesCfg` 和 `DeformableBodyMaterialCfg`，下方有刚性支撑层。 |
 | 局部有效支撑变化 | 相邻支撑板形成2.5 cm高差，供接缝／边缘附近几何检查。 |
 
 根部初始Z默认1.01 m，可用 `--root-height` 调整；地形间距默认6 m，`--terrain-spacing` 小于4.5 m会被拒绝。尺寸、摩擦和高差是调试参数，不是实测家居材料参数。
@@ -84,9 +119,9 @@ python experiment/h2_contact_lab/run_h2_plus.py --mode collect --headless --devi
 
 `metadata.json`保存URDF、网格与采集脚本SHA-256、USD路径、运行版本、Articulation关节顺序、URDF努力上限、初始状态、位置保持参数、摩擦假设和采样配置。运行失败或中断应结合 `run_status` 和错误信息阅读，不能只看是否生成了文件。
 
-`trajectory.jsonl`按帧保存仿真时间、关节位置目标／位置／速度、浮动根位姿／速度，以及左右足净法向合力、对地过滤法向力、对地过滤摩擦力和平均接触位置。有效接触标为 `valid=true`；无接触显式标为false，缺失值不能随意填0。
+`trajectory.jsonl`按帧保存仿真时间、关节位置目标／位置／速度、浮动根位姿／速度、三路 IMU 的机体坐标系线加速度和角速度，以及左右足净法向合力、对地过滤法向力、对地过滤摩擦力和平均接触位置。IMU记录使用暂定白噪声和每次运行固定偏置，噪声只作用于记录值，不进入物理状态或策略观测。有效接触标为 `valid=true`；无接触显式标为false，缺失值不能随意填0。
 
-这些是Isaac Lab ContactSensor／PhysX聚合仿真量，平均位置不是逐接触点分布，不是FOOTRIX逐单元三轴读数或标定结果；当前没有IMU数据、实际电机力矩、能力标签或研究任务真值。基础位置保持轨迹也不等于完整训练数据设计。
+这些是Isaac Lab ContactSensor／PhysX聚合仿真量，平均位置不是逐接触点分布，不是FOOTRIX逐单元三轴读数或标定结果；IMU也是仿真传感器输出，噪声参数尚未由硬件标定得到。当前没有实际电机力矩、能力标签或研究任务真值。基础位置保持轨迹也不等于完整训练数据设计。
 
 ```bash
 python experiment/h2_contact_lab/run_h2_plus.py --mode validate --run-dir /path/to/h2_plus_runs/20261022_120000
