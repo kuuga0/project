@@ -27,7 +27,7 @@ H2_PLUS_FOOT_IMU_ROTATION_WXYZ = (0.7071067812, 0.0, 0.0, -0.7071067812)
 
 @dataclass(frozen=True)
 class H2PlusImuNoiseCfg:
-    """Provisional recording noise until hardware noise is characterized."""
+    """Reserved noise parameters; the current RecorderManager stores raw IMU values."""
 
     linear_acceleration_std_m_s2: float = 0.05
     angular_velocity_std_rad_s: float = 0.005
@@ -66,7 +66,8 @@ H2_PLUS_BODY_CONTACT_CFG = ContactSensorCfg(
     prim_path="{ENV_REGEX_NS}/Robot/(pelvis|torso_link)",
     update_period=0.0,
     history_length=1,
-    filter_prim_paths_expr=H2_PLUS_TERRAIN_FILTER_PATHS,
+    # Termination uses net force on both bodies, not a filtered force matrix.
+    filter_prim_paths_expr=[],
     track_air_time=False,
     track_contact_points=False,
     track_friction_forces=False,

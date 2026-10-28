@@ -112,7 +112,6 @@ H2_PLUS_DEFORMABLE_GROUND_CFG = DeformableObjectCfg(
         collision_props=sim_utils.CollisionPropertiesCfg(),
         physics_material=sim_utils.DeformableBodyMaterialCfg(
             density=650.0,
-            static_friction=0.8,
             dynamic_friction=0.7,
             youngs_modulus=250000.0,
             poissons_ratio=0.35,

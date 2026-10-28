@@ -1,68 +1,67 @@
-"""H2 Plus locomotion task registration."""
+"""H2 Plus locomotion tasks.
 
-from __future__ import annotations
+Add a gym.register call here when introducing another environment configuration.
+Keep entry points as strings so registration does not initialize Isaac Sim.
+"""
 
 import gymnasium as gym
 
-from .agents.h2_plus import agents as h2_plus_agents
+gym.register(
+    id="Isaac-H2Plus-Blind-Locomotion-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.env_cfg:H2PlusFlatEnvCfg",
+        "rsl_rl_cfg_entry_point": f"{__name__}.agents.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
+    },
+)
 
+gym.register(
+    id="Isaac-H2Plus-Blind-Locomotion-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.env_cfg:H2PlusFlatEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{__name__}.agents.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
+    },
+)
 
-_H2_PLUS_TASK_ID = "Isaac-H2Plus-Blind-Locomotion-v0"
-_H2_PLUS_PLAY_TASK_ID = "Isaac-H2Plus-Blind-Locomotion-Play-v0"
-_H2_PLUS_LOW_FRICTION_TASK_ID = "Isaac-H2Plus-Blind-Locomotion-LowFriction-v0"
-_H2_PLUS_DEFORMABLE_TASK_ID = "Isaac-H2Plus-Blind-Locomotion-Deformable-v0"
+gym.register(
+    id="Isaac-H2Plus-Blind-Locomotion-LowFriction-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.env_cfg:H2PlusLowFrictionEnvCfg",
+        "rsl_rl_cfg_entry_point": f"{__name__}.agents.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
+    },
+)
 
+gym.register(
+    id="Isaac-H2Plus-Blind-Locomotion-LowFriction-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.env_cfg:H2PlusLowFrictionEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{__name__}.agents.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
+    },
+)
 
-def _register_h2_plus_tasks() -> None:
-    """Register project-local tasks when the package is imported."""
+gym.register(
+    id="Isaac-H2Plus-Blind-Locomotion-Deformable-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.env_cfg:H2PlusDeformableEnvCfg",
+        "rsl_rl_cfg_entry_point": f"{__name__}.agents.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
+    },
+)
 
-    if _H2_PLUS_TASK_ID not in gym.registry:
-        gym.register(
-            id=_H2_PLUS_TASK_ID,
-            entry_point="isaaclab.envs:ManagerBasedRLEnv",
-            disable_env_checker=True,
-            kwargs={
-                "env_cfg_entry_point": f"{__name__}.h2_plus_env_cfg:H2PlusLocomotionEnvCfg",
-                "rsl_rl_cfg_entry_point": f"{h2_plus_agents.__name__}.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
-            },
-        )
-    if _H2_PLUS_PLAY_TASK_ID not in gym.registry:
-        gym.register(
-            id=_H2_PLUS_PLAY_TASK_ID,
-            entry_point="isaaclab.envs:ManagerBasedRLEnv",
-            disable_env_checker=True,
-            kwargs={
-                "env_cfg_entry_point": f"{__name__}.h2_plus_env_cfg:H2PlusLocomotionEnvCfg_PLAY",
-                "rsl_rl_cfg_entry_point": f"{h2_plus_agents.__name__}.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
-            },
-        )
-    if _H2_PLUS_LOW_FRICTION_TASK_ID not in gym.registry:
-        gym.register(
-            id=_H2_PLUS_LOW_FRICTION_TASK_ID,
-            entry_point="isaaclab.envs:ManagerBasedRLEnv",
-            disable_env_checker=True,
-            kwargs={
-                "env_cfg_entry_point": f"{__name__}.h2_plus_env_cfg:H2PlusLowFrictionLocomotionEnvCfg",
-                "rsl_rl_cfg_entry_point": f"{h2_plus_agents.__name__}.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
-            },
-        )
-    if _H2_PLUS_DEFORMABLE_TASK_ID not in gym.registry:
-        gym.register(
-            id=_H2_PLUS_DEFORMABLE_TASK_ID,
-            entry_point="isaaclab.envs:ManagerBasedRLEnv",
-            disable_env_checker=True,
-            kwargs={
-                "env_cfg_entry_point": f"{__name__}.h2_plus_env_cfg:H2PlusDeformableLocomotionEnvCfg",
-                "rsl_rl_cfg_entry_point": f"{h2_plus_agents.__name__}.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
-            },
-        )
-
-
-_register_h2_plus_tasks()
-
-__all__ = [
-    "_H2_PLUS_DEFORMABLE_TASK_ID",
-    "_H2_PLUS_LOW_FRICTION_TASK_ID",
-    "_H2_PLUS_PLAY_TASK_ID",
-    "_H2_PLUS_TASK_ID",
-]
+gym.register(
+    id="Isaac-H2Plus-Blind-Locomotion-Deformable-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.env_cfg:H2PlusDeformableEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{__name__}.agents.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
+    },
+)

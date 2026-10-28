@@ -1,0 +1,468 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/bblabhumanoid/wyp/IsaacLab/apps/isaaclab.python.headless.kit
+Loading user config located at: '/home/bblabhumanoid/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/bblabhumanoid/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20261028_221452.log
+2026-10-28T14:14:52Z [427ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-10-28T14:14:53Z [865ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-10-28T14:14:53Z [1,139ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.178.04    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 4090          | Yes: 0 |     | 24810   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | 1357b578.. |
+|     |                                  |        |     |            | 41        |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 6.8.0-138-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101004 (1.21.1.4)
+| Processor: AMD EPYC 7B12 64-Core Processor
+| Cores: 128 | Logical Cores: 128
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 515743 | Free Memory: 493042
+| Total Page/Swap (MB): 9536 | Free Page/Swap: 9536
+|---------------------------------------------------------------------------------------------|
+2026-10-28T14:14:57Z [5,386ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+2026-10-28T14:14:57Z [5,421ms] [Warning] [omni.kvdb.plugin] Disabling key-value database because another kit process is locking it
+[INFO]: Parsing configuration from: h2_plus_lab.tasks.locomotion.h2_plus_env_cfg:H2PlusLocomotionEnvCfg
+[INFO]: Parsing configuration from: h2_plus_lab.tasks.locomotion.agents.h2_plus.agents.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg
+[INFO] Logging experiment in directory: /home/bblabhumanoid/wyp/project/experiment/h2_contact_lab/logs/rsl_rl/h2_plus_blind_locomotion
+Exact experiment name requested from command line: 2026-10-28_22-15-00
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-10-28_22-15-00.log[0m
+[36m======================================================================================[0m
+
+[33m22:15:00 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 42
+	Physics step-size     : 0.008333333333333333
+	Rendering step-size   : 0.03333333333333333
+	Environment step-size : 0.03333333333333333
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.178.04    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 4090          | Yes: 0 |     | 24810   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | 1357b578.. |
+|     |                                  |        |     |            | 41        |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 6.8.0-138-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101004 (1.21.1.4)
+| Processor: AMD EPYC 7B12 64-Core Processor
+| Cores: 128 | Logical Cores: 128
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 515743 | Free Memory: 492719
+| Total Page/Swap (MB): 9536 | Free Page/Swap: 9536
+|---------------------------------------------------------------------------------------------|
+2026-10-28T14:15:01Z [8,781ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+2026-10-28T14:15:01Z [9,489ms] [Warning] [omni.graph.visualization.nodes._impl.extension] No Viewport Window to add omni.graph.visualization.nodes-2.1.3 scene to
+2026-10-28T14:15:01Z [9,690ms] [Warning] [isaacsim.asset.importer.urdf] The path DefaultMaterial-fx is not a valid usd path, modifying to DefaultMaterial_fx
+2026-10-28T14:15:01Z [9,690ms] [Warning] [isaacsim.asset.importer.urdf] The path DefaultMaterial-fx is not a valid usd path, modifying to DefaultMaterial_fx
+2026-10-28T14:15:01Z [9,690ms] [Warning] [isaacsim.asset.importer.urdf] The path DefaultMaterial-fx is not a valid usd path, modifying to DefaultMaterial_fx
+2026-10-28T14:15:01Z [9,690ms] [Warning] [isaacsim.asset.importer.urdf] The path DefaultMaterial-fx is not a valid usd path, modifying to DefaultMaterial_fx
+[INFO]: Time taken for scene creation : 8.201642 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 1024
+	Environment spacing   : 3.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : ['/World/ground']
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 3.661677 seconds
+[33m22:15:12 [velocity_command.py] WARNING: The velocity command has the 'ranges.heading' attribute set to '(0.0, 0.0)' but the heading command is not active. Consider setting the flag for the heading command to True.[0m
+[INFO] Command Manager:  <CommandManager> contains 1 active terms.
++------------------------------------------------+
+|              Active Command Terms              |
++-------+---------------+------------------------+
+| Index | Name          |          Type          |
++-------+---------------+------------------------+
+|   0   | base_velocity | UniformVelocityCommand |
++-------+---------------+------------------------+
+
+[INFO] Event Manager:  <EventManager> contains 1 active terms.
++-----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+-----------------------+
+|   Index   | Name                  |
++-----------+-----------------------+
+|     0     | reset_scene           |
+|     1     | reset_joints          |
+|     2     | reset_base            |
++-----------+-----------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 3 active terms.
++--------------------------------------+
+|   Active Action Terms (shape: 23)    |
++-------+------------------+-----------+
+| Index | Name             | Dimension |
++-------+------------------+-----------+
+|   0   | legs             |        12 |
+|   1   | waist            |         3 |
+|   2   | shoulders_elbows |         8 |
++-------+------------------+-----------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (81,)) |
++-----------+---------------------------------+-----------+
+|   Index   | Name                            |   Shape   |
++-----------+---------------------------------+-----------+
+|     0     | base_lin_vel                    |    (3,)   |
+|     1     | base_ang_vel                    |    (3,)   |
+|     2     | projected_gravity               |    (3,)   |
+|     3     | velocity_commands               |    (3,)   |
+|     4     | joint_pos                       |   (23,)   |
+|     5     | joint_vel                       |   (23,)   |
+|     6     | last_action                     |   (23,)   |
++-----------+---------------------------------+-----------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++------------------------------------------+
+|         Active Termination Terms         |
++-------+-----------------------+----------+
+| Index | Name                  | Time Out |
++-------+-----------------------+----------+
+|   0   | time_out              |   True   |
+|   1   | body_contact          |  False   |
+|   2   | bad_orientation       |  False   |
+|   3   | terrain_out_of_bounds |  False   |
++-------+-----------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 11 active terms.
++--------------------------------------------+
+|            Active Reward Terms             |
++-------+-------------------------+----------+
+| Index | Name                    |   Weight |
++-------+-------------------------+----------+
+|   0   | termination_penalty     |   -200.0 |
+|   1   | track_lin_vel_xy        |      1.5 |
+|   2   | track_ang_vel_z         |      0.5 |
+|   3   | feet_air_time           |      0.2 |
+|   4   | feet_slide              |    -0.05 |
+|   5   | joint_pos_limits        |     -1.0 |
+|   6   | passive_joint_deviation |    -0.05 |
+|   7   | stand_still             |     -0.1 |
+|   8   | flat_orientation        |     -0.5 |
+|   9   | action_rate             |    -0.01 |
+|   10  | joint_acceleration      | -2.5e-07 |
++-------+-------------------------+----------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+/home/bblabhumanoid/miniconda3/envs/project/lib/python3.11/site-packages/rsl_rl/utils/utils.py:245: UserWarning: The observation configuration dictionary 'obs_groups' must contain the 'policy' key. As an observation group with the name 'policy' was found, this is assumed to be the observation set. Consider adding the 'policy' key to the 'obs_groups' dictionary for clarity. This behavior will be removed in a future version.
+  warnings.warn(
+/home/bblabhumanoid/miniconda3/envs/project/lib/python3.11/site-packages/rsl_rl/utils/utils.py:291: UserWarning: The observation configuration dictionary 'obs_groups' must contain the 'critic' key. As the configuration for 'critic' is missing, the observations from the 'policy' set are used. Consider adding the 'critic' key to the 'obs_groups' dictionary for clarity. This behavior will be removed in a future version.
+  warnings.warn(
+--------------------------------------------------------------------------------
+Resolved observation sets: 
+	 policy :  ['policy']
+	 critic :  ['policy']
+--------------------------------------------------------------------------------
+Actor MLP: MLP(
+  (0): Linear(in_features=81, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=23, bias=True)
+)
+Critic MLP: MLP(
+  (0): Linear(in_features=81, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=1, bias=True)
+)
+################################################################################
+                      [1m Learning iteration 0/3000 [0m                       
+
+                       Computation: 6159 steps/s (collection: 3.674s, learning 0.316s)
+             Mean action noise std: 1.00
+          Mean value_function loss: 1.4706
+               Mean surrogate loss: 0.0208
+                 Mean entropy loss: 32.6747
+                       Mean reward: -6.32
+               Mean episode length: 22.55
+Episode_Reward/termination_penalty: -0.0763
+   Episode_Reward/track_lin_vel_xy: 0.0092
+    Episode_Reward/track_ang_vel_z: 0.0026
+      Episode_Reward/feet_air_time: 0.0000
+         Episode_Reward/feet_slide: -0.0002
+   Episode_Reward/joint_pos_limits: -0.0000
+Episode_Reward/passive_joint_deviation: -0.0000
+        Episode_Reward/stand_still: -0.0004
+   Episode_Reward/flat_orientation: -0.0011
+        Episode_Reward/action_rate: -0.0092
+ Episode_Reward/joint_acceleration: -0.0073
+Metrics/base_velocity/error_vel_xy: 0.0279
+Metrics/base_velocity/error_vel_yaw: 0.0397
+      Episode_Termination/time_out: 0.0192
+  Episode_Termination/body_contact: 0.0000
+Episode_Termination/bad_orientation: 0.0092
+Episode_Termination/terrain_out_of_bounds: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 24576
+                    Iteration time: 3.99s
+                      Time elapsed: 00:00:03
+                               ETA: 03:19:29
+
+Could not find git repository in /home/bblabhumanoid/miniconda3/envs/project/lib/python3.11/site-packages/rsl_rl/__init__.py. Skipping.
+Storing git diff for 'IsaacLab' in: /home/bblabhumanoid/wyp/project/experiment/h2_contact_lab/logs/rsl_rl/h2_plus_blind_locomotion/2026-10-28_22-15-00/git/IsaacLab.diff
+################################################################################
+                      [1m Learning iteration 1/3000 [0m                       
+
+                       Computation: 11231 steps/s (collection: 2.014s, learning 0.175s)
+             Mean action noise std: 1.00
+          Mean value_function loss: 7.3749
+               Mean surrogate loss: -0.0058
+                 Mean entropy loss: 32.6953
+                       Mean reward: -6.92
+               Mean episode length: 32.99
+Episode_Reward/termination_penalty: -0.3318
+   Episode_Reward/track_lin_vel_xy: 0.0176
+    Episode_Reward/track_ang_vel_z: 0.0077
+      Episode_Reward/feet_air_time: 0.0001
+         Episode_Reward/feet_slide: -0.0008
+   Episode_Reward/joint_pos_limits: -0.0000
+Episode_Reward/passive_joint_deviation: -0.0001
+        Episode_Reward/stand_still: -0.0009
+   Episode_Reward/flat_orientation: -0.0047
+        Episode_Reward/action_rate: -0.0240
+ Episode_Reward/joint_acceleration: -0.0115
+Metrics/base_velocity/error_vel_xy: 0.0920
+Metrics/base_velocity/error_vel_yaw: 0.1065
+      Episode_Termination/time_out: 0.0334
+  Episode_Termination/body_contact: 0.0000
+Episode_Termination/bad_orientation: 0.7685
+Episode_Termination/terrain_out_of_bounds: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 49152
+                    Iteration time: 2.19s
+                      Time elapsed: 00:00:06
+                               ETA: 02:34:24
+
+################################################################################
+                      [1m Learning iteration 2/3000 [0m                       
+
+                       Computation: 11909 steps/s (collection: 1.887s, learning 0.176s)
+             Mean action noise std: 1.01
+          Mean value_function loss: 8.9782
+               Mean surrogate loss: -0.0030
+                 Mean entropy loss: 32.7580
+                       Mean reward: -7.06
+               Mean episode length: 33.56
+Episode_Reward/termination_penalty: -0.3333
+   Episode_Reward/track_lin_vel_xy: 0.0142
+    Episode_Reward/track_ang_vel_z: 0.0072
+      Episode_Reward/feet_air_time: 0.0001
+         Episode_Reward/feet_slide: -0.0008
+   Episode_Reward/joint_pos_limits: -0.0000
+Episode_Reward/passive_joint_deviation: -0.0001
+        Episode_Reward/stand_still: -0.0006
+   Episode_Reward/flat_orientation: -0.0046
+        Episode_Reward/action_rate: -0.0236
+ Episode_Reward/joint_acceleration: -0.0136
+Metrics/base_velocity/error_vel_xy: 0.0985
+Metrics/base_velocity/error_vel_yaw: 0.1054
+      Episode_Termination/time_out: 0.0049
+  Episode_Termination/body_contact: 0.0000
+Episode_Termination/bad_orientation: 0.9959
+Episode_Termination/terrain_out_of_bounds: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 73728
+                    Iteration time: 2.06s
+                      Time elapsed: 00:00:08
+                               ETA: 02:17:16
+
+################################################################################
+                      [1m Learning iteration 3/3000 [0m                       
+
+                       Computation: 11617 steps/s (collection: 1.940s, learning 0.176s)
+             Mean action noise std: 1.01
+          Mean value_function loss: 8.0884
+               Mean surrogate loss: -0.0072
+                 Mean entropy loss: 32.8241
+                       Mean reward: -7.06
+               Mean episode length: 32.10
+Episode_Reward/termination_penalty: -0.3333
+   Episode_Reward/track_lin_vel_xy: 0.0147
+    Episode_Reward/track_ang_vel_z: 0.0071
+      Episode_Reward/feet_air_time: 0.0001
+         Episode_Reward/feet_slide: -0.0008
+   Episode_Reward/joint_pos_limits: -0.0000
+Episode_Reward/passive_joint_deviation: -0.0001
+        Episode_Reward/stand_still: -0.0008
+   Episode_Reward/flat_orientation: -0.0046
+        Episode_Reward/action_rate: -0.0234
+ Episode_Reward/joint_acceleration: -0.0125
+Metrics/base_velocity/error_vel_xy: 0.0969
+Metrics/base_velocity/error_vel_yaw: 0.1055
+      Episode_Termination/time_out: 0.0006
+  Episode_Termination/body_contact: 0.0000
+Episode_Termination/bad_orientation: 0.9994
+Episode_Termination/terrain_out_of_bounds: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 98304
+                    Iteration time: 2.12s
+                      Time elapsed: 00:00:10
+                               ETA: 02:09:20
+
+################################################################################
+                      [1m Learning iteration 4/3000 [0m                       
+
+                       Computation: 12061 steps/s (collection: 1.859s, learning 0.179s)
+             Mean action noise std: 1.01
+          Mean value_function loss: 5.6400
+               Mean surrogate loss: -0.0078
+                 Mean entropy loss: 32.9077
+                       Mean reward: -7.07
+               Mean episode length: 30.10
+Episode_Reward/termination_penalty: -0.3333
+   Episode_Reward/track_lin_vel_xy: 0.0145
+    Episode_Reward/track_ang_vel_z: 0.0073
+      Episode_Reward/feet_air_time: 0.0001
+         Episode_Reward/feet_slide: -0.0008
+   Episode_Reward/joint_pos_limits: -0.0000
+Episode_Reward/passive_joint_deviation: -0.0001
+        Episode_Reward/stand_still: -0.0007
+   Episode_Reward/flat_orientation: -0.0046
+        Episode_Reward/action_rate: -0.0238
+ Episode_Reward/joint_acceleration: -0.0133
+Metrics/base_velocity/error_vel_xy: 0.0972
+Metrics/base_velocity/error_vel_yaw: 0.1041
+      Episode_Termination/time_out: 0.0000
+  Episode_Termination/body_contact: 0.0000
+Episode_Termination/bad_orientation: 1.0000
+Episode_Termination/terrain_out_of_bounds: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 122880
+                    Iteration time: 2.04s
+                      Time elapsed: 00:00:12
+                               ETA: 02:03:46
+
+################################################################################
+                      [1m Learning iteration 5/3000 [0m                       
+
+                       Computation: 11803 steps/s (collection: 1.902s, learning 0.180s)
+             Mean action noise std: 1.02
+          Mean value_function loss: 4.3642
+               Mean surrogate loss: -0.0065
+                 Mean entropy loss: 32.9739
+                       Mean reward: -7.15
+               Mean episode length: 29.05
+Episode_Reward/termination_penalty: -0.3333
+   Episode_Reward/track_lin_vel_xy: 0.0150
+    Episode_Reward/track_ang_vel_z: 0.0072
+      Episode_Reward/feet_air_time: 0.0001
+         Episode_Reward/feet_slide: -0.0008
+   Episode_Reward/joint_pos_limits: -0.0000
+Episode_Reward/passive_joint_deviation: -0.0001
+        Episode_Reward/stand_still: -0.0007
+   Episode_Reward/flat_orientation: -0.0046
+        Episode_Reward/action_rate: -0.0242
+ Episode_Reward/joint_acceleration: -0.0132
+Metrics/base_velocity/error_vel_xy: 0.1000
+Metrics/base_velocity/error_vel_yaw: 0.1081
+      Episode_Termination/time_out: 0.0000
+  Episode_Termination/body_contact: 0.0000
+Episode_Termination/bad_orientation: 1.0000
+Episode_Termination/terrain_out_of_bounds: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 147456
+                    Iteration time: 2.08s
+                      Time elapsed: 00:00:14
+                               ETA: 02:00:26
+
+################################################################################
+                      [1m Learning iteration 6/3000 [0m                       
+
+                       Computation: 12016 steps/s (collection: 1.877s, learning 0.168s)
+             Mean action noise std: 1.02
+          Mean value_function loss: 3.8924
+               Mean surrogate loss: -0.0076
+                 Mean entropy loss: 33.0466
+                       Mean reward: -7.05
+               Mean episode length: 29.87
+Episode_Reward/termination_penalty: -0.3333
+   Episode_Reward/track_lin_vel_xy: 0.0154
+    Episode_Reward/track_ang_vel_z: 0.0072
+      Episode_Reward/feet_air_time: 0.0001
+         Episode_Reward/feet_slide: -0.0008
+   Episode_Reward/joint_pos_limits: -0.0000
+Episode_Reward/passive_joint_deviation: -0.0001
+        Episode_Reward/stand_still: -0.0008
+   Episode_Reward/flat_orientation: -0.0047
+        Episode_Reward/action_rate: -0.0246
+ Episode_Reward/joint_acceleration: -0.0126
+Metrics/base_velocity/error_vel_xy: 0.0982
+Metrics/base_velocity/error_vel_yaw: 0.1090
+      Episode_Termination/time_out: 0.0000
+  Episode_Termination/body_contact: 0.0000
+Episode_Termination/bad_orientation: 1.0000
+Episode_Termination/terrain_out_of_bounds: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 172032
+                    Iteration time: 2.05s
+                      Time elapsed: 00:00:16
+                               ETA: 01:57:46
+
+################################################################################
+                      [1m Learning iteration 7/3000 [0m                       
+
+                       Computation: 11839 steps/s (collection: 1.900s, learning 0.176s)
+             Mean action noise std: 1.02
+          Mean value_function loss: 3.5994
+               Mean surrogate loss: -0.0106
+                 Mean entropy loss: 33.1479
+                       Mean reward: -7.04
+               Mean episode length: 31.36
+Episode_Reward/termination_penalty: -0.3333
+   Episode_Reward/track_lin_vel_xy: 0.0146
+    Episode_Reward/track_ang_vel_z: 0.0072
+      Episode_Reward/feet_air_time: 0.0001
+         Episode_Reward/feet_slide: -0.0008
+   Episode_Reward/joint_pos_limits: -0.0000
+Episode_Reward/passive_joint_deviation: -0.0001
+        Episode_Reward/stand_still: -0.0008
+   Episode_Reward/flat_orientation: -0.0046
+        Episode_Reward/action_rate: -0.0249
+ Episode_Reward/joint_acceleration: -0.0122
+Metrics/base_velocity/error_vel_xy: 0.1013
+Metrics/base_velocity/error_vel_yaw: 0.1098
+      Episode_Termination/time_out: 0.0000
+  Episode_Termination/body_contact: 0.0000
+Episode_Termination/bad_orientation: 1.0000
+Episode_Termination/terrain_out_of_bounds: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 196608
+                    Iteration time: 2.08s
+                      Time elapsed: 00:00:18
+                               ETA: 01:55:57
+

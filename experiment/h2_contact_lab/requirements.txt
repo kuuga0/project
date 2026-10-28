@@ -1,5 +1,0 @@
-# H2 Plus collector project-specific pip requirements.
-# The existing Ubuntu Isaac Lab / Isaac Sim environment already provides
-# isaaclab, isaacsim, and torch. Do not reinstall those runtime packages here.
-# No additional pip packages are currently required; standard-library only
-# is used outside the existing Isaac Lab / Isaac Sim runtime.

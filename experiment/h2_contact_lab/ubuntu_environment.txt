@@ -1,9 +1,11 @@
 H2 Plus Isaac Lab 环境说明
 ==========================
 
-用户现有 Ubuntu 环境已经包含采集器需要的运行时；当前开发受限于 Windows，实际运行将等代码准备完成后统一进行。此前记录的版本为 Python 3.11、Isaac Lab 2.3.2、Isaac Sim 5.1.0 和 PyTorch 2.7.0+cu126；本轮未重新连接 Ubuntu 核验。
+2026-10-28已在本机Ubuntu实际启动平地PPO，随后按用户要求停止。现用conda环境为project，Isaac Lab检出位于 /home/bblabhumanoid/wyp/IsaacLab（2.3.2），独立Isaac Sim位于 /home/bblabhumanoid/isaacsim（5.1），Python 3.11，PyTorch 2.7.0+cu128，RSL-RL 3.1.2，GPU为RTX 4090。
 
-本项目在 Isaac 环境之外只用 Python 标准库，没有额外 pip 依赖。`requirements.txt` 因此保留为注释说明，没有可安装的包；已有环境直接激活即可，**不需要运行 pip install -r 来重装 Isaac**。
+必须完整激活conda环境，以执行加载Isaac Sim Python路径的激活脚本；直接调用conda目录下的Python会漏掉这些路径。启动命令见同目录README。现用根目录train.py／play.py直接入口及本地cli_args.py，使用已激活环境中的Isaac Lab；无需查找上游训练脚本、不读取ISAACLAB_ROOT，也不需要export路径。
+
+旧独立check／collect／validate工具已删除；训练及任务内记录依赖现有Isaac Lab、Isaac Sim、PyTorch、RSL-RL和Isaac Lab自带的h5py。本次没有安装额外pip依赖。原 `requirements.txt` 仅含注释，已在2026-10-28目录清理时删除；依赖说明以本文件为准。已有环境直接激活即可，不需要重装Isaac。
 
 只有新建运行环境时，才需另按 Isaac Lab／Isaac Sim 对应版本的官方流程安装完整运行时。Ubuntu、NVIDIA 驱动、CUDA runtime 和 GLIBC 等系统条件不属于 pip requirements。
 

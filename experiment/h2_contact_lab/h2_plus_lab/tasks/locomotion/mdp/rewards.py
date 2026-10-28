@@ -11,7 +11,7 @@ specify the reward function and its parameters.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 import torch
 
@@ -22,67 +22,6 @@ from isaaclab.utils.math import quat_apply_inverse, yaw_quat
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
-
-
-def feet_air_time(
-    env: ManagerBasedRLEnv, command_name: str, sensor_cfg: SceneEntityCfg, threshold: float
-) -> torch.Tensor:
-    """Reward long steps taken by the feet using L2-kernel.
-
-    This function rewards the agent for taking steps that are longer than a threshold. This helps ensure
-    that the robot lifts its feet off the ground and takes steps. The reward is computed as the sum of
-    the time for which the feet are in the air.
-
-    If the commands are small (i.e. the agent is not supposed to take a step), then the reward is zero.
-    """
-    # extract the used quantities (to enable type-hinting)
-    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-    # compute the reward
-    first_contact = contact_sensor.compute_first_contact(env.step_dt)[:, sensor_cfg.body_ids]
-    last_air_time = contact_sensor.data.last_air_time[:, sensor_cfg.body_ids]
-    reward = torch.sum((last_air_time - threshold) * first_contact, dim=1)
-    # no reward for zero command
-    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
-    return reward
-
-
-def feet_air_time_positive_biped(env, command_name: str, threshold: float, sensor_cfg: SceneEntityCfg) -> torch.Tensor:
-    """Reward long steps taken by the feet for bipeds.
-
-    This function rewards the agent for taking steps up to a specified threshold and also keep one foot at
-    a time in the air.
-
-    If the commands are small (i.e. the agent is not supposed to take a step), then the reward is zero.
-    """
-    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-    # compute the reward
-    air_time = contact_sensor.data.current_air_time[:, sensor_cfg.body_ids]
-    contact_time = contact_sensor.data.current_contact_time[:, sensor_cfg.body_ids]
-    in_contact = contact_time > 0.0
-    in_mode_time = torch.where(in_contact, contact_time, air_time)
-    single_stance = torch.sum(in_contact.int(), dim=1) == 1
-    reward = torch.min(torch.where(single_stance.unsqueeze(-1), in_mode_time, 0.0), dim=1)[0]
-    reward = torch.clamp(reward, max=threshold)
-    # no reward for zero command
-    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
-    return reward
-
-
-def feet_slide(env, sensor_cfg: SceneEntityCfg, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
-    """Penalize feet sliding.
-
-    This function penalizes the agent for sliding its feet on the ground. The reward is computed as the
-    norm of the linear velocity of the feet multiplied by a binary contact sensor. This ensures that the
-    agent is penalized only when the feet are in contact with the ground.
-    """
-    # Penalize feet sliding
-    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-    contacts = contact_sensor.data.net_forces_w_history[:, :, sensor_cfg.body_ids, :].norm(dim=-1).max(dim=1)[0] > 1.0
-    asset = env.scene[asset_cfg.name]
-
-    body_vel = asset.data.body_lin_vel_w[:, asset_cfg.body_ids, :2]
-    reward = torch.sum(body_vel.norm(dim=-1) * contacts, dim=1)
-    return reward
 
 
 def track_lin_vel_xy_yaw_frame_exp(
@@ -117,3 +56,48 @@ def stand_still_joint_deviation_l1(
     command = env.command_manager.get_command(command_name)
     # Penalize motion when command is nearly zero.
     return mdp.joint_deviation_l1(env, asset_cfg) * (torch.norm(command[:, :2], dim=1) < command_threshold)
+
+
+def h2_plus_feet_air_time_positive_biped(
+    env,
+    command_name: str,
+    threshold: float,
+    sensor_names: Sequence[str] = ("left_foot_contact", "right_foot_contact"),
+) -> torch.Tensor:
+    """Reward alternating two-foot stance using the two H2 foot sensors."""
+
+    air_time = []
+    contact_time = []
+    for sensor_name in sensor_names:
+        sensor: ContactSensor = env.scene.sensors[sensor_name]
+        air_time.append(sensor.data.current_air_time[:, 0])
+        contact_time.append(sensor.data.current_contact_time[:, 0])
+
+    air_time = torch.stack(air_time, dim=1)
+    contact_time = torch.stack(contact_time, dim=1)
+    in_contact = contact_time > 0.0
+    in_mode_time = torch.where(in_contact, contact_time, air_time)
+    single_stance = torch.sum(in_contact.int(), dim=1) == 1
+    reward = torch.min(torch.where(single_stance.unsqueeze(-1), in_mode_time, 0.0), dim=1)[0]
+    reward = torch.clamp(reward, max=threshold)
+    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    return reward
+
+
+def h2_plus_feet_slide(
+    env,
+    asset_cfg: SceneEntityCfg,
+    sensor_names: Sequence[str] = ("left_foot_contact", "right_foot_contact"),
+) -> torch.Tensor:
+    """Penalize tangential velocity of H2 feet while they are in contact."""
+
+    contacts = []
+    for sensor_name in sensor_names:
+        sensor: ContactSensor = env.scene.sensors[sensor_name]
+        foot_force_history = sensor.data.net_forces_w_history[:, :, 0, :]
+        contacts.append(foot_force_history.norm(dim=-1).amax(dim=1) > 1.0)
+    contacts = torch.stack(contacts, dim=1)
+
+    asset = env.scene[asset_cfg.name]
+    foot_velocity = asset.data.body_lin_vel_w[:, asset_cfg.body_ids, :2].norm(dim=-1)
+    return torch.sum(foot_velocity * contacts, dim=1)

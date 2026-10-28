@@ -1,0 +1,600 @@
+--- git status ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   AGENTS.md
+	modified:   README.md
+	modified:   experiment/h2_contact_lab/README.md
+	modified:   experiment/h2_contact_lab/h2_plus_lab/assets/h2_plus.py
+	modified:   experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/__init__.py
+	modified:   experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/env_cfg.py
+	modified:   experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/h2_plus_env_cfg.py
+	modified:   experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/terminations.py
+	modified:   experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/sensor_cfg.py
+	modified:   experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/terrain_cfg.py
+	modified:   experiment/h2_contact_lab/run_h2_plus.py
+	modified:   experiment/h2_contact_lab/run_h2_plus_rl.py
+	modified:   experiment/h2_contact_lab/ubuntu_environment.txt
+	modified:   experiment/h2_contact_lab/view_h2_plus_mujoco_terrains.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	experiment/h2_contact_lab/log/
+	experiment/h2_contact_lab/logs/
+	experiment/h2_contact_lab/output/
+	experiment/h2_contact_lab/outputs/2026-10-28/
+	experiment/h2_contact_lab/outputs/h2_plus_usd/
+	experiment/h2_contact_lab/outputs/train_20261028_141257/
+	experiment/h2_contact_lab/outputs/train_20261028_141313/
+	experiment/h2_contact_lab/outputs/train_20261028_141452/
+	experiment/h2_contact_lab/rl/
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/AGENTS.md b/AGENTS.md
+index 800154a..c5c8867 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -10,5 +10,7 @@
+ - 保存后做一次必要读回，简述实际修改与未完成项。确实不能安全合入时，才使用本项目 `待合入/` 并在 README 留入口；合入后取消过时标记，不丢弃独有内容。无法写入时给出未保存正文和报错，不反复重跑整套任务。没有有效增量不生成重复报告。
+ - 课题与实习各用独立 Git，共同父目录不建总仓库。文件保存与 Git 操作分开；默认不暂存、提交、拉取或推送，由用户手动处理，另有明确授权时按授权执行。保留现有历史与旧原件，不擅删 `.git`；原始聊天、迁移中间物、缓存、原始文献和论文稿件不入课题仓库，必要源码、配置、数据和结果不能一概排除。
+ - 网页讨论后的有效增量按需合入本地，不另造网页压缩稿，也不声称自动同步。路径使用正斜杠，保留字面下划线，不插入额外转义符。回复简明，不新增无必要的管理流程。
++- H2 Plus训练启动约定（用户于2026-10-28确认）：完整激活 `project` 环境并进入 `experiment/h2_contact_lab/` 后，使用 `python run_h2_plus_rl.py --headless`。启动器自动定位project旁的IsaacLab；`ISAACLAB_ROOT` 仅为可选覆盖，失效时回退到相邻检出目录。后续修改须保留无需手动 `export` 路径的启动方式，不把机器绝对路径重新写成必需参数。训练由用户手动启动，除非用户另行明确授权，不因改代码或验证入口而自行启动训练。详细默认参数和运行记录以该目录README为准。
++- H2 Plus产物目录约定（用户于2026-10-28确认）：新增训练记录、参数／代码快照与checkpoint默认写入 `experiment/h2_contact_lab/log/`；场景、采集数据、视频和导出策略默认写入该单元 `output/`。使用单数目录名，默认路径按代码位置计算，不随启动工作目录变化；后续不得恢复向任意当前目录的 `logs/`、`outputs/` 写入。旧目录仅保留历史文件，详细分配见H2实验README。
+ - 数学内容统一使用 LaTeX，但**定界符按载体分别规定**。本地 Markdown 源文件以 VS Code Markdown 预览可直接渲染为准：行内数学使用 `$...$`，独立公式使用 `$$...$$`；网页聊天以当前 ChatGPT 界面实际可渲染为准：行内数学使用 `\(...\)`，独立公式使用 `\[...\]`。两端只要求数学内容与记号一致，不要求使用相同定界符。项目自定义数学记号优先使用拉丁字母配合含义明确的上下标，例如本地源文件中的 $C_{\mathrm{cur}}$、$D_{\mathrm{req}}$、$P_{\mathrm{local}}$、$R_{\mathrm{cap}}$；摩擦系数等领域惯例符号按需要保留。反引号只用于代码、接口／语法字面量、文件名、路径和仓库名。
+ - 新网页聊天在读取 `AGENTS.md`、README 与本轮相关正文后，尤其当用户发出“阅读项目源文件”等接续指令时，后续数学必须直接执行上一条载体规则：网页回复不得用 `$...$`／`$$...$$` 作为数学定界符，也不得用普通下划线模拟数学下标；写入本地 Markdown 时不得改用网页端定界符。普通叙述仍优先使用中文名称，只有确需指代项目数学对象时才插入数学符号；发送或保存前检查不得残留未闭合数学定界符、裸露未渲染的 LaTeX 命令或错误转义。
+diff --git a/README.md b/README.md
+index 71cef01..5f7b06a 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+ # 课题资料入口
+ 
+-更新日期：2026-10-28。本文说明当前研究定位、文件用途与证据状态；详细推导、候选方案和演变理由保存在 [研究主文档](research/research_main.md)。本轮补齐了H2 Plus的模块化任务配置和训练入口，但没有启动仿真、采集、训练或硬件实验。
++更新日期：2026-10-28。本文说明当前研究定位、文件用途与证据状态；详细推导、候选方案和演变理由保存在 [研究主文档](research/research_main.md)。H2 Plus训练配置与入口阻塞已修复，平地1024环境实际进入PPO更新，随后按用户要求停止；后续由用户手动启动，详见 [H2实验README](experiment/h2_contact_lab/README.md)。训练未完成，特殊地形和行走效果尚未验证。
+ 
+ ## 第一次阅读
+ 
+@@ -33,10 +33,10 @@
+ | E-01：STM32压力与IMU显示 | 固件、CubeIDE配置及浏览器可视化页面；用户此前报告旧32点压力与IMU采集跑通。代码目标压力输出约20 Hz。 | 本次未编译或连接硬件；200 Hz系统节拍／IMU设置不等于压力采样率。网页时间对齐不是硬件同步。 |
+ | E-02：单足局部扳手与数字台架 | 理论推导、Stage A查询、Stage B基础接触／十方向扫描／部分支撑／理想融合，以及对应数据和图。 | 固定模型下的理论、MuJoCo接触及同源理想观测；没有由这些文件证明的真实传感器精度或整机任务结果。 |
+ | E-03：G1旁路 | 原足接触分桶与连续足板两条路线；多地形、rough 20回合、离线预警和姿态反事实记录。 | 策略不接收新增传感反馈。预警正常样本仅4回合；单帧“达标”不是执行成功。G1日志扳手分量顺序与单足理论不同，读取时须按字段转换。 |
+-| H2 Plus：Isaac Lab主入口 | `run_h2_plus.py` 含 `check`、`smoke`、`collect`、`validate`、`terrain`；`h2_plus_lab` 增加资产、地形、接触传感器、盲走MDP、Gym注册和RSL-RL启动入口。 | project中未见当前H2 Plus的Isaac USD或采集目录；Ubuntu加载、物理步进、任务注册、接触输出及真实记录回读仍待验证。 |
++| H2 Plus：Isaac Lab主入口 | `run_h2_plus.py` 含 `check`、`smoke`、`collect`、`validate`、`terrain`；`h2_plus_lab` 增加资产、地形、接触传感器、盲走MDP、Gym注册和RSL-RL启动入口。 | 已生成USD，平地1024环境进入PPO更新后按用户要求停止；训练未完成，特殊地形、记录回读与行走效果未验证。 |
+ | H2 Plus：MuJoCo展示辅助入口 | `view_h2_plus_mujoco_terrains.py` 及已保存的 `outputs/h2_plus_four_terrains.xml`。四块地形、一个机器人；代码不调用 `mj_step`。 | 当前导出关节树不完整，且没有差异摩擦参数，不能作为已验证的完整H2 Plus模型或物理场景；详见下方待修项。 |
+ 
+-Isaac Lab默认资产为 [H2_Plus_with_footrix_no_dex_hands.urdf](experiment/robot_asset/h2_plus/H2_Plus_with_footrix_no_dex_hands.urdf)；MuJoCo展示脚本默认读取同目录的 `H2_Plus_mujoco_with_footrix_no_dex_hands.urdf`。去除XML注释后，两者均为32个link、31个转动关节、49个可解析网格引用；URDF本身未声明IMU安装frame／外参，项目任务配置已在 `sensor_cfg.py` 中给出躯干和双足 IMU 的安装参数。带手的 `H2_Plus_mujoco_with_footrix.urdf` 为98个link、75个转动关节和22个固定关节，不能只凭名称中的FOOTRIX把它当作去手默认版。H2 Plus模块化任务配置、盲走动作空间和Ubuntu启动命令见 [H2实验README](experiment/h2_contact_lab/README.md)；这些代码配置尚未升级为运行或训练证据。
++Isaac Lab默认资产为 [H2_Plus_with_footrix_no_dex_hands.urdf](experiment/robot_asset/h2_plus/H2_Plus_with_footrix_no_dex_hands.urdf)；MuJoCo展示脚本默认读取同目录的 `H2_Plus_mujoco_with_footrix_no_dex_hands.urdf`。去除XML注释后，两者均为32个link、31个转动关节、49个可解析网格引用；URDF本身未声明IMU安装frame／外参，项目任务配置已在 `sensor_cfg.py` 中给出躯干和双足 IMU 的安装参数。带手的 `H2_Plus_mujoco_with_footrix.urdf` 为98个link、75个转动关节和22个固定关节，不能只凭名称中的FOOTRIX把它当作去手默认版。H2 Plus模块化任务配置、盲走动作空间和Ubuntu启动命令见 [H2实验README](experiment/h2_contact_lab/README.md)；平地现有早期训练运行证据，但无收敛或行走效果结论。
+ 
+ Isaac `terrain` 计划导出一份含四个机器人初始姿态的USD，不调用reset或物理步；H2 Plus任务配置现在包含独立低摩擦双区域和PhysX体积柔性地面场景，但尚未启动运行验证。`smoke`／`collect` 才会推进物理步，且旧采集入口仍使用单一普通地面，并非自动在全部地形上采集。采集代码记录聚合法向／摩擦接触量和三路 IMU 的带噪声记录值，不是FOOTRIX逐单元三轴读数；没有能力标签或正式训练集。
+ 
+@@ -85,4 +85,4 @@ JSON／JSONL／CSV是结果、配置或摘要，须结合所在单元和字段
+ 
+ 2026-09-22的E-01／02／03迁移检查是历史静态记录，不是实验结果；当前发现的配置差异以上方待修项为准。旧H2 MJCF清单和2026-10-15检查见H2实验README，不能移作当前H2 Plus采集通过的证明。已有文献地图保留原来源身份，本次未联网查新或重新复现论文。
+ 
+-本轮修改了H2 Plus任务代码和已有README，核对文件用途、内部链接、字段／批次身份和保存结果结构；未改Isaac Lab源码、原始数据、第三方原件或资产，没有留下编译缓存或运行输出，也未暂存、提交、拉取或推送。科学结论、硬件状态和个人贡献均不因本轮代码配置而升级。
++本轮修改了H2 Plus任务代码和已有README，核对文件用途、内部链接、字段／批次身份和保存结果结构；未改Isaac Lab源码、原始数据、第三方原件或资产，保留了生成USD、启动日志、训练参数和早期checkpoint，未暂存、提交、拉取或推送。平地启动成功不升级为科学结论、硬件状态或个人贡献证明。
+diff --git a/experiment/h2_contact_lab/README.md b/experiment/h2_contact_lab/README.md
+index 9f797b3..411696d 100644
+--- a/experiment/h2_contact_lab/README.md
++++ b/experiment/h2_contact_lab/README.md
+@@ -1,12 +1,46 @@
+ # H2 Plus：Isaac Lab接入与采集、MuJoCo展示
+ 
+-更新日期：2026-10-28。本页区分现行代码、已保存文件和运行证据。研究目标见 [项目README](../../README.md) 与 [研究正文6.5](../../research/research_main.md)。本次完成H2 Plus模块化任务配置和训练入口编写，没有启动仿真或重新运行Isaac运行时检查。
++更新日期：2026-10-28。本页区分现行代码、已保存文件和运行证据。研究目标见 [项目README](../../README.md) 与 [研究正文6.5](../../research/research_main.md)。本次修复H2 Plus训练配置与启动入口；平地任务已进入PPO更新，随后按用户要求停止，后续由用户手动启动。
++
++## 2026-10-28训练配置修复与运行状态
++
++**当前没有继续运行本轮启动的训练；用户要求后续由本人手动启动。** 平地盲走已实际完成环境创建、物理步进和PPO更新，但未完成训练或验证行走效果。低摩擦、柔性场景本轮仅修代码，尚未运行。
++
++已修复：
++
++- 删除 `DeformableBodyMaterialCfg` 不支持的 `static_friction`；补齐URDF转换驱动的零刚度／阻尼必填值，执行器仍使用80／8增益。
++- Gym注册改为字符串入口，避免在 `AppLauncher` 前导入PPO与仿真运行时；启动器补上游脚本搜索路径，支持 `--task=...`，默认从项目相邻目录定位IsaacLab。
++- 无TerrainImporter的低摩擦／柔性场景按环境局部坐标检查4米场地边界；环境间距改为5米，柔性场景关闭物理复制。
++- 躯干传感器取消多body过滤；训练场景的双足传感器只保留净接触力、历史和腾空计时，关闭PPO未使用的成对接触过滤／接触点／摩擦力记录，避免GPU平面过滤不支持的运行警告。采集接口配置仍保留，FOOTRIX和RayCaster仍未启用。
++- 平地与低摩擦任务默认1024环境，柔性任务默认64环境；均可用 `--num_envs` 覆盖，平地play仍为16环境。
++
++运行记录：首次有效启动日志为 `outputs/train_20261028_141313/console.log`；关闭训练场景多余过滤后的日志为 `outputs/train_20261028_141452/console.log`，后者记录PPO迭代0—7、累计196608步，随后按用户要求停止。checkpoint和参数位于 `logs/rsl_rl/h2_plus_blind_locomotion/` 下对应时间目录；这些是早期训练产物，不是已收敛策略。首次路径错误日志 `outputs/train_20261028_141257/console.log` 保留，不能当作有效训练。所有本轮启动的训练进程均已停止。
++
++环境判断更正：此前直接调用conda环境的Python，未执行激活脚本，因此误判为缺少torch。完整 `conda activate project` 会加载独立Isaac Sim的Python路径，本次实际使用Isaac Lab 2.3.2、Isaac Sim 5.1和PyTorch 2.7.0+cu128，在RTX 4090上进入训练；未安装新依赖。启动器会自动定位project旁的IsaacLab；可选的 `ISAACLAB_ROOT` 仅在包含目标脚本时使用，失效路径自动回退，无需手动export。
++
++局部崎岖地形仍只有场景工厂入口，没有独立Gym任务。初始姿态、高度、驱动增益及奖励仍需根据训练表现调整；早期回合主要因姿态倾倒终止，不能据PPO运行成功认定稳定行走。
++
++## 产物目录约定（2026-10-28）
++
++用户要求使用本单元下单数形式的 `log/` 与 `output/`。默认路径按脚本位置计算，不随终端当前目录变化，无需额外export路径。
++
++| 目录（相对h2_contact_lab） | 内容 |
++|---|---|
++| `log/rsl_rl/<实验名>/<运行时间>/` | TensorBoard训练记录、参数／代码快照、`model_*.pt` checkpoint；训练续跑与默认回放在这里查找权重。 |
++| `log/kit/`、`log/sim/` | 训练／回放的Kit日志和Isaac Lab仿真日志。 |
++| `output/hydra/` | Hydra配置快照与运行日志。 |
++| `output/h2_plus_usd/`、`output/h2_plus_terrain_scenes/` | 机器人转换USD与导出地形场景。 |
++| `output/h2_plus_runs/` | smoke／collect的metadata和轨迹。 |
++| `output/videos/train/`、`output/play/` | 训练视频、回放视频及导出策略 `.pt`／`.onnx`。 |
++| `output/h2_plus_four_terrains.xml` | MuJoCo展示脚本的新默认XML输出。 |
++
++`rl/train.py` 与 `rl/play.py` 基于本机Isaac Lab 2.3.2上游入口，保留版权信息，项目内维护产物路径；未修改外部Isaac Lab源码。启动仍只用 `python run_h2_plus_rl.py --headless`。旧 `logs/`、`outputs/` 文件保留原位，上方历史记录仍指向旧位置；回放旧权重时用 `--checkpoint` 指定文件。仅改变后续默认保存位置，本次未启动仿真或训练，也未搬移历史文件。
+ 
+ ## 两个入口及当前状态
+ 
+ | 入口 | 功能 | 当前证据 |
+ |---|---|---|
+-| [run_h2_plus.py](run_h2_plus.py) | Isaac Lab主入口：`check`、`terrain`、`smoke`、`collect`、`validate`。 | 此前记录Windows语法、URDF检查、合成记录校验和地形dry-run通过；当前目录没有H2 Plus的Isaac USD或collect结果。目标Ubuntu环境运行仍待验证。 |
++| [run_h2_plus.py](run_h2_plus.py) | Isaac Lab主入口：`check`、`terrain`、`smoke`、`collect`、`validate`。 | 此前记录Windows语法、URDF检查、合成记录校验和地形dry-run通过；训练入口已生成H2 Plus USD；本入口的smoke／collect及记录校验本轮未运行。 |
+ | [view_h2_plus_mujoco_terrains.py](view_h2_plus_mujoco_terrains.py) | MuJoCo静态展示辅助脚本：四块地形和一个机器人，不调用 `mj_step`。 | 已保存 [h2_plus_four_terrains.xml](outputs/h2_plus_four_terrains.xml)，但静态核对发现导出关节树不完整、未配置差异摩擦，详见本页“MuJoCo展示的待修项”。不能作为已验证展示结果。 |
+ 
+ ## H2 Plus模块化任务配置（当前代码）
+@@ -22,28 +56,32 @@
+ | `h2_plus_lab/tasks/locomotion/h2_plus_env_cfg.py` | Manager-based盲走环境的动作、观测、指令、奖励、终止和重置事件 | 已写入 |
+ | `h2_plus_lab/tasks/locomotion/mdp/h2_plus.py` | 分离左右脚传感器后的H2专用足部和躯干项 | 已写入 |
+ | `h2_plus_lab/tasks/locomotion/agents/h2_plus/` | RSL-RL PPO配置和任务注册所需的训练入口 | 已写入 |
+-| `run_h2_plus_rl.py` | 先导入项目任务注册，再调用Isaac Lab自带的RSL-RL `train.py`或`play.py` | 已写入 |
++| `run_h2_plus_rl.py` | 导入项目任务注册，再调用项目内 `rl/train.py` 或 `rl/play.py`；复用Isaac Lab的CLI辅助模块 | 已写入 |
+ 
+-已注册的地形任务包括：普通硬地 `Isaac-H2Plus-Blind-Locomotion-v0`、双区域低摩擦 `Isaac-H2Plus-Blind-Locomotion-LowFriction-v0` 和体积柔性地面 `Isaac-H2Plus-Blind-Locomotion-Deformable-v0`。低摩擦场景由两个独立刚性区域组成，柔性场景由四米见方的 PhysX 体积可变形地面和刚性支撑层组成；这些配置尚未在 Ubuntu 中启动验证。
++已注册的地形任务包括：普通硬地 `Isaac-H2Plus-Blind-Locomotion-v0`、双区域低摩擦 `Isaac-H2Plus-Blind-Locomotion-LowFriction-v0` 和体积柔性地面 `Isaac-H2Plus-Blind-Locomotion-Deformable-v0`。低摩擦场景由两个独立刚性区域组成，柔性场景由四米见方的 PhysX 体积可变形地面和刚性支撑层组成；普通硬地已进入PPO更新；低摩擦及柔性场景尚未运行。
+ 
+ 首版策略是盲走：观测包含根部状态、投影重力、23个主动关节的位置／速度、速度指令和上一时刻动作，不包含高度扫描。动作由双腿12个、腰部3个、双肩6个和双肘2个自由度组成，共23个；头部、腕部及尚未纳入策略的上肢自由度保留在模型和接口中。
+ 
+ RayCaster配置仍保存在 `sensor_cfg.py`，但没有挂载到首版场景。躯干 IMU 挂在 `torso_link` 原点，双足 IMU 挂在各自 `ankle_pitch_link` 并使用已给出的偏移和旋转；三路 IMU 以120 Hz更新、保留6帧历史、输出含重力的机体坐标系加速度和角速度，并在记录层加入暂定噪声。IMU不进入首版策略观测，FOOTRIX没有被伪造成Isaac ContactSensor的逐单元数据。以上是代码配置状态，不是Ubuntu运行成功或训练成功的证据。
+ 
+-在Ubuntu中，从IsaacLab根目录使用现有环境启动项目入口：
++在当前Ubuntu机器上手动启动（训练会持续运行，按需用Ctrl+C停止）：
++
++**用户约定（2026-10-28）：**后续编程须保留以下简化入口，不再要求每次手动export路径；训练由用户本人启动，助手修改代码或检查入口不代表获准启动训练。此约定已写入项目根目录 `AGENTS.md`。
+ 
+ ```bash
+-cd /wyp/IsaacLab
+-./isaaclab.sh -p /wyp/project/experiment/h2_contact_lab/run_h2_plus_rl.py \
+-  --mode train --headless --task Isaac-H2Plus-Blind-Locomotion-v0
++conda activate project
++cd /home/bblabhumanoid/wyp/project/experiment/h2_contact_lab
++python run_h2_plus_rl.py --headless
++```
++
++已激活环境并位于上述目录时，只需最后一行。默认模式为train、任务为平地盲走、1024环境、3000轮，每50轮保存checkpoint，日志和权重固定写入本单元 `log/rsl_rl/h2_plus_blind_locomotion/`，不受启动工作目录影响。训练和回放沿用现有Isaac Lab、Isaac Sim、PyTorch和RSL-RL环境，不需要重装依赖。回放命令（替换实际checkpoint路径，去掉 `--headless` 可打开窗口）：
+ 
+-./isaaclab.sh -p /wyp/project/experiment/h2_contact_lab/run_h2_plus_rl.py \
+-  --mode play --headless --task Isaac-H2Plus-Blind-Locomotion-Play-v0 \
++```bash
++python run_h2_plus_rl.py --mode play --headless \
++  --task Isaac-H2Plus-Blind-Locomotion-Play-v0 \
+   --checkpoint /path/to/checkpoint.pt
+ ```
+ 
+-如果IsaacLab不在 `/wyp/IsaacLab`，设置 `ISAACLAB_ROOT` 指向实际检出目录。当前没有新增pip依赖；训练和回放依赖Ubuntu中已经配置好的Isaac Lab、Isaac Sim、PyTorch和RSL-RL环境。上述命令尚未在本轮运行。
+-
+ 下文命令均从 **project根目录** 执行。文档列出的是使用入口；本次整理未执行这些命令。
+ 
+ ## 资产版本如何区分
+@@ -59,13 +97,13 @@ cd /wyp/IsaacLab
+ | `H2_Plus_with_footrix_no_dex_hands.urdf` | 32 link；31 revolute | **Isaac主入口默认**；新足，部分本体可视网格为DAE。 |
+ | `H2_Plus_mujoco_with_footrix_no_dex_hands.urdf` | 32 link；31 revolute | **MuJoCo展示默认**；新足，可视网格为STL。它与生成XML不是同一个文件。 |
+ 
+-两个默认URDF均有49个本地网格引用，本次路径核对均存在；源模型根link为 `pelvis`，floating joint示例位于注释中。Isaac转换器以 `fix_base=False` 请求浮动根，实际Articulation是否为浮动基座仍须运行时确认。两者均未声明IMU link/frame和安装外参，程序不生成IMU读数。
++两个默认URDF均有49个本地网格引用，本次路径核对均存在；源模型根link为 `pelvis`，floating joint示例位于注释中。Isaac转换器以 `fix_base=False` 请求浮动根，实际Articulation是否为浮动基座仍须运行时确认。两者均未声明IMU link/frame和安装外参，URDF本身不生成IMU读数；任务场景另行挂载三路IMU。
+ 
+ `../robot_asset/footrix_design/` 保存左右新足装配、IMU零件、STL和 `L.txt`／`R.txt` 质量属性。两份文本分别使用“坐标系5／坐标系4”，包含质心处张量及输出原点处张量，引用时须核坐标、参考点、单位和负张量记数法，不能互换或把截图示例当最终参数。`h2_260601/`为简化H2 CAD，`h2_description/`为普通H2描述和网格，均不是当前H2 Plus默认资产。CAD装配、网格碰撞质量和实机安装本次未验证。
+ 
+ ## 环境和依赖
+ 
+-Isaac入口沿用用户已有Ubuntu环境。此前记录版本为Python 3.11、Isaac Lab 2.3.2、Isaac Sim 5.1.0、PyTorch 2.7.0+cu126，见 [ubuntu_environment.txt](ubuntu_environment.txt)；本次未连接Ubuntu确认这些版本。`check`、`validate`、`terrain --dry-run` 使用标准库；真正的USD导入、场景生成、smoke和collect依赖Isaac运行时。
++Isaac入口沿用用户已有Ubuntu环境。本次实际启动使用Python 3.11、Isaac Lab 2.3.2、Isaac Sim 5.1和PyTorch 2.7.0+cu128，见 [ubuntu_environment.txt](ubuntu_environment.txt)。`check`、`validate`、`terrain --dry-run` 使用标准库；真正的USD导入、场景生成、smoke和collect依赖Isaac运行时。
+ 
+ [requirements.txt](requirements.txt) 只有“Isaac现有环境之外无额外pip依赖”的说明，不负责安装Isaac Lab／Isaac Sim，也不覆盖另一个MuJoCo展示入口。展示脚本需已有的 `mujoco` 包和可用图形窗口；旧H2清单记录的MuJoCo版本不能当作当前Windows环境版本。新环境须按对应后端的匹配安装流程准备，本次未安装任何包。
+ 
+@@ -79,7 +117,7 @@ python experiment/h2_contact_lab/run_h2_plus.py --mode terrain --dry-run
+ python experiment/h2_contact_lab/run_h2_plus.py --mode terrain --headless --device cpu
+ ```
+ 
+-`terrain`计划在同一USD中并排放置四类地形及**四个机器人初始姿态**。默认输出到 `outputs/h2_plus_terrain_scenes/<UTC时间>/`，包含 `h2_plus_four_terrain_variants.usd` 和 `terrain_manifest.json`；这些是代码约定的目标输出，当前目录尚未保存对应结果。
++`terrain`计划在同一USD中并排放置四类地形及**四个机器人初始姿态**。默认输出到 `output/h2_plus_terrain_scenes/<UTC时间>/`，包含 `h2_plus_four_terrain_variants.usd` 和 `terrain_manifest.json`；这些是代码约定的目标输出，当前目录尚未保存对应结果。
+ 
+ | 场景 | Isaac代码中的几何／物理设置 |
+ |---|---|
+@@ -113,7 +151,7 @@ python experiment/h2_contact_lab/run_h2_plus.py --mode collect --headless --devi
+ python experiment/h2_contact_lab/run_h2_plus.py --mode collect --headless --device cpu --duration 10 --perturb-joint left_ankle_pitch_joint --perturb-amplitude 0.03 --perturb-frequency 0.5
+ ```
+ 
+-转换资产默认写到 `outputs/h2_plus_usd/`。smoke／collect在 `outputs/h2_plus_runs/<UTC时间>/` 新建目录，保存 `metadata.json`；collect另写 `trajectory.jsonl`。`--output-dir PATH` 可指定尚不存在的新目录，去掉 `--headless` 可打开窗口。
++转换资产默认写到 `output/h2_plus_usd/`。smoke／collect在 `output/h2_plus_runs/<UTC时间>/` 新建目录，保存 `metadata.json`；collect另写 `trajectory.jsonl`。`--output-dir PATH` 可指定尚不存在的新目录，去掉 `--headless` 可打开窗口。
+ 
+ ## 记录字段及离线校验
+ 
+diff --git a/experiment/h2_contact_lab/h2_plus_lab/assets/h2_plus.py b/experiment/h2_contact_lab/h2_plus_lab/assets/h2_plus.py
+index cbdc89f..914e749 100644
+--- a/experiment/h2_contact_lab/h2_plus_lab/assets/h2_plus.py
++++ b/experiment/h2_contact_lab/h2_plus_lab/assets/h2_plus.py
+@@ -17,7 +17,7 @@ from isaaclab.assets import ArticulationCfg
+ 
+ _PROJECT_DIR = Path(__file__).resolve().parents[4]
+ H2_PLUS_URDF = _PROJECT_DIR / "experiment" / "robot_asset" / "h2_plus" / "H2_Plus_with_footrix_no_dex_hands.urdf"
+-H2_PLUS_USD_DIR = _PROJECT_DIR / "experiment" / "h2_contact_lab" / "outputs" / "h2_plus_usd"
++H2_PLUS_USD_DIR = _PROJECT_DIR / "experiment" / "h2_contact_lab" / "output" / "h2_plus_usd"
+ 
+ 
+ @dataclass(frozen=True)
+@@ -65,7 +65,10 @@ H2_PLUS_CFG = ArticulationCfg(
+         merge_fixed_joints=False,
+         self_collision=False,
+         activate_contact_sensors=True,
+-        joint_drive=sim_utils.UrdfFileCfg.JointDriveCfg(target_type="none"),
++        joint_drive=sim_utils.UrdfFileCfg.JointDriveCfg(
++            target_type="none",
++            gains=sim_utils.UrdfFileCfg.JointDriveCfg.PDGainsCfg(stiffness=0.0, damping=0.0),
++        ),
+     ),
+     init_state=ArticulationCfg.InitialStateCfg(
+         # The root is the URDF's pelvis frame.  The height is the initial
+diff --git a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/__init__.py b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/__init__.py
+index ad739b2..e370f67 100644
+--- a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/__init__.py
++++ b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/__init__.py
+@@ -4,7 +4,8 @@ from __future__ import annotations
+ 
+ import gymnasium as gym
+ 
+-from .agents.h2_plus import agents as h2_plus_agents
++# Keep registration independent of Isaac Sim until AppLauncher starts it.
++_AGENT_MODULE = f"{__name__}.agents.h2_plus.agents"
+ 
+ 
+ _H2_PLUS_TASK_ID = "Isaac-H2Plus-Blind-Locomotion-v0"
+@@ -23,7 +24,7 @@ def _register_h2_plus_tasks() -> None:
+             disable_env_checker=True,
+             kwargs={
+                 "env_cfg_entry_point": f"{__name__}.h2_plus_env_cfg:H2PlusLocomotionEnvCfg",
+-                "rsl_rl_cfg_entry_point": f"{h2_plus_agents.__name__}.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
++                "rsl_rl_cfg_entry_point": f"{_AGENT_MODULE}.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
+             },
+         )
+     if _H2_PLUS_PLAY_TASK_ID not in gym.registry:
+@@ -33,7 +34,7 @@ def _register_h2_plus_tasks() -> None:
+             disable_env_checker=True,
+             kwargs={
+                 "env_cfg_entry_point": f"{__name__}.h2_plus_env_cfg:H2PlusLocomotionEnvCfg_PLAY",
+-                "rsl_rl_cfg_entry_point": f"{h2_plus_agents.__name__}.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
++                "rsl_rl_cfg_entry_point": f"{_AGENT_MODULE}.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
+             },
+         )
+     if _H2_PLUS_LOW_FRICTION_TASK_ID not in gym.registry:
+@@ -43,7 +44,7 @@ def _register_h2_plus_tasks() -> None:
+             disable_env_checker=True,
+             kwargs={
+                 "env_cfg_entry_point": f"{__name__}.h2_plus_env_cfg:H2PlusLowFrictionLocomotionEnvCfg",
+-                "rsl_rl_cfg_entry_point": f"{h2_plus_agents.__name__}.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
++                "rsl_rl_cfg_entry_point": f"{_AGENT_MODULE}.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
+             },
+         )
+     if _H2_PLUS_DEFORMABLE_TASK_ID not in gym.registry:
+@@ -53,7 +54,7 @@ def _register_h2_plus_tasks() -> None:
+             disable_env_checker=True,
+             kwargs={
+                 "env_cfg_entry_point": f"{__name__}.h2_plus_env_cfg:H2PlusDeformableLocomotionEnvCfg",
+-                "rsl_rl_cfg_entry_point": f"{h2_plus_agents.__name__}.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
++                "rsl_rl_cfg_entry_point": f"{_AGENT_MODULE}.rsl_rl_ppo_cfg:H2PlusBlindPPORunnerCfg",
+             },
+         )
+ 
+diff --git a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/env_cfg.py b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/env_cfg.py
+index a068cc4..879dbe9 100644
+--- a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/env_cfg.py
++++ b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/env_cfg.py
+@@ -73,8 +73,14 @@ class H2PlusSceneCfg(InteractiveSceneCfg):
+     robot: ArticulationCfg = H2_PLUS_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+     terrain: TerrainImporterCfg = H2_PLUS_TERRAIN_CATALOG["ordinary_hard"].importer_cfg
+ 
+-    left_foot_contact: ContactSensorCfg = H2_PLUS_LEFT_FOOT_CONTACT_CFG
+-    right_foot_contact: ContactSensorCfg = H2_PLUS_RIGHT_FOOT_CONTACT_CFG
++    # Locomotion needs net force and air time, not pairwise contact records.
++    left_foot_contact: ContactSensorCfg = H2_PLUS_LEFT_FOOT_CONTACT_CFG.replace(
++        filter_prim_paths_expr=[], track_contact_points=False, track_friction_forces=False,
++    )
++    # Locomotion needs net force and air time, not pairwise contact records.
++    right_foot_contact: ContactSensorCfg = H2_PLUS_RIGHT_FOOT_CONTACT_CFG.replace(
++        filter_prim_paths_expr=[], track_contact_points=False, track_friction_forces=False,
++    )
+     body_contact: ContactSensorCfg = H2_PLUS_BODY_CONTACT_CFG
+     torso_imu: ImuCfg = H2_PLUS_TORSO_IMU_CFG
+     left_foot_imu: ImuCfg = H2_PLUS_LEFT_FOOT_IMU_CFG
+@@ -92,6 +98,7 @@ class H2PlusLowFrictionSceneCfg(H2PlusSceneCfg):
+ 
+     # A single TerrainImporter cannot carry both materials, so this scene
+     # replaces it with two independently spawned rigid cuboids.
++    env_spacing: float = 5.0
+     terrain = None
+     reference_region = AssetBaseCfg(
+         prim_path="{ENV_REGEX_NS}/Terrain/ReferenceRegion",
+@@ -116,30 +123,14 @@ class H2PlusLowFrictionSceneCfg(H2PlusSceneCfg):
+         init_state=AssetBaseCfg.InitialStateCfg(pos=(0.0, 1.0, -0.05)),
+     )
+ 
+-    left_foot_contact = H2_PLUS_LEFT_FOOT_CONTACT_CFG.replace(
+-        filter_prim_paths_expr=[
+-            "{ENV_REGEX_NS}/Terrain/ReferenceRegion",
+-            "{ENV_REGEX_NS}/Terrain/LowFrictionRegion",
+-        ]
+-    )
+-    right_foot_contact = H2_PLUS_RIGHT_FOOT_CONTACT_CFG.replace(
+-        filter_prim_paths_expr=[
+-            "{ENV_REGEX_NS}/Terrain/ReferenceRegion",
+-            "{ENV_REGEX_NS}/Terrain/LowFrictionRegion",
+-        ]
+-    )
+-    body_contact = H2_PLUS_BODY_CONTACT_CFG.replace(
+-        filter_prim_paths_expr=[
+-            "{ENV_REGEX_NS}/Terrain/ReferenceRegion",
+-            "{ENV_REGEX_NS}/Terrain/LowFrictionRegion",
+-        ]
+-    )
++    body_contact = H2_PLUS_BODY_CONTACT_CFG
+ 
+ 
+ @configclass
+ class H2PlusDeformableSceneCfg(H2PlusSceneCfg):
+     """Scene with a real volume-deformable slab over a rigid backing."""
+ 
++    env_spacing: float = 5.0
+     terrain = None
+     deformable_backing = AssetBaseCfg(
+         prim_path="{ENV_REGEX_NS}/Terrain/FlexibleBacking",
+@@ -152,26 +143,11 @@ class H2PlusDeformableSceneCfg(H2PlusSceneCfg):
+         ),
+         init_state=AssetBaseCfg.InitialStateCfg(pos=(0.0, 0.0, -0.225)),
+     )
++    # PhysX deformable objects cannot use replicated physics.
++    replicate_physics: bool = False
+     deformable_ground = H2_PLUS_DEFORMABLE_GROUND_CFG
+ 
+-    left_foot_contact = H2_PLUS_LEFT_FOOT_CONTACT_CFG.replace(
+-        filter_prim_paths_expr=[
+-            "{ENV_REGEX_NS}/Terrain/FlexibleGround",
+-            "{ENV_REGEX_NS}/Terrain/FlexibleBacking",
+-        ]
+-    )
+-    right_foot_contact = H2_PLUS_RIGHT_FOOT_CONTACT_CFG.replace(
+-        filter_prim_paths_expr=[
+-            "{ENV_REGEX_NS}/Terrain/FlexibleGround",
+-            "{ENV_REGEX_NS}/Terrain/FlexibleBacking",
+-        ]
+-    )
+-    body_contact = H2_PLUS_BODY_CONTACT_CFG.replace(
+-        filter_prim_paths_expr=[
+-            "{ENV_REGEX_NS}/Terrain/FlexibleGround",
+-            "{ENV_REGEX_NS}/Terrain/FlexibleBacking",
+-        ]
+-    )
++    body_contact = H2_PLUS_BODY_CONTACT_CFG
+ 
+ 
+ def scene_for_terrain(name: str) -> InteractiveSceneCfg:
+diff --git a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/h2_plus_env_cfg.py b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/h2_plus_env_cfg.py
+index b472cfc..f381ebe 100644
+--- a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/h2_plus_env_cfg.py
++++ b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/h2_plus_env_cfg.py
+@@ -217,7 +217,7 @@ class H2PlusEventsCfg:
+ class H2PlusLocomotionEnvCfg(ManagerBasedRLEnvCfg):
+     """H2 Plus blind locomotion environment assembled from project modules."""
+ 
+-    scene: H2PlusSceneCfg = H2PlusSceneCfg()
++    scene: H2PlusSceneCfg = H2PlusSceneCfg(num_envs=1024)
+     observations: H2PlusObservationsCfg = H2PlusObservationsCfg()
+     actions: H2PlusActionsCfg = H2PlusActionsCfg()
+     commands: H2PlusCommandsCfg = H2PlusCommandsCfg()
+@@ -249,14 +249,14 @@ class H2PlusLocomotionEnvCfg_PLAY(H2PlusLocomotionEnvCfg):
+ class H2PlusLowFrictionLocomotionEnvCfg(H2PlusLocomotionEnvCfg):
+     """Blind locomotion on two adjacent rigid regions with different friction."""
+ 
+-    scene: H2PlusLowFrictionSceneCfg = H2PlusLowFrictionSceneCfg()
++    scene: H2PlusLowFrictionSceneCfg = H2PlusLowFrictionSceneCfg(num_envs=1024)
+ 
+ 
+ @configclass
+ class H2PlusDeformableLocomotionEnvCfg(H2PlusLocomotionEnvCfg):
+     """Blind locomotion on the volume-deformable ground slab."""
+ 
+-    scene: H2PlusDeformableSceneCfg = H2PlusDeformableSceneCfg()
++    scene: H2PlusDeformableSceneCfg = H2PlusDeformableSceneCfg(num_envs=64)
+ 
+ 
+ __all__ = [
+diff --git a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/terminations.py b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/terminations.py
+index 6c037d0..286e465 100644
+--- a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/terminations.py
++++ b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/terminations.py
+@@ -30,10 +30,15 @@ def terrain_out_of_bounds(
+     If the actor moves too close to the edge of the terrain, the termination is activated. The distance
+     to the edge of the terrain is calculated based on the size of the terrain and the distance buffer.
+     """
+-    if env.scene.cfg.terrain.terrain_type == "plane":
++    terrain_cfg = env.scene.cfg.terrain
++    if terrain_cfg is None:
++        # Independent four-meter terrain patches are centered on each env.
++        position = env.scene[asset_cfg.name].data.root_pos_w - env.scene.env_origins
++        return torch.any(torch.abs(position[:, :2]) > 2.0 - distance_buffer, dim=1)
++    if terrain_cfg.terrain_type == "plane":
+         # we have infinite terrain because it is a plane
+         return torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
+-    elif env.scene.cfg.terrain.terrain_type == "generator":
++    elif terrain_cfg.terrain_type == "generator":
+         # obtain the size of the sub-terrains
+         terrain_gen_cfg = env.scene.terrain.cfg.terrain_generator
+         grid_width, grid_length = terrain_gen_cfg.size
+diff --git a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/sensor_cfg.py b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/sensor_cfg.py
+index 72d258a..bf1e13d 100644
+--- a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/sensor_cfg.py
++++ b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/sensor_cfg.py
+@@ -66,7 +66,8 @@ H2_PLUS_BODY_CONTACT_CFG = ContactSensorCfg(
+     prim_path="{ENV_REGEX_NS}/Robot/(pelvis|torso_link)",
+     update_period=0.0,
+     history_length=1,
+-    filter_prim_paths_expr=H2_PLUS_TERRAIN_FILTER_PATHS,
++    # Termination uses net force on both bodies, not a filtered force matrix.
++    filter_prim_paths_expr=[],
+     track_air_time=False,
+     track_contact_points=False,
+     track_friction_forces=False,
+diff --git a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/terrain_cfg.py b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/terrain_cfg.py
+index 389fa50..f505e59 100644
+--- a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/terrain_cfg.py
++++ b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/terrain_cfg.py
+@@ -112,7 +112,6 @@ H2_PLUS_DEFORMABLE_GROUND_CFG = DeformableObjectCfg(
+         collision_props=sim_utils.CollisionPropertiesCfg(),
+         physics_material=sim_utils.DeformableBodyMaterialCfg(
+             density=650.0,
+-            static_friction=0.8,
+             dynamic_friction=0.7,
+             youngs_modulus=250000.0,
+             poissons_ratio=0.35,
+diff --git a/experiment/h2_contact_lab/run_h2_plus.py b/experiment/h2_contact_lab/run_h2_plus.py
+index 1ec7804..a77f31c 100644
+--- a/experiment/h2_contact_lab/run_h2_plus.py
++++ b/experiment/h2_contact_lab/run_h2_plus.py
+@@ -17,7 +17,7 @@ import xml.etree.ElementTree as ET
+ LAB_DIR = Path(__file__).resolve().parent
+ PROJECT_DIR = LAB_DIR.parents[1]
+ DEFAULT_URDF = PROJECT_DIR / "experiment" / "robot_asset" / "h2_plus" / "H2_Plus_with_footrix_no_dex_hands.urdf"
+-DEFAULT_OUTPUT_ROOT = LAB_DIR / "outputs" / "h2_plus_runs"
++DEFAULT_OUTPUT_ROOT = LAB_DIR / "output" / "h2_plus_runs"
+ EXPECTED_REVOLUTE_JOINTS = 31
+ 
+ def _rigid_surface(name, size_m, local_position_m, friction, color):
+@@ -111,7 +111,7 @@ def validate_terrain_runtime_parameters(args) -> None:
+ 
+ def _default_terrain_output_dir() -> Path:
+     stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+-    root = LAB_DIR / "outputs" / "h2_plus_terrain_scenes"
++    root = LAB_DIR / "output" / "h2_plus_terrain_scenes"
+     candidate = root / stamp
+     suffix = 0
+     while candidate.exists():
+@@ -147,7 +147,7 @@ def generate_terrain_scene(args, audit: dict, layouts: list[dict]) -> Path:
+             joint_drive=UrdfConverterCfg.JointDriveCfg(target_type="none"),
+         ))
+         usd_path = Path(converter.usd_path)
+-        sim = sim_utils.SimulationContext(sim_utils.SimulationCfg(dt=1.0 / args.physics_hz, device=args.device))
++        sim = sim_utils.SimulationContext(sim_utils.SimulationCfg(dt=1.0 / args.physics_hz, device=args.device, log_dir=str(LAB_DIR / "log" / "sim")))
+         light = sim_utils.DomeLightCfg(intensity=1500.0, color=(0.8, 0.8, 0.8))
+         light.func("/World/Light", light)
+         for layout in layouts:
+@@ -322,7 +322,7 @@ def make_parser(AppLauncher=None) -> argparse.ArgumentParser:
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--mode", choices=("check", "smoke", "collect", "validate", "terrain"), default="check")
+     parser.add_argument("--urdf", type=Path, default=DEFAULT_URDF)
+-    parser.add_argument("--usd-dir", type=Path, default=LAB_DIR / "outputs" / "h2_plus_usd")
++    parser.add_argument("--usd-dir", type=Path, default=LAB_DIR / "output" / "h2_plus_usd")
+     parser.add_argument("--output-dir", type=Path, default=None)
+     parser.add_argument("--run-dir", type=Path, default=None, help="Existing collect output directory for validate mode")
+     parser.add_argument("--terrain-spacing", type=float, default=6.0, help="Spacing between terrain variants in the generated scene [m]")
+@@ -736,7 +736,7 @@ def main(argv=None) -> int:
+         usd_path = Path(converter.usd_path)
+ 
+         sim_dt = 1.0 / args.physics_hz
+-        sim = sim_utils.SimulationContext(sim_utils.SimulationCfg(dt=sim_dt, device=args.device))
++        sim = sim_utils.SimulationContext(sim_utils.SimulationCfg(dt=sim_dt, device=args.device, log_dir=str(LAB_DIR / "log" / "sim")))
+         ground = sim_utils.CuboidCfg(
+             size=(8.0, 8.0, 0.1),
+             collision_props=sim_utils.CollisionPropertiesCfg(),
+diff --git a/experiment/h2_contact_lab/run_h2_plus_rl.py b/experiment/h2_contact_lab/run_h2_plus_rl.py
+index 5ad63b9..18338ba 100644
+--- a/experiment/h2_contact_lab/run_h2_plus_rl.py
++++ b/experiment/h2_contact_lab/run_h2_plus_rl.py
+@@ -1,4 +1,4 @@
+-"""Project-local launcher for the Isaac Lab RSL-RL train/play scripts.
++"""Project-local launcher for the H2 Plus RSL-RL train/play scripts.
+ 
+ The wrapper imports the project package before handing control to Isaac Lab so
+ that the H2 Plus Gym task registrations exist in the same Python process.
+@@ -17,6 +17,7 @@ TASK_IDS = {
+     "train": "Isaac-H2Plus-Blind-Locomotion-v0",
+     "play": "Isaac-H2Plus-Blind-Locomotion-Play-v0",
+ }
++LAB_DIR = Path(__file__).resolve().parent
+ 
+ 
+ def _parse_launcher_args(argv: list[str] | None = None) -> tuple[str, list[str]]:
+@@ -26,20 +27,36 @@ def _parse_launcher_args(argv: list[str] | None = None) -> tuple[str, list[str]]
+     return args.mode, remaining
+ 
+ 
++def _resolve_isaaclab_script(mode: str) -> Path:
++    """Use a valid optional override, otherwise the checkout beside project."""
++    default_root = Path(__file__).resolve().parents[3] / "IsaacLab"
++    override = os.environ.get("ISAACLAB_ROOT")
++    roots = [Path(override).expanduser(), default_root] if override else [default_root]
++    candidates = [root / "scripts" / "reinforcement_learning" / "rsl_rl" / f"{mode}.py" for root in roots]
++    for script in candidates:
++        if script.is_file():
++            return script.resolve()
++    raise FileNotFoundError(
++        f"Isaac Lab {mode} script was not found. Checked: "
++        + ", ".join(str(path) for path in candidates)
++        + ". Place the IsaacLab checkout beside project, or optionally set ISAACLAB_ROOT."
++    )
++
++
+ def main(argv: list[str] | None = None) -> int:
+     mode, remaining = _parse_launcher_args(argv)
++    upstream_script = _resolve_isaaclab_script(mode)
++    script = LAB_DIR / "rl" / f"{mode}.py"
+     import h2_plus_lab  # noqa: F401  # registers the Gym tasks in this process
+ 
+-    isaaclab_root = Path(os.environ.get("ISAACLAB_ROOT", "/wyp/IsaacLab")).expanduser()
+-    script = isaaclab_root / "scripts" / "reinforcement_learning" / "rsl_rl" / f"{mode}.py"
+-    if not script.is_file():
+-        raise FileNotFoundError(
+-            f"Isaac Lab {mode} script was not found at {script}. "
+-            "Set ISAACLAB_ROOT to the local IsaacLab checkout."
+-        )
+-
+-    if "--task" not in remaining:
++    if not any(arg == "--task" or arg.startswith("--task=") for arg in remaining):
+         remaining.extend(["--task", TASK_IDS[mode]])
++    # Hydra's config snapshots must not land in the caller's working directory.
++    if not any(arg.lstrip("+").startswith("hydra.run.dir=") for arg in remaining):
++        remaining.append(f"hydra.run.dir={LAB_DIR}/output/hydra/${{now:%Y-%m-%d}}/${{now:%H-%M-%S}}")
++    # run_path on a file does not add its parent to the module search path.
++    # Reuse the upstream CLI helpers without modifying the Isaac Lab checkout.
++    sys.path.insert(0, str(upstream_script.parent))
+     sys.argv = [str(script), *remaining]
+     runpy.run_path(str(script), run_name="__main__")
+     return 0
+diff --git a/experiment/h2_contact_lab/ubuntu_environment.txt b/experiment/h2_contact_lab/ubuntu_environment.txt
+index ff04489..fdcf84d 100644
+--- a/experiment/h2_contact_lab/ubuntu_environment.txt
++++ b/experiment/h2_contact_lab/ubuntu_environment.txt
+@@ -1,9 +1,11 @@
+ H2 Plus Isaac Lab 环境说明
+ ==========================
+ 
+-用户现有 Ubuntu 环境已经包含采集器需要的运行时；当前开发受限于 Windows，实际运行将等代码准备完成后统一进行。此前记录的版本为 Python 3.11、Isaac Lab 2.3.2、Isaac Sim 5.1.0 和 PyTorch 2.7.0+cu126；本轮未重新连接 Ubuntu 核验。
++2026-10-28已在本机Ubuntu实际启动平地PPO，随后按用户要求停止。现用conda环境为project，Isaac Lab检出位于 /home/bblabhumanoid/wyp/IsaacLab（2.3.2），独立Isaac Sim位于 /home/bblabhumanoid/isaacsim（5.1），Python 3.11，PyTorch 2.7.0+cu128，RSL-RL 3.1.2，GPU为RTX 4090。
+ 
+-本项目在 Isaac 环境之外只用 Python 标准库，没有额外 pip 依赖。`requirements.txt` 因此保留为注释说明，没有可安装的包；已有环境直接激活即可，**不需要运行 pip install -r 来重装 Isaac**。
++必须完整激活conda环境，以执行加载Isaac Sim Python路径的激活脚本；直接调用conda目录下的Python会漏掉这些路径。启动命令见同目录README。启动器自动定位project旁的IsaacLab，无需export路径；可选ISAACLAB_ROOT失效时会自动回退到该目录。
++
++旧check／validate等离线入口使用Python标准库；训练依赖现有Isaac Lab、Isaac Sim、PyTorch和RSL-RL。本次没有安装额外pip依赖。`requirements.txt` 因此保留为注释说明，没有可安装的包；已有环境直接激活即可，**不需要运行 pip install -r 来重装 Isaac**。
+ 
+ 只有新建运行环境时，才需另按 Isaac Lab／Isaac Sim 对应版本的官方流程安装完整运行时。Ubuntu、NVIDIA 驱动、CUDA runtime 和 GLIBC 等系统条件不属于 pip requirements。
+ 
+diff --git a/experiment/h2_contact_lab/view_h2_plus_mujoco_terrains.py b/experiment/h2_contact_lab/view_h2_plus_mujoco_terrains.py
+index b4b6daa..1a713aa 100644
+--- a/experiment/h2_contact_lab/view_h2_plus_mujoco_terrains.py
++++ b/experiment/h2_contact_lab/view_h2_plus_mujoco_terrains.py
+@@ -19,7 +19,7 @@ DEFAULT_URDF = (
+     / "h2_plus"
+     / "H2_Plus_mujoco_with_footrix_no_dex_hands.urdf"
+ )
+-DEFAULT_XML = LAB_DIR / "outputs" / "h2_plus_four_terrains.xml"
++DEFAULT_XML = LAB_DIR / "output" / "h2_plus_four_terrains.xml"
+ 
+ 
+ TERRAINS = (

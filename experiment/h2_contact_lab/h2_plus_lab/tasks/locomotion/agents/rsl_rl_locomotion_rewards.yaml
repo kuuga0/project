@@ -1,0 +1,31 @@
+rewards:
+  termination_penalty:          # 非超时终止惩罚
+    weight: -200.0
+  track_lin_vel_xy:             # 平面线速度跟踪
+    weight: 1.5
+    params:
+      std: 0.5                 # 指数奖励的误差尺度，必须大于0
+  track_ang_vel_z:              # 偏航角速度跟踪
+    weight: 0.5
+    params:
+      std: 0.5
+  feet_air_time:                # 双足交替支撑奖励
+    weight: 0.2
+    params:
+      threshold: 0.4           # 奖励时长上限，秒
+  feet_slide:                  # 支撑足滑动惩罚
+    weight: -0.05
+  joint_pos_limits:            # 关节位置越限惩罚
+    weight: -1.0
+  passive_joint_deviation:      # 头部／腕部偏离默认姿态惩罚
+    weight: -0.05
+  stand_still:                 # 小速度指令下偏离默认姿态惩罚
+    weight: -0.1
+    params:
+      command_threshold: 0.06  # 平面速度指令阈值，m/s
+  flat_orientation:            # 躯干倾斜惩罚
+    weight: -0.5
+  action_rate:                 # 相邻控制步动作变化惩罚
+    weight: -0.01
+  joint_acceleration:          # 关节加速度惩罚
+    weight: -2.5e-7

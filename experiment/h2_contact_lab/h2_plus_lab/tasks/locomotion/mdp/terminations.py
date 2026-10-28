@@ -17,6 +17,7 @@ import torch
 
 from isaaclab.assets import RigidObject
 from isaaclab.managers import SceneEntityCfg
+from isaaclab.sensors import ContactSensor
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -30,10 +31,15 @@ def terrain_out_of_bounds(
     If the actor moves too close to the edge of the terrain, the termination is activated. The distance
     to the edge of the terrain is calculated based on the size of the terrain and the distance buffer.
     """
-    if env.scene.cfg.terrain.terrain_type == "plane":
+    terrain_cfg = env.scene.cfg.terrain
+    if terrain_cfg is None:
+        # Independent four-meter terrain patches are centered on each env.
+        position = env.scene[asset_cfg.name].data.root_pos_w - env.scene.env_origins
+        return torch.any(torch.abs(position[:, :2]) > 2.0 - distance_buffer, dim=1)
+    if terrain_cfg.terrain_type == "plane":
         # we have infinite terrain because it is a plane
         return torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
-    elif env.scene.cfg.terrain.terrain_type == "generator":
+    elif terrain_cfg.terrain_type == "generator":
         # obtain the size of the sub-terrains
         terrain_gen_cfg = env.scene.terrain.cfg.terrain_generator
         grid_width, grid_length = terrain_gen_cfg.size
@@ -52,3 +58,17 @@ def terrain_out_of_bounds(
         return torch.logical_or(x_out_of_bounds, y_out_of_bounds)
     else:
         raise ValueError("Received unsupported terrain type, must be either 'plane' or 'generator'.")
+
+
+def h2_plus_body_contact(
+    env,
+    sensor_cfg: SceneEntityCfg,
+    threshold: float = 1.0,
+) -> torch.Tensor:
+    """Return whether pelvis or torso contact exceeds the force threshold."""
+
+    sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    body_ids = sensor_cfg.body_ids if sensor_cfg.body_ids is not None else slice(None)
+    force_history = sensor.data.net_forces_w_history[:, :, body_ids, :]
+    force_norm = force_history.norm(dim=-1)
+    return force_norm.amax(dim=(1, 2)) > threshold

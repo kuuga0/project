@@ -17,7 +17,7 @@ from isaaclab.assets import ArticulationCfg
 
 _PROJECT_DIR = Path(__file__).resolve().parents[4]
 H2_PLUS_URDF = _PROJECT_DIR / "experiment" / "robot_asset" / "h2_plus" / "H2_Plus_with_footrix_no_dex_hands.urdf"
-H2_PLUS_USD_DIR = _PROJECT_DIR / "experiment" / "h2_contact_lab" / "outputs" / "h2_plus_usd"
+H2_PLUS_USD_DIR = _PROJECT_DIR / "experiment" / "h2_contact_lab" / "output" / "h2_plus_usd"
 
 
 @dataclass(frozen=True)
@@ -65,7 +65,10 @@ H2_PLUS_CFG = ArticulationCfg(
         merge_fixed_joints=False,
         self_collision=False,
         activate_contact_sensors=True,
-        joint_drive=sim_utils.UrdfFileCfg.JointDriveCfg(target_type="none"),
+        joint_drive=sim_utils.UrdfFileCfg.JointDriveCfg(
+            target_type="none",
+            gains=sim_utils.UrdfFileCfg.JointDriveCfg.PDGainsCfg(stiffness=0.0, damping=0.0),
+        ),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         # The root is the URDF's pelvis frame.  The height is the initial
