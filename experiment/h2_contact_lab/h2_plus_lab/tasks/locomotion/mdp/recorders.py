@@ -360,7 +360,7 @@ class H2PlusSensorRecorder(RecorderTerm):
                 "force_frame": "world",
                 "layout_path": str(H2_PLUS_FOOTRIX_LAYOUT_PATH),
                 "layout_z_m": H2_PLUS_FOOTRIX_LAYOUT_Z_M,
-                "layout_z_calibration": "effective plane aligned to current foot mesh bottom; raw JSON remains image-derived",
+                "layout_z_calibration": "JSON sample positions and effective plane aligned to current foot mesh bottom",
                 "layout_status": H2_PLUS_FOOTRIX_LAYOUT_STATUS,
                 "cell_radius_m": H2_PLUS_FOOTRIX_CELL_RADIUS_M,
                 "cell_thickness_m": H2_PLUS_FOOTRIX_CELL_THICKNESS_M,

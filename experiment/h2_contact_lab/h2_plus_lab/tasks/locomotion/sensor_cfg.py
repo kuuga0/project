@@ -35,7 +35,7 @@ H2_PLUS_FOOTRIX_CELL_THICKNESS_M = 0.004
 H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M = 0.012
 H2_PLUS_FOOTRIX_PROJECTION_METHOD = "planar_linear_weighted_force_bin"
 # Effective common layout plane, aligned to the current foot mesh bottom in the
-# ankle_pitch_link frame.  The image-derived JSON remains the raw source.
+# ankle_pitch_link frame.  The image-derived x/y layout remains replaceable.
 H2_PLUS_FOOTRIX_LAYOUT_Z_M = -0.0521
 H2_PLUS_FOOTRIX_LAYOUT_PATH = Path(
     "experiment/h2_contact_lab/output/history/windows_footrix_points_checks_20261015/footrix_layout.json"
