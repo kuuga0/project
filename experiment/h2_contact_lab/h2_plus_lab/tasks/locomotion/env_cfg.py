@@ -112,6 +112,9 @@ class H2PlusSceneCfg(InteractiveSceneCfg):
     torso_imu: ImuCfg = H2_PLUS_TORSO_IMU_CFG
     left_foot_imu: ImuCfg = H2_PLUS_LEFT_FOOT_IMU_CFG
     right_foot_imu: ImuCfg = H2_PLUS_RIGHT_FOOT_IMU_CFG
+    # The full ankle-pitch links are the only foot collision bodies.  FOOTRIX
+    # marker geometry is part of the robot asset; its point forces are produced
+    # by the PhysX contact-report recorder from these two full-foot links.
 
     dome_light = AssetBaseCfg(
         prim_path="/World/DomeLight",

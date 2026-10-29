@@ -1,17 +1,20 @@
-"""Sensor configurations and deferred sensor interfaces for H2 Plus.
+"""Sensor configurations and sensor interfaces for H2 Plus.
 
 The first locomotion policy is intentionally blind to terrain geometry.  The
 ray-caster configuration is still defined here so that a later ablation or
 terrain-aware policy can enable it without changing the scene API.  The torso
 and two foot IMUs are attached for recording only; they are deliberately not
-inserted into the first policy observation group.  FOOTRIX remains an interface
-until its simulation mapping is implemented.
+inserted into the first policy observation group.  FOOTRIX uses a dedicated
+visual marker layer: each of its 154 cells is an independent fixed child link
+with a thin circular visual shape and no collision.  A PhysX contact-report
+callback reads the complete foot collision and projects contact impulses to the
+measurement layout.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from pathlib import Path
 
 from isaaclab.sensors import ContactSensorCfg, ImuCfg, RayCasterCfg
 from isaaclab.sensors.ray_caster import patterns
@@ -23,6 +26,15 @@ H2_PLUS_IMU_UPDATE_PERIOD_S = 1.0 / 120.0
 H2_PLUS_IMU_HISTORY_LENGTH = 6
 H2_PLUS_IMU_GRAVITY_BIAS_M_S2 = (0.0, 0.0, 9.81)
 H2_PLUS_FOOT_IMU_ROTATION_WXYZ = (0.7071067812, 0.0, 0.0, -0.7071067812)
+H2_PLUS_FOOTRIX_CELL_COUNT = 154
+H2_PLUS_FOOTRIX_CHANNELS_PER_CELL = 3
+H2_PLUS_FOOTRIX_CELL_RADIUS_M = 0.003401643
+H2_PLUS_FOOTRIX_CELL_THICKNESS_M = 0.004
+H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M = 0.008
+H2_PLUS_FOOTRIX_LAYOUT_PATH = Path(
+    "experiment/h2_contact_lab/output/history/windows_footrix_points_checks_20261015/footrix_layout.json"
+)
+H2_PLUS_FOOTRIX_LAYOUT_STATUS = "image-derived canonical left layout; installation coordinates remain replaceable"
 
 
 @dataclass(frozen=True)
@@ -111,6 +123,35 @@ H2_PLUS_RIGHT_FOOT_IMU_CFG = ImuCfg(
 )
 
 
+@dataclass(frozen=True)
+class H2PlusFootrixMarkerCfg:
+    """Visual measurement-point layout; markers have no collision geometry."""
+
+    marker_prim_path: str
+    source_contact_sensor: str
+    enabled: bool = True
+    cell_count: int = H2_PLUS_FOOTRIX_CELL_COUNT
+    channels_per_cell: int = H2_PLUS_FOOTRIX_CHANNELS_PER_CELL
+    marker_collision_enabled: bool = False
+    projection_method: str = "nearest_cell_force_bin"
+    support_radius_m: float = H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M
+
+
+# The full ankle-pitch foot mesh remains the only foot-ground collision body.
+# These fixed links are visual-only markers.  A PhysX contact-report callback
+# reads contact impulses from the full foot and projects them to these points.
+H2_PLUS_LEFT_FOOTRIX_CFG = H2PlusFootrixMarkerCfg(
+    marker_prim_path="{ENV_REGEX_NS}/Robot/(left_ankle_pitch_link/)?left_footrix_cell_.*",
+    source_contact_sensor="left_foot_contact",
+)
+
+
+H2_PLUS_RIGHT_FOOTRIX_CFG = H2PlusFootrixMarkerCfg(
+    marker_prim_path="{ENV_REGEX_NS}/Robot/(right_ankle_pitch_link/)?right_footrix_cell_.*",
+    source_contact_sensor="right_foot_contact",
+)
+
+
 # This sensor is deliberately not inserted into the first policy observation
 # group.  It remains available for a later terrain-aware or ablation policy.
 H2_PLUS_RAY_CASTER_CFG = RayCasterCfg(
@@ -137,12 +178,22 @@ class H2PlusImuInterface:
 
 @dataclass(frozen=True)
 class H2PlusFootrixInterface:
-    """Reserved FOOTRIX mapping slot, not a fabricated contact sensor."""
+    """FOOTRIX marker layout and full-foot contact-report projection config."""
 
-    enabled: bool = False
-    cell_count: int = 154
-    channels_per_cell: int = 3
-    cfg: Any | None = None
+    enabled: bool = True
+    cell_count: int = H2_PLUS_FOOTRIX_CELL_COUNT
+    channels_per_cell: int = H2_PLUS_FOOTRIX_CHANNELS_PER_CELL
+    cfg: tuple[H2PlusFootrixMarkerCfg, H2PlusFootrixMarkerCfg] | None = None
+    layout_path: str = str(H2_PLUS_FOOTRIX_LAYOUT_PATH)
+    layout_status: str = H2_PLUS_FOOTRIX_LAYOUT_STATUS
+    cell_layout_frame: str = "ankle_pitch_link"
+    measurement_frame: str = "world"
+    cell_radius_m: float = H2_PLUS_FOOTRIX_CELL_RADIUS_M
+    cell_thickness_m: float = H2_PLUS_FOOTRIX_CELL_THICKNESS_M
+    support_radius_m: float = H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M
+    projection_method: str = "nearest_cell_force_bin"
+    marker_collision_enabled: bool = False
+    visualized_in_urdf: bool = True
 
 
 @dataclass(frozen=True)
@@ -156,6 +207,8 @@ class H2PlusSensorInterfaces:
     ray_caster_enabled: bool = False
     imu: H2PlusImuInterface = H2PlusImuInterface()
     imu_cfgs: tuple[ImuCfg, ImuCfg, ImuCfg] = ()
+    footrix_left: H2PlusFootrixMarkerCfg | None = None
+    footrix_right: H2PlusFootrixMarkerCfg | None = None
     footrix: H2PlusFootrixInterface = H2PlusFootrixInterface()
 
 
@@ -172,25 +225,41 @@ H2_PLUS_SENSOR_INTERFACES = H2PlusSensorInterfaces(
         rotation_wxyz=(1.0, 0.0, 0.0, 0.0),
     ),
     imu_cfgs=(H2_PLUS_TORSO_IMU_CFG, H2_PLUS_LEFT_FOOT_IMU_CFG, H2_PLUS_RIGHT_FOOT_IMU_CFG),
+    footrix_left=H2_PLUS_LEFT_FOOTRIX_CFG,
+    footrix_right=H2_PLUS_RIGHT_FOOTRIX_CFG,
+    footrix=H2PlusFootrixInterface(
+        enabled=True,
+        cfg=(H2_PLUS_LEFT_FOOTRIX_CFG, H2_PLUS_RIGHT_FOOTRIX_CFG),
+    ),
 )
 
 
 __all__ = [
     "H2PlusFootrixInterface",
+    "H2PlusFootrixMarkerCfg",
     "H2PlusImuInterface",
     "H2PlusImuNoiseCfg",
     "H2PlusSensorInterfaces",
     "H2_PLUS_BODY_CONTACT_CFG",
     "H2_PLUS_FOOT_IMU_ROTATION_WXYZ",
+    "H2_PLUS_FOOTRIX_CELL_COUNT",
+    "H2_PLUS_FOOTRIX_CHANNELS_PER_CELL",
+    "H2_PLUS_FOOTRIX_CELL_RADIUS_M",
+    "H2_PLUS_FOOTRIX_CELL_THICKNESS_M",
+    "H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M",
+    "H2_PLUS_FOOTRIX_LAYOUT_PATH",
+    "H2_PLUS_FOOTRIX_LAYOUT_STATUS",
     "H2_PLUS_IMU_GRAVITY_BIAS_M_S2",
     "H2_PLUS_IMU_HISTORY_LENGTH",
     "H2_PLUS_IMU_NOISE_CFG",
     "H2_PLUS_IMU_UPDATE_PERIOD_S",
     "H2_PLUS_LEFT_FOOT_CONTACT_CFG",
     "H2_PLUS_LEFT_FOOT_IMU_CFG",
+    "H2_PLUS_LEFT_FOOTRIX_CFG",
     "H2_PLUS_RAY_CASTER_CFG",
     "H2_PLUS_RIGHT_FOOT_CONTACT_CFG",
     "H2_PLUS_RIGHT_FOOT_IMU_CFG",
+    "H2_PLUS_RIGHT_FOOTRIX_CFG",
     "H2_PLUS_SENSOR_INTERFACES",
     "H2_PLUS_TORSO_IMU_CFG",
     "H2_PLUS_TERRAIN_FILTER_PATHS",

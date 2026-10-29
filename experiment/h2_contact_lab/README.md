@@ -1,6 +1,6 @@
 # H2 Plus：任务配置、训练与仿真采集
 
-更新日期：2026-10-29。训练／回放继续使用 `train.py --task`、`play.py --task`。现已通过原生RecorderManager按 `--record_sensors` 开关采集训练场景中挂载的传感器，默认关闭；开启后默认记录环境0；旧 `tools/run_h2_plus.py` 独立仿真采集入口已删除。此次只执行离线回调／HDF5读写、配置路径与注册检查，没有启动仿真或训练。
+更新日期：2026-10-29。训练／回放继续使用 `train.py --task`、`play.py --task`。现已通过原生RecorderManager按 `--record_sensors` 开关采集训练场景中挂载的传感器，默认关闭；开启后默认记录环境0；旧 `tools/run_h2_plus.py` 独立仿真采集入口已删除。本轮仅完成资产、传感器配置和记录逻辑调整，没有启动仿真或训练，也未进行运行验证。
 
 ## 2026-10-28目录清理
 
@@ -95,7 +95,8 @@ Play使用 `output/sensors/play/`。HDF5按 `data/demo_0`、`data/demo_1` 分回
 | `physics_step`、`simulation_time_s` | 本环境运行的物理步计数和仿真时间，不是墙钟时间。 |
 | `robot/`、`velocity_command` | 根部位姿／速度、关节位置／速度／目标及速度指令。 |
 | `imu/<名称>/` | 躯干和双足的机体坐标系加速度、角速度与finite标记；重力偏置遵循挂载配置，不额外加噪声。 |
-| `contact/<名称>/` | 左右足和躯干的世界坐标系聚合法向接触力、finite和in_contact；足部另含腾空／接触计时。未记录未启用的成对摩擦力、接触点或FOOTRIX单元数据。 |
+| `contact/<名称>/` | 左右足和躯干的世界坐标系聚合法向接触力、finite和in_contact；足部另含腾空／接触计时。|
+| `footrix/<left|right>/` | 每足154个可视化测量点的三维力，力来自完整足底碰撞的PhysX接触报告，并按最近测量点守恒分配；形状为 `[环境数, 154, 3]`，另有finite和in_contact。154点本身无碰撞，不承担足底支撑。|
 | `reward`、`terminated`、`time_out`、`reset`、`termination_terms/` | 同一时刻的奖励和回合终止状态；终止前末帧先记录，再由环境重置。 |
 
 `metadata.json`记录采样规则、关节顺序、动作分组维度、传感器安装外参、URDF与记录器摘要及训练日志目录。HDF5原生 `success` 属性没有被定义为行走能力标签；本任务没有success终止项，应结合终止字段分析，不能把该属性直接解释为训练成败。没有接触与非有限读数分别通过 `in_contact` 和 `finite` 表示，原值保留，不用0替换NaN。
@@ -146,7 +147,7 @@ h2_contact_lab/
 └── output/
 ```
 
-`locomotion/` 直属脚本已从8个精简为4个：`__init__.py` 注册任务，`env_cfg.py` 集中场景、共用MDP和具体任务配置，`sensor_cfg.py` 与 `terrain_cfg.py` 分别维护传感器和地形参数。已将原场景文件及三个地形环境文件合入 `env_cfg.py`，不保留转发文件。修改共用MDP或某个具体任务，都在该文件对应类中进行；六个任务ID、配置类名和参数保持不变。奖励权重和数值阈值优先编辑 `agents/rsl_rl_locomotion_rewards.yaml`；奖励／终止函数的实现放入 `mdp/`，并在 `mdp/__init__.py` 导出。PPO网络、学习率、采样长度和保存间隔放入 `agents/rsl_rl_ppo_cfg.py`。已移除空的 `H2PlusDeferredInterfaces` 聚合层及未使用的ANYmal专用对称变换；H2足部奖励和躯干终止已分别归入对应MDP文件，传感器中的FOOTRIX／RayCaster保留接口不受影响。
+`locomotion/` 直属脚本已从8个精简为4个：`__init__.py` 注册任务，`env_cfg.py` 集中场景、共用MDP和具体任务配置，`sensor_cfg.py` 与 `terrain_cfg.py` 分别维护传感器和地形参数。已将原场景文件及三个地形环境文件合入 `env_cfg.py`，不保留转发文件。修改共用MDP或某个具体任务，都在该文件对应类中进行；六个任务ID、配置类名和参数保持不变。奖励权重和数值阈值优先编辑 `agents/rsl_rl_locomotion_rewards.yaml`；奖励／终止函数的实现放入 `mdp/`，并在 `mdp/__init__.py` 导出。PPO网络、学习率、采样长度和保存间隔放入 `agents/rsl_rl_ppo_cfg.py`。已移除空的 `H2PlusDeferredInterfaces` 聚合层及未使用的ANYmal专用对称变换；H2足部奖励和躯干终止已分别归入对应MDP文件，FOOTRIX由完整足底接触报告和154点可视化布局共同实现，RayCaster仍只保留接口。
 
 执行顺序为：解析参数 → AppLauncher启动Isaac Sim → 导入任务注册 → Hydra读取环境与agent配置 → `gym.make()` → RSL-RL训练／回放。新任务不需要修改 `train.py` 或 `play.py`。
 
@@ -210,7 +211,7 @@ gym.register(
 
 首版策略是盲走：观测包含根部状态、投影重力、23个主动关节的位置／速度、速度指令和上一时刻动作，不包含高度扫描。动作由双腿12个、腰部3个、双肩6个和双肘2个自由度组成，共23个；头部、腕部及尚未纳入策略的上肢自由度保留在模型和接口中。
 
-RayCaster配置仍保存在 `sensor_cfg.py`，但没有挂载到首版场景。躯干 IMU 挂在 `torso_link` 原点，双足 IMU 挂在各自 `ankle_pitch_link` 并使用已给出的偏移和旋转；三路 IMU 以120 Hz更新、保留6帧历史、输出含重力的机体坐标系加速度和角速度，当前记录层保存原始模拟输出，不额外加噪声；`H2_PLUS_IMU_NOISE_CFG` 仅保留参数，未应用到新记录器。IMU不进入首版策略观测，FOOTRIX没有被伪造成Isaac ContactSensor的逐单元数据。这些传感器配置不代表IMU记录已完成校验；此前平地短训练记录不能证明稳定行走。
+RayCaster配置仍保存在 `sensor_cfg.py`，但没有挂载到首版场景。躯干 IMU 挂在 `torso_link` 原点，双足 IMU 挂在各自 `ankle_pitch_link` 并使用已给出的偏移和旋转；三路 IMU 以120 Hz更新、保留6帧历史、输出含重力的机体坐标系加速度和角速度，当前记录层保存原始模拟输出，不额外加噪声；`H2_PLUS_IMU_NOISE_CFG` 仅保留参数，未应用到新记录器。IMU不进入首版策略观测。FOOTRIX保留为每个训练／回放场景中的足底测量配置：左右脚各154个无碰撞固定可视化标记；完整 `ankle_pitch_link` 足底碰撞仍负责全部足地接触，PhysX接触报告回调按最近测量点守恒分配接触冲量。场景始终挂载完整足底接触传感器和标记，但点力回调只在显式添加 `--record_sensors` 时运行并写入 `footrix`，不进入首版盲走策略。单元坐标来自图像估计的左脚154点布局，并暂按同一布局用于右脚；安装标定和硬件编号对应仍留有替换接口。
 
 ## 2026-10-28此前修复与运行记录
 
@@ -221,7 +222,7 @@ RayCaster配置仍保存在 `sensor_cfg.py`，但没有挂载到首版场景。�
 - 删除 `DeformableBodyMaterialCfg` 不支持的 `static_friction`；补齐URDF转换驱动的零刚度／阻尼必填值，执行器仍使用80／8增益。
 - Gym注册改为字符串入口，避免在 `AppLauncher` 前导入PPO与仿真运行时；现已改为根目录直接入口，任务注册在AppLauncher之后执行，CLI辅助模块移至本地。
 - 无TerrainImporter的低摩擦／柔性场景按环境局部坐标检查4米场地边界；环境间距改为5米，柔性场景关闭物理复制。
-- 躯干传感器取消多body过滤；训练场景的双足传感器只保留净接触力、历史和腾空计时，关闭PPO未使用的成对接触过滤／接触点／摩擦力记录，避免GPU平面过滤不支持的运行警告。采集接口配置仍保留，FOOTRIX和RayCaster仍未启用。
+- 躯干传感器取消多body过滤；训练场景的双足聚合传感器只保留净接触力、历史和腾空计时，关闭PPO未使用的成对接触过滤／接触点／摩擦力记录，避免GPU平面过滤不支持的运行警告。该历史记录形成时FOOTRIX尚未挂载；当前配置保留完整足底接触报告和154个无碰撞测量标记，点力由记录器进行最近点守恒分配，RayCaster仍未挂载。
 - 平地与低摩擦任务默认1024环境，柔性任务默认64环境；均可用 `--num_envs` 覆盖，平地play仍为16环境。
 
 运行记录：首次有效启动日志迁至 `log/history/train_20261028_141313/console.log`；关闭多余过滤后的日志迁至 `log/history/train_20261028_141452/console.log`，后者记录PPO迭代0—7、累计196608步，随后按用户要求停止。两次试跑的参数保存在各自 `params/`；旧初始checkpoint、事件文件和失败启动日志已清理。这些是早期运行证据，不是已收敛策略。
@@ -242,10 +243,10 @@ RayCaster配置仍保存在 `sensor_cfg.py`，但没有挂载到首版场景。�
 | `H2_Plus_mujoco.urdf` | 98 link；75 revolute＋22 fixed | 带手、原足；可视网格使用STL的版本。 |
 | `H2_Plus_mujoco_with_footrix.urdf` | 98 link；75 revolute＋22 fixed | 已换新足，仍含灵巧手；不是当前去手默认版。 |
 | `H2_Plus_no_dex_hands.urdf` | 32 link；31 revolute | 去手但仍引用原足网格。 |
-| `H2_Plus_with_footrix_no_dex_hands.urdf` | 32 link；31 revolute | **Isaac主入口默认**；新足，部分本体可视网格为DAE。 |
+| `H2_Plus_with_footrix_no_dex_hands.urdf` | 340 link；31 revolute＋308 fixed | **Isaac主入口默认**；新足，新增左右脚各154个无碰撞固定FOOTRIX可视化标记，部分本体可视网格为DAE。|
 | `H2_Plus_mujoco_with_footrix_no_dex_hands.urdf` | 32 link；31 revolute | 旧MuJoCo展示使用的源资产；新足，可视网格为STL。URDF保留，展示脚本及生成XML已删除。 |
 
-上述两个去手改装URDF均有49个本地网格引用，本次路径核对均存在；源模型根link为 `pelvis`，floating joint示例位于注释中。Isaac转换器以 `fix_base=False` 请求浮动根，实际Articulation是否为浮动基座仍须运行时确认。两者均未声明IMU link/frame和安装外参，URDF本身不生成IMU读数；任务场景另行挂载三路IMU。
+原始去手改装URDF均有49个本地网格引用；当前Isaac默认URDF另含308个无碰撞的固定FOOTRIX可视化标记link。源模型根link为 `pelvis`，floating joint示例位于注释中。Isaac转换器以 `fix_base=False` 请求浮动根，实际Articulation是否为浮动基座仍须运行时确认。URDF本身不生成IMU读数；任务场景另行挂载三路IMU。FOOTRIX坐标和接触点分配参数由任务配置写入，后续可替换为标定布局或新的分配模型。
 
 `../robot_asset/footrix_design/` 保存左右新足装配、IMU零件、STL和 `L.txt`／`R.txt` 质量属性。两份文本分别使用“坐标系5／坐标系4”，包含质心处张量及输出原点处张量，引用时须核坐标、参考点、单位和负张量记数法，不能互换或把截图示例当最终参数。`h2_260601/`为简化H2 CAD，`h2_description/`为普通H2描述和网格，均不是当前H2 Plus默认资产。CAD装配、网格碰撞质量和实机安装本次未验证。
 
