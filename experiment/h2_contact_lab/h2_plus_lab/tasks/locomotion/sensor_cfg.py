@@ -7,8 +7,8 @@ and two foot IMUs are attached for recording only; they are deliberately not
 inserted into the first policy observation group.  FOOTRIX uses a dedicated
 visual marker layer: each of its 154 cells is an independent fixed child link
 with a thin circular visual shape and no collision.  A PhysX contact-report
-callback reads the complete foot collision and projects contact impulses to the
-measurement layout.
+callback reads the complete foot collision and distributes contact impulses to
+nearby cells in the planar measurement layout.
 """
 
 from __future__ import annotations
@@ -30,11 +30,17 @@ H2_PLUS_FOOTRIX_CELL_COUNT = 154
 H2_PLUS_FOOTRIX_CHANNELS_PER_CELL = 3
 H2_PLUS_FOOTRIX_CELL_RADIUS_M = 0.003401643
 H2_PLUS_FOOTRIX_CELL_THICKNESS_M = 0.004
-H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M = 0.008
+# The layout spacing is about 8--10 mm; 12 mm normally includes multiple
+# neighboring cells while keeping the kernel local.
+H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M = 0.012
+H2_PLUS_FOOTRIX_PROJECTION_METHOD = "planar_linear_weighted_force_bin"
+# Effective common layout plane, aligned to the current foot mesh bottom in the
+# ankle_pitch_link frame.  The image-derived JSON remains the raw source.
+H2_PLUS_FOOTRIX_LAYOUT_Z_M = -0.0521
 H2_PLUS_FOOTRIX_LAYOUT_PATH = Path(
     "experiment/h2_contact_lab/output/history/windows_footrix_points_checks_20261015/footrix_layout.json"
 )
-H2_PLUS_FOOTRIX_LAYOUT_STATUS = "image-derived canonical left layout; installation coordinates remain replaceable"
+H2_PLUS_FOOTRIX_LAYOUT_STATUS = "image-derived canonical left/right mirrored layouts; effective z aligned to current foot mesh bottom; installation coordinates remain replaceable"
 
 
 @dataclass(frozen=True)
@@ -133,13 +139,14 @@ class H2PlusFootrixMarkerCfg:
     cell_count: int = H2_PLUS_FOOTRIX_CELL_COUNT
     channels_per_cell: int = H2_PLUS_FOOTRIX_CHANNELS_PER_CELL
     marker_collision_enabled: bool = False
-    projection_method: str = "nearest_cell_force_bin"
+    projection_method: str = H2_PLUS_FOOTRIX_PROJECTION_METHOD
     support_radius_m: float = H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M
 
 
 # The full ankle-pitch foot mesh remains the only foot-ground collision body.
 # These fixed links are visual-only markers.  A PhysX contact-report callback
-# reads contact impulses from the full foot and projects them to these points.
+# reads contact impulses from the full foot and distributes them to nearby
+# points with normalized planar weights.
 H2_PLUS_LEFT_FOOTRIX_CFG = H2PlusFootrixMarkerCfg(
     marker_prim_path="{ENV_REGEX_NS}/Robot/(left_ankle_pitch_link/)?left_footrix_cell_.*",
     source_contact_sensor="left_foot_contact",
@@ -187,11 +194,12 @@ class H2PlusFootrixInterface:
     layout_path: str = str(H2_PLUS_FOOTRIX_LAYOUT_PATH)
     layout_status: str = H2_PLUS_FOOTRIX_LAYOUT_STATUS
     cell_layout_frame: str = "ankle_pitch_link"
+    layout_z_m: float = H2_PLUS_FOOTRIX_LAYOUT_Z_M
     measurement_frame: str = "world"
     cell_radius_m: float = H2_PLUS_FOOTRIX_CELL_RADIUS_M
     cell_thickness_m: float = H2_PLUS_FOOTRIX_CELL_THICKNESS_M
     support_radius_m: float = H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M
-    projection_method: str = "nearest_cell_force_bin"
+    projection_method: str = H2_PLUS_FOOTRIX_PROJECTION_METHOD
     marker_collision_enabled: bool = False
     visualized_in_urdf: bool = True
 
@@ -247,6 +255,8 @@ __all__ = [
     "H2_PLUS_FOOTRIX_CELL_RADIUS_M",
     "H2_PLUS_FOOTRIX_CELL_THICKNESS_M",
     "H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M",
+    "H2_PLUS_FOOTRIX_PROJECTION_METHOD",
+    "H2_PLUS_FOOTRIX_LAYOUT_Z_M",
     "H2_PLUS_FOOTRIX_LAYOUT_PATH",
     "H2_PLUS_FOOTRIX_LAYOUT_STATUS",
     "H2_PLUS_IMU_GRAVITY_BIAS_M_S2",

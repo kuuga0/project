@@ -36,9 +36,9 @@
 | H2 Plus：Isaac Lab主入口 | `train.py`／`play.py` 为直接入口，任务内包含资产、地形、传感器、MDP、Gym注册和RecorderManager采集；旧独立工具已删除。 | 已生成USD，平地1024环境进入PPO更新后按用户要求停止；训练未完成，特殊地形、记录回读与行走效果未验证。 |
 | H2 Plus：旧MuJoCo展示（已删除） | 未接入训练且导出不完整的脚本与XML已清理，URDF原始资产保留。 | 历史缺陷见H2实验README；不作为物理或展示成功证据。 |
 
-Isaac Lab默认资产为 [H2_Plus_with_footrix_no_dex_hands.urdf](experiment/robot_asset/h2_plus/H2_Plus_with_footrix_no_dex_hands.urdf)；该URDF现在包含左右脚各154个无碰撞固定FOOTRIX可视化标记，同时保留整块足底碰撞作为完整足底接触面，点力由接触报告投影得到。已删除的MuJoCo展示脚本曾读取同目录的 `H2_Plus_mujoco_with_footrix_no_dex_hands.urdf`。原始去手改装URDF保留49个本地网格引用；默认URDF的FOOTRIX标记不引用网格。URDF本身未声明IMU安装frame／外参，项目任务配置已在 `sensor_cfg.py` 中给出躯干和双足 IMU 的安装参数。带手的 `H2_Plus_mujoco_with_footrix.urdf` 为98个link、75个转动关节和22个固定关节，不能只凭名称中的FOOTRIX把它当作去手默认版。H2 Plus模块化任务配置、盲走动作空间和Ubuntu启动命令见 [H2实验README](experiment/h2_contact_lab/README.md)；平地现有早期训练运行证据，但无收敛或行走效果结论。
+Isaac Lab默认资产为 [H2_Plus_with_footrix_no_dex_hands.urdf](experiment/robot_asset/h2_plus/H2_Plus_with_footrix_no_dex_hands.urdf)；该URDF现在包含左右脚各154个无碰撞固定FOOTRIX可视化标记，同时保留整块足底碰撞作为完整足底接触面，点力由接触报告投影得到。对应的 MuJoCo 源资产 [H2_Plus_mujoco_with_footrix_no_dex_hands.urdf](experiment/robot_asset/h2_plus/H2_Plus_mujoco_with_footrix_no_dex_hands.urdf) 也包含同样的左右脚各154个无碰撞可视化标记，但只用于资产展示，不接入Isaac记录器；其右脚标记在足部局部 `y` 方向采用镜像，以匹配右足网格坐标。原始去手改装URDF保留49个本地网格引用；默认Isaac URDF的FOOTRIX标记不引用网格。URDF本身未声明IMU安装frame／外参，项目任务配置已在 `sensor_cfg.py` 中给出躯干和双足 IMU 的安装参数。带手的 `H2_Plus_mujoco_with_footrix.urdf` 为98个link、75个转动关节和22个固定关节，不能只凭名称中的FOOTRIX把它当作去手默认版。H2 Plus模块化任务配置、盲走动作空间和Ubuntu启动命令见 [H2实验README](experiment/h2_contact_lab/README.md)；平地现有早期训练运行证据，但无收敛或行走效果结论。
 
-旧独立 `terrain`／`smoke`／`collect`／`validate` 工具已退出。任务地形仍含平地、低摩擦双区域和PhysX柔性场景。训练／回放场景始终挂载完整足底接触传感器和154个无碰撞可视化标记；RecorderManager在显式添加 `--record_sensors` 时订阅完整足底的PhysX接触报告，将左右脚接触冲量按最近测量点守恒分配为154点三维力并保存到HDF5，默认不落盘。该数据不进入首版盲走策略。154点是无碰撞测量标记，不改变足底动力学，也没有能力标签或正式训练集。此次仅完成配置与记录逻辑写入，未升级实际仿真证据。
+旧独立 `terrain`／`smoke`／`collect`／`validate` 工具已退出。任务地形仍含平地、低摩擦双区域和PhysX柔性场景。训练／回放场景始终挂载完整足底接触传感器和154个无碰撞可视化标记；RecorderManager在显式添加 `--record_sensors` 时订阅完整足底的PhysX接触报告，将左右脚接触冲量按足部局部 `x/y` 平面上的归一化线性权重分配到附近单元，形成154点三维力并保存到HDF5，默认不落盘。该数据不进入首版盲走策略。154点是无碰撞测量标记，不改变足底动力学，也没有能力标签或正式训练集。此次仅完成配置与记录逻辑写入，未升级实际仿真证据。
 
 ### 本次确认、尚未修改的工程问题
 

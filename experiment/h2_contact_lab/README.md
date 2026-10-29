@@ -96,7 +96,7 @@ Play使用 `output/sensors/play/`。HDF5按 `data/demo_0`、`data/demo_1` 分回
 | `robot/`、`velocity_command` | 根部位姿／速度、关节位置／速度／目标及速度指令。 |
 | `imu/<名称>/` | 躯干和双足的机体坐标系加速度、角速度与finite标记；重力偏置遵循挂载配置，不额外加噪声。 |
 | `contact/<名称>/` | 左右足和躯干的世界坐标系聚合法向接触力、finite和in_contact；足部另含腾空／接触计时。|
-| `footrix/<left|right>/` | 每足154个可视化测量点的三维力，力来自完整足底碰撞的PhysX接触报告，并按最近测量点守恒分配；形状为 `[环境数, 154, 3]`，另有finite和in_contact。154点本身无碰撞，不承担足底支撑。|
+| `footrix/<left|right>/` | 每足154个可视化测量点的三维力，力来自完整足底碰撞的PhysX接触报告，并按足部局部 `x/y` 平面上的归一化线性权重分配到邻近单元；形状为 `[环境数, 154, 3]`，另有finite和in_contact。154点本身无碰撞，不承担足底支撑。|
 | `reward`、`terminated`、`time_out`、`reset`、`termination_terms/` | 同一时刻的奖励和回合终止状态；终止前末帧先记录，再由环境重置。 |
 
 `metadata.json`记录采样规则、关节顺序、动作分组维度、传感器安装外参、URDF与记录器摘要及训练日志目录。HDF5原生 `success` 属性没有被定义为行走能力标签；本任务没有success终止项，应结合终止字段分析，不能把该属性直接解释为训练成败。没有接触与非有限读数分别通过 `in_contact` 和 `finite` 表示，原值保留，不用0替换NaN。
@@ -211,7 +211,7 @@ gym.register(
 
 首版策略是盲走：观测包含根部状态、投影重力、23个主动关节的位置／速度、速度指令和上一时刻动作，不包含高度扫描。动作由双腿12个、腰部3个、双肩6个和双肘2个自由度组成，共23个；头部、腕部及尚未纳入策略的上肢自由度保留在模型和接口中。
 
-RayCaster配置仍保存在 `sensor_cfg.py`，但没有挂载到首版场景。躯干 IMU 挂在 `torso_link` 原点，双足 IMU 挂在各自 `ankle_pitch_link` 并使用已给出的偏移和旋转；三路 IMU 以120 Hz更新、保留6帧历史、输出含重力的机体坐标系加速度和角速度，当前记录层保存原始模拟输出，不额外加噪声；`H2_PLUS_IMU_NOISE_CFG` 仅保留参数，未应用到新记录器。IMU不进入首版策略观测。FOOTRIX保留为每个训练／回放场景中的足底测量配置：左右脚各154个无碰撞固定可视化标记；完整 `ankle_pitch_link` 足底碰撞仍负责全部足地接触，PhysX接触报告回调按最近测量点守恒分配接触冲量。场景始终挂载完整足底接触传感器和标记，但点力回调只在显式添加 `--record_sensors` 时运行并写入 `footrix`，不进入首版盲走策略。单元坐标来自图像估计的左脚154点布局，并暂按同一布局用于右脚；安装标定和硬件编号对应仍留有替换接口。
+RayCaster配置仍保存在 `sensor_cfg.py`，但没有挂载到首版场景。躯干 IMU 挂在 `torso_link` 原点，双足 IMU 挂在各自 `ankle_pitch_link` 并使用已给出的偏移和旋转；三路 IMU 以120 Hz更新、保留6帧历史、输出含重力的机体坐标系加速度和角速度，当前记录层保存原始模拟输出，不额外加噪声；`H2_PLUS_IMU_NOISE_CFG` 仅保留参数，未应用到新记录器。IMU不进入首版策略观测。FOOTRIX保留为每个训练／回放场景中的足底测量配置：左右脚各154个无碰撞固定可视化标记；完整 `ankle_pitch_link` 足底碰撞仍负责全部足地接触，PhysX接触报告回调按足部局部 `x/y` 平面上的归一化线性权重分配到邻近测量单元。有效布局平面高度已按当前足底网格最低面设置为 `z=-0.0521 m`，原始图像布局 JSON 保留为来源记录。场景始终挂载完整足底接触传感器和标记，但点力回调只在显式添加 `--record_sensors` 时运行并写入 `footrix`，不进入首版盲走策略。单元拓扑和编号相同，右足坐标在其局部 `y` 轴上采用镜像布局，以匹配左右足网格；安装标定和硬件编号对应仍留有替换接口。
 
 ## 2026-10-28此前修复与运行记录
 
@@ -222,7 +222,7 @@ RayCaster配置仍保存在 `sensor_cfg.py`，但没有挂载到首版场景。�
 - 删除 `DeformableBodyMaterialCfg` 不支持的 `static_friction`；补齐URDF转换驱动的零刚度／阻尼必填值，执行器仍使用80／8增益。
 - Gym注册改为字符串入口，避免在 `AppLauncher` 前导入PPO与仿真运行时；现已改为根目录直接入口，任务注册在AppLauncher之后执行，CLI辅助模块移至本地。
 - 无TerrainImporter的低摩擦／柔性场景按环境局部坐标检查4米场地边界；环境间距改为5米，柔性场景关闭物理复制。
-- 躯干传感器取消多body过滤；训练场景的双足聚合传感器只保留净接触力、历史和腾空计时，关闭PPO未使用的成对接触过滤／接触点／摩擦力记录，避免GPU平面过滤不支持的运行警告。该历史记录形成时FOOTRIX尚未挂载；当前配置保留完整足底接触报告和154个无碰撞测量标记，点力由记录器进行最近点守恒分配，RayCaster仍未挂载。
+- 躯干传感器取消多body过滤；训练场景的双足聚合传感器只保留净接触力、历史和腾空计时，关闭PPO未使用的成对接触过滤／接触点／摩擦力记录，避免GPU平面过滤不支持的运行警告。该历史记录形成时FOOTRIX尚未挂载；当前配置保留完整足底接触报告和154个无碰撞测量标记，点力由记录器按足部局部 `x/y` 平面上的归一化线性权重分配到邻近单元，RayCaster仍未挂载。
 - 平地与低摩擦任务默认1024环境，柔性任务默认64环境；均可用 `--num_envs` 覆盖，平地play仍为16环境。
 
 运行记录：首次有效启动日志迁至 `log/history/train_20261028_141313/console.log`；关闭多余过滤后的日志迁至 `log/history/train_20261028_141452/console.log`，后者记录PPO迭代0—7、累计196608步，随后按用户要求停止。两次试跑的参数保存在各自 `params/`；旧初始checkpoint、事件文件和失败启动日志已清理。这些是早期运行证据，不是已收敛策略。
@@ -244,9 +244,9 @@ RayCaster配置仍保存在 `sensor_cfg.py`，但没有挂载到首版场景。�
 | `H2_Plus_mujoco_with_footrix.urdf` | 98 link；75 revolute＋22 fixed | 已换新足，仍含灵巧手；不是当前去手默认版。 |
 | `H2_Plus_no_dex_hands.urdf` | 32 link；31 revolute | 去手但仍引用原足网格。 |
 | `H2_Plus_with_footrix_no_dex_hands.urdf` | 340 link；31 revolute＋308 fixed | **Isaac主入口默认**；新足，新增左右脚各154个无碰撞固定FOOTRIX可视化标记，部分本体可视网格为DAE。|
-| `H2_Plus_mujoco_with_footrix_no_dex_hands.urdf` | 32 link；31 revolute | 旧MuJoCo展示使用的源资产；新足，可视网格为STL。URDF保留，展示脚本及生成XML已删除。 |
+| `H2_Plus_mujoco_with_footrix_no_dex_hands.urdf` | 340 link；31 revolute＋308 fixed | 旧MuJoCo展示使用的源资产；新足，新增左右脚各154个无碰撞固定FOOTRIX可视化标记，可视网格为STL。URDF保留，展示脚本及生成XML已删除。 |
 
-原始去手改装URDF均有49个本地网格引用；当前Isaac默认URDF另含308个无碰撞的固定FOOTRIX可视化标记link。源模型根link为 `pelvis`，floating joint示例位于注释中。Isaac转换器以 `fix_base=False` 请求浮动根，实际Articulation是否为浮动基座仍须运行时确认。URDF本身不生成IMU读数；任务场景另行挂载三路IMU。FOOTRIX坐标和接触点分配参数由任务配置写入，后续可替换为标定布局或新的分配模型。
+原始去手改装URDF均有49个本地网格引用；当前Isaac默认URDF和MuJoCo源资产均另含308个无碰撞的固定FOOTRIX可视化标记link。源模型根link为 `pelvis`，floating joint示例位于注释中。Isaac转换器以 `fix_base=False` 请求浮动根，实际Articulation是否为浮动基座仍须运行时确认。URDF本身不生成IMU读数；Isaac任务场景另行挂载三路IMU。两份带标记URDF共享154点的图像推导布局和可替换接口；由于左右足网格的局部 `y` 轴相反，MuJoCo源资产将右脚154点的局部 `y` 坐标镜像后再挂载。MuJoCo版本只增加可视化标记，不接入Isaac记录器的接触报告投影。
 
 `../robot_asset/footrix_design/` 保存左右新足装配、IMU零件、STL和 `L.txt`／`R.txt` 质量属性。两份文本分别使用“坐标系5／坐标系4”，包含质心处张量及输出原点处张量，引用时须核坐标、参考点、单位和负张量记数法，不能互换或把截图示例当最终参数。`h2_260601/`为简化H2 CAD，`h2_description/`为普通H2描述和网格，均不是当前H2 Plus默认资产。CAD装配、网格碰撞质量和实机安装本次未验证。
 

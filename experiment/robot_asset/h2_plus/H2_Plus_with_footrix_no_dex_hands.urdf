@@ -3008,7 +3008,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_000_fixed_joint" type="fixed">
-    <origin xyz="0.139675000 0.036494925 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.139675000 -0.036494925 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_000"/>
   </joint>
@@ -3025,7 +3025,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_001_fixed_joint" type="fixed">
-    <origin xyz="0.138093236 0.025939048 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.138093236 -0.025939048 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_001"/>
   </joint>
@@ -3042,7 +3042,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_002_fixed_joint" type="fixed">
-    <origin xyz="0.138062817 0.047038418 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.138062817 -0.047038418 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_002"/>
   </joint>
@@ -3059,7 +3059,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_003_fixed_joint" type="fixed">
-    <origin xyz="0.132978092 0.056496918 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.132978092 -0.056496918 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_003"/>
   </joint>
@@ -3076,7 +3076,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_004_fixed_joint" type="fixed">
-    <origin xyz="0.132953021 0.016505951 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.132953021 -0.016505951 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_004"/>
   </joint>
@@ -3093,7 +3093,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_005_fixed_joint" type="fixed">
-    <origin xyz="0.128271801 0.036519215 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.128271801 -0.036519215 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_005"/>
   </joint>
@@ -3110,7 +3110,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_006_fixed_joint" type="fixed">
-    <origin xyz="0.126917759 0.045565078 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.126917759 -0.045565078 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_006"/>
   </joint>
@@ -3127,7 +3127,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_007_fixed_joint" type="fixed">
-    <origin xyz="0.126857731 0.027358660 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.126857731 -0.027358660 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_007"/>
   </joint>
@@ -3144,7 +3144,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_008_fixed_joint" type="fixed">
-    <origin xyz="0.124677077 0.009528488 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.124677077 -0.009528488 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_008"/>
   </joint>
@@ -3161,7 +3161,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_009_fixed_joint" type="fixed">
-    <origin xyz="0.124670932 0.063424392 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.124670932 -0.063424392 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_009"/>
   </joint>
@@ -3178,7 +3178,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_010_fixed_joint" type="fixed">
-    <origin xyz="0.123329002 0.054685587 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.123329002 -0.054685587 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_010"/>
   </joint>
@@ -3195,7 +3195,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_011_fixed_joint" type="fixed">
-    <origin xyz="0.123216487 0.018184341 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.123216487 -0.018184341 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_011"/>
   </joint>
@@ -3212,7 +3212,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_012_fixed_joint" type="fixed">
-    <origin xyz="0.116897670 0.036501441 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.116897670 -0.036501441 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_012"/>
   </joint>
@@ -3229,7 +3229,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_013_fixed_joint" type="fixed">
-    <origin xyz="0.115886286 0.044619702 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.115886286 -0.044619702 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_013"/>
   </joint>
@@ -3246,7 +3246,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_014_fixed_joint" type="fixed">
-    <origin xyz="0.115736645 0.028264809 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.115736645 -0.028264809 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_014"/>
   </joint>
@@ -3263,7 +3263,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_015_fixed_joint" type="fixed">
-    <origin xyz="0.114656431 0.005233142 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.114656431 -0.005233142 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_015"/>
   </joint>
@@ -3280,7 +3280,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_016_fixed_joint" type="fixed">
-    <origin xyz="0.114652998 0.067812954 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.114652998 -0.067812954 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_016"/>
   </joint>
@@ -3297,7 +3297,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_017_fixed_joint" type="fixed">
-    <origin xyz="0.113981468 0.052376164 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.113981468 -0.052376164 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_017"/>
   </joint>
@@ -3314,7 +3314,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_018_fixed_joint" type="fixed">
-    <origin xyz="0.113691807 0.020437384 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.113691807 -0.020437384 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_018"/>
   </joint>
@@ -3331,7 +3331,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_019_fixed_joint" type="fixed">
-    <origin xyz="0.113484632 0.060044927 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.113484632 -0.060044927 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_019"/>
   </joint>
@@ -3348,7 +3348,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_020_fixed_joint" type="fixed">
-    <origin xyz="0.113246692 0.012778658 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.113246692 -0.012778658 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_020"/>
   </joint>
@@ -3365,7 +3365,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_021_fixed_joint" type="fixed">
-    <origin xyz="0.105527878 0.036503259 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.105527878 -0.036503259 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_021"/>
   </joint>
@@ -3382,7 +3382,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_022_fixed_joint" type="fixed">
-    <origin xyz="0.104606577 0.044772778 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.104606577 -0.044772778 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_022"/>
   </joint>
@@ -3399,7 +3399,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_023_fixed_joint" type="fixed">
-    <origin xyz="0.104597009 0.028148765 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.104597009 -0.028148765 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_023"/>
   </joint>
@@ -3416,7 +3416,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_024_fixed_joint" type="fixed">
-    <origin xyz="0.103940814 0.070312727 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.103940814 -0.070312727 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_024"/>
   </joint>
@@ -3433,7 +3433,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_025_fixed_joint" type="fixed">
-    <origin xyz="0.103923745 0.002755706 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.103923745 -0.002755706 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_025"/>
   </joint>
@@ -3450,7 +3450,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_026_fixed_joint" type="fixed">
-    <origin xyz="0.103665422 0.053190044 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.103665422 -0.053190044 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_026"/>
   </joint>
@@ -3467,7 +3467,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_027_fixed_joint" type="fixed">
-    <origin xyz="0.103499975 0.019719356 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.103499975 -0.019719356 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_027"/>
   </joint>
@@ -3484,7 +3484,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_028_fixed_joint" type="fixed">
-    <origin xyz="0.103337512 0.061775150 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.103337512 -0.061775150 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_028"/>
   </joint>
@@ -3501,7 +3501,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_029_fixed_joint" type="fixed">
-    <origin xyz="0.103117992 0.011222692 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.103117992 -0.011222692 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_029"/>
   </joint>
@@ -3518,7 +3518,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_030_fixed_joint" type="fixed">
-    <origin xyz="0.094146549 0.036502541 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.094146549 -0.036502541 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_030"/>
   </joint>
@@ -3535,7 +3535,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_031_fixed_joint" type="fixed">
-    <origin xyz="0.093568517 0.045168318 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.093568517 -0.045168318 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_031"/>
   </joint>
@@ -3552,7 +3552,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_032_fixed_joint" type="fixed">
-    <origin xyz="0.093472609 0.027883184 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.093472609 -0.027883184 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_032"/>
   </joint>
@@ -3569,7 +3569,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_033_fixed_joint" type="fixed">
-    <origin xyz="0.093132597 0.053878817 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.093132597 -0.053878817 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_033"/>
   </joint>
@@ -3586,7 +3586,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_034_fixed_joint" type="fixed">
-    <origin xyz="0.093018021 0.071660376 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.093018021 -0.071660376 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_034"/>
   </joint>
@@ -3603,7 +3603,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_035_fixed_joint" type="fixed">
-    <origin xyz="0.093011701 0.001457102 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.093011701 -0.001457102 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_035"/>
   </joint>
@@ -3620,7 +3620,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_036_fixed_joint" type="fixed">
-    <origin xyz="0.092886405 0.062718972 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.092886405 -0.062718972 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_036"/>
   </joint>
@@ -3637,7 +3637,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_037_fixed_joint" type="fixed">
-    <origin xyz="0.092832468 0.019181553 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.092832468 -0.019181553 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_037"/>
   </joint>
@@ -3654,7 +3654,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_038_fixed_joint" type="fixed">
-    <origin xyz="0.092618058 0.010348363 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.092618058 -0.010348363 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_038"/>
   </joint>
@@ -3671,7 +3671,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_039_fixed_joint" type="fixed">
-    <origin xyz="0.082763846 0.036501784 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.082763846 -0.036501784 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_039"/>
   </joint>
@@ -3688,7 +3688,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_040_fixed_joint" type="fixed">
-    <origin xyz="0.082426475 0.045362414 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.082426475 -0.045362414 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_040"/>
   </joint>
@@ -3705,7 +3705,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_041_fixed_joint" type="fixed">
-    <origin xyz="0.082423735 0.027724640 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.082423735 -0.027724640 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_041"/>
   </joint>
@@ -3722,7 +3722,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_042_fixed_joint" type="fixed">
-    <origin xyz="0.082199092 0.054259064 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.082199092 -0.054259064 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_042"/>
   </joint>
@@ -3739,7 +3739,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_043_fixed_joint" type="fixed">
-    <origin xyz="0.082086026 0.018841493 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.082086026 -0.018841493 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_043"/>
   </joint>
@@ -3756,7 +3756,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_044_fixed_joint" type="fixed">
-    <origin xyz="0.082047455 0.072254837 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.082047455 -0.072254837 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_044"/>
   </joint>
@@ -3773,7 +3773,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_045_fixed_joint" type="fixed">
-    <origin xyz="0.082035707 0.063175725 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.082035707 -0.063175725 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_045"/>
   </joint>
@@ -3790,7 +3790,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_046_fixed_joint" type="fixed">
-    <origin xyz="0.082002688 0.000913417 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.082002688 -0.000913417 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_046"/>
   </joint>
@@ -3807,7 +3807,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_047_fixed_joint" type="fixed">
-    <origin xyz="0.081913562 0.009914535 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.081913562 -0.009914535 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_047"/>
   </joint>
@@ -3824,7 +3824,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_048_fixed_joint" type="fixed">
-    <origin xyz="0.071382625 0.036514175 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.071382625 -0.036514175 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_048"/>
   </joint>
@@ -3841,7 +3841,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_049_fixed_joint" type="fixed">
-    <origin xyz="0.071239356 0.045406566 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.071239356 -0.045406566 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_049"/>
   </joint>
@@ -3858,7 +3858,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_050_fixed_joint" type="fixed">
-    <origin xyz="0.071216373 0.027622649 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.071216373 -0.027622649 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_050"/>
   </joint>
@@ -3875,7 +3875,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_051_fixed_joint" type="fixed">
-    <origin xyz="0.071155171 0.054341402 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.071155171 -0.054341402 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_051"/>
   </joint>
@@ -3892,7 +3892,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_052_fixed_joint" type="fixed">
-    <origin xyz="0.071078511 0.063335066 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.071078511 -0.063335066 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_052"/>
   </joint>
@@ -3909,7 +3909,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_053_fixed_joint" type="fixed">
-    <origin xyz="0.071053776 0.018697621 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.071053776 -0.018697621 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_053"/>
   </joint>
@@ -3926,7 +3926,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_054_fixed_joint" type="fixed">
-    <origin xyz="0.071029856 0.072320000 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.071029856 -0.072320000 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_054"/>
   </joint>
@@ -3943,7 +3943,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_055_fixed_joint" type="fixed">
-    <origin xyz="0.070994696 0.000720653 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.070994696 -0.000720653 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_055"/>
   </joint>
@@ -3960,7 +3960,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_056_fixed_joint" type="fixed">
-    <origin xyz="0.070985749 0.009763054 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.070985749 -0.009763054 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_056"/>
   </joint>
@@ -3977,7 +3977,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_057_fixed_joint" type="fixed">
-    <origin xyz="0.060023144 0.027557476 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.060023144 -0.027557476 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_057"/>
   </joint>
@@ -3994,7 +3994,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_058_fixed_joint" type="fixed">
-    <origin xyz="0.060018293 0.072263444 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.060018293 -0.072263444 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_058"/>
   </joint>
@@ -4011,7 +4011,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_059_fixed_joint" type="fixed">
-    <origin xyz="0.060017179 0.018654457 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.060017179 -0.018654457 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_059"/>
   </joint>
@@ -4028,7 +4028,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_060_fixed_joint" type="fixed">
-    <origin xyz="0.060010430 0.063342860 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.060010430 -0.063342860 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_060"/>
   </joint>
@@ -4045,7 +4045,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_061_fixed_joint" type="fixed">
-    <origin xyz="0.060006885 0.054354122 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.060006885 -0.054354122 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_061"/>
   </joint>
@@ -4062,7 +4062,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_062_fixed_joint" type="fixed">
-    <origin xyz="0.060001329 0.036518013 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.060001329 -0.036518013 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_062"/>
   </joint>
@@ -4079,7 +4079,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_063_fixed_joint" type="fixed">
-    <origin xyz="0.059994344 0.009698506 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.059994344 -0.009698506 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_063"/>
   </joint>
@@ -4096,7 +4096,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_064_fixed_joint" type="fixed">
-    <origin xyz="0.059990217 0.045449592 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.059990217 -0.045449592 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_064"/>
   </joint>
@@ -4113,7 +4113,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_065_fixed_joint" type="fixed">
-    <origin xyz="0.059985653 0.000764957 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.059985653 -0.000764957 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_065"/>
   </joint>
@@ -4130,7 +4130,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_066_fixed_joint" type="fixed">
-    <origin xyz="0.050909509 0.000680000 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.050909509 -0.000680000 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_066"/>
   </joint>
@@ -4147,7 +4147,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_067_fixed_joint" type="fixed">
-    <origin xyz="0.050856521 0.009585796 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.050856521 -0.009585796 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_067"/>
   </joint>
@@ -4164,7 +4164,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_068_fixed_joint" type="fixed">
-    <origin xyz="0.050754268 0.018525884 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.050754268 -0.018525884 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_068"/>
   </joint>
@@ -4181,7 +4181,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_069_fixed_joint" type="fixed">
-    <origin xyz="0.050686473 0.027476333 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.050686473 -0.027476333 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_069"/>
   </joint>
@@ -4198,7 +4198,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_070_fixed_joint" type="fixed">
-    <origin xyz="0.050606304 0.036420637 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.050606304 -0.036420637 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_070"/>
   </joint>
@@ -4215,7 +4215,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_071_fixed_joint" type="fixed">
-    <origin xyz="0.050531762 0.045369159 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.050531762 -0.045369159 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_071"/>
   </joint>
@@ -4232,7 +4232,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_072_fixed_joint" type="fixed">
-    <origin xyz="0.050462338 0.054322724 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.050462338 -0.054322724 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_072"/>
   </joint>
@@ -4249,7 +4249,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_073_fixed_joint" type="fixed">
-    <origin xyz="0.050383894 0.063302979 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.050383894 -0.063302979 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_073"/>
   </joint>
@@ -4266,7 +4266,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_074_fixed_joint" type="fixed">
-    <origin xyz="0.050300441 0.072258486 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.050300441 -0.072258486 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_074"/>
   </joint>
@@ -4283,7 +4283,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_075_fixed_joint" type="fixed">
-    <origin xyz="0.041366436 0.002085434 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.041366436 -0.002085434 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_075"/>
   </joint>
@@ -4300,7 +4300,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_076_fixed_joint" type="fixed">
-    <origin xyz="0.041258838 0.044819459 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.041258838 -0.044819459 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_076"/>
   </joint>
@@ -4317,7 +4317,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_077_fixed_joint" type="fixed">
-    <origin xyz="0.041246990 0.053277715 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.041246990 -0.053277715 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_077"/>
   </joint>
@@ -4334,7 +4334,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_078_fixed_joint" type="fixed">
-    <origin xyz="0.041175574 0.010947800 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.041175574 -0.010947800 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_078"/>
   </joint>
@@ -4351,7 +4351,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_079_fixed_joint" type="fixed">
-    <origin xyz="0.041169610 0.019450095 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.041169610 -0.019450095 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_079"/>
   </joint>
@@ -4368,7 +4368,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_080_fixed_joint" type="fixed">
-    <origin xyz="0.041095868 0.061829130 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.041095868 -0.061829130 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_080"/>
   </joint>
@@ -4385,7 +4385,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_081_fixed_joint" type="fixed">
-    <origin xyz="0.041037355 0.027917882 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.041037355 -0.027917882 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_081"/>
   </joint>
@@ -4402,7 +4402,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_082_fixed_joint" type="fixed">
-    <origin xyz="0.040954891 0.036425649 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.040954891 -0.036425649 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_082"/>
   </joint>
@@ -4419,7 +4419,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_083_fixed_joint" type="fixed">
-    <origin xyz="0.040590209 0.070571121 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.040590209 -0.070571121 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_083"/>
   </joint>
@@ -4436,7 +4436,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_084_fixed_joint" type="fixed">
-    <origin xyz="0.031955876 0.005078610 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.031955876 -0.005078610 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_084"/>
   </joint>
@@ -4453,7 +4453,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_085_fixed_joint" type="fixed">
-    <origin xyz="0.031942651 0.012637805 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.031942651 -0.012637805 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_085"/>
   </joint>
@@ -4470,7 +4470,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_086_fixed_joint" type="fixed">
-    <origin xyz="0.031916260 0.051760123 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.031916260 -0.051760123 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_086"/>
   </joint>
@@ -4487,7 +4487,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_087_fixed_joint" type="fixed">
-    <origin xyz="0.031911556 0.044171797 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.031911556 -0.044171797 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_087"/>
   </joint>
@@ -4504,7 +4504,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_088_fixed_joint" type="fixed">
-    <origin xyz="0.031853185 0.020245734 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.031853185 -0.020245734 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_088"/>
   </joint>
@@ -4521,7 +4521,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_089_fixed_joint" type="fixed">
-    <origin xyz="0.031435675 0.059459292 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.031435675 -0.059459292 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_089"/>
   </joint>
@@ -4538,7 +4538,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_090_fixed_joint" type="fixed">
-    <origin xyz="0.031435675 0.036431456 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.031435675 -0.036431456 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_090"/>
   </joint>
@@ -4555,7 +4555,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_091_fixed_joint" type="fixed">
-    <origin xyz="0.031389976 0.028026990 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.031389976 -0.028026990 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_091"/>
   </joint>
@@ -4572,7 +4572,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_092_fixed_joint" type="fixed">
-    <origin xyz="0.031140474 0.067599777 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.031140474 -0.067599777 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_092"/>
   </joint>
@@ -4589,7 +4589,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_093_fixed_joint" type="fixed">
-    <origin xyz="0.022625259 0.046728608 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.022625259 -0.046728608 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_093"/>
   </joint>
@@ -4606,7 +4606,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_094_fixed_joint" type="fixed">
-    <origin xyz="0.022591121 0.017046753 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.022591121 -0.017046753 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_094"/>
   </joint>
@@ -4623,7 +4623,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_095_fixed_joint" type="fixed">
-    <origin xyz="0.022272451 0.007061036 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.022272451 -0.007061036 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_095"/>
   </joint>
@@ -4640,7 +4640,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_096_fixed_joint" type="fixed">
-    <origin xyz="0.021904531 0.036431456 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.021904531 -0.036431456 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_096"/>
   </joint>
@@ -4657,7 +4657,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_097_fixed_joint" type="fixed">
-    <origin xyz="0.021896197 0.056623533 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.021896197 -0.056623533 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_097"/>
   </joint>
@@ -4674,7 +4674,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_098_fixed_joint" type="fixed">
-    <origin xyz="0.021879529 0.027023815 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.021879529 -0.027023815 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_098"/>
   </joint>
@@ -4691,7 +4691,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_099_fixed_joint" type="fixed">
-    <origin xyz="0.021388092 0.065763137 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.021388092 -0.065763137 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_099"/>
   </joint>
@@ -4708,7 +4708,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_100_fixed_joint" type="fixed">
-    <origin xyz="0.012182525 0.008398272 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.012182525 -0.008398272 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_100"/>
   </joint>
@@ -4725,7 +4725,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_101_fixed_joint" type="fixed">
-    <origin xyz="0.012065034 0.017783877 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.012065034 -0.017783877 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_101"/>
   </joint>
@@ -4742,7 +4742,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_102_fixed_joint" type="fixed">
-    <origin xyz="0.011790017 0.027080618 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.011790017 -0.027080618 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_102"/>
   </joint>
@@ -4759,7 +4759,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_103_fixed_joint" type="fixed">
-    <origin xyz="0.011741504 0.036434318 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.011741504 -0.036434318 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_103"/>
   </joint>
@@ -4776,7 +4776,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_104_fixed_joint" type="fixed">
-    <origin xyz="0.011673084 0.045801482 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.011673084 -0.045801482 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_104"/>
   </joint>
@@ -4793,7 +4793,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_105_fixed_joint" type="fixed">
-    <origin xyz="0.011581408 0.055131233 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.011581408 -0.055131233 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_105"/>
   </joint>
@@ -4810,7 +4810,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_106_fixed_joint" type="fixed">
-    <origin xyz="0.011529779 0.064496775 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.011529779 -0.064496775 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_106"/>
   </joint>
@@ -4827,7 +4827,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_107_fixed_joint" type="fixed">
-    <origin xyz="0.002866577 0.064004447 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.002866577 -0.064004447 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_107"/>
   </joint>
@@ -4844,7 +4844,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_108_fixed_joint" type="fixed">
-    <origin xyz="0.002861425 0.045653264 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.002861425 -0.045653264 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_108"/>
   </joint>
@@ -4861,7 +4861,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_109_fixed_joint" type="fixed">
-    <origin xyz="0.002847798 0.036518013 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.002847798 -0.036518013 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_109"/>
   </joint>
@@ -4878,7 +4878,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_110_fixed_joint" type="fixed">
-    <origin xyz="0.002842242 0.027348403 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.002842242 -0.027348403 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_110"/>
   </joint>
@@ -4895,7 +4895,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_111_fixed_joint" type="fixed">
-    <origin xyz="0.002842242 0.018166620 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.002842242 -0.018166620 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_111"/>
   </joint>
@@ -4912,7 +4912,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_112_fixed_joint" type="fixed">
-    <origin xyz="0.002842242 0.008984838 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.002842242 -0.008984838 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_112"/>
   </joint>
@@ -4929,7 +4929,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_113_fixed_joint" type="fixed">
-    <origin xyz="0.002833909 0.054859939 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="0.002833909 -0.054859939 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_113"/>
   </joint>
@@ -4946,7 +4946,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_114_fixed_joint" type="fixed">
-    <origin xyz="-0.007619657 0.064191982 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.007619657 -0.064191982 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_114"/>
   </joint>
@@ -4963,7 +4963,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_115_fixed_joint" type="fixed">
-    <origin xyz="-0.007651442 0.008781818 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.007651442 -0.008781818 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_115"/>
   </joint>
@@ -4980,7 +4980,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_116_fixed_joint" type="fixed">
-    <origin xyz="-0.007900236 0.054905597 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.007900236 -0.054905597 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_116"/>
   </joint>
@@ -4997,7 +4997,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_117_fixed_joint" type="fixed">
-    <origin xyz="-0.007917232 0.018076354 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.007917232 -0.018076354 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_117"/>
   </joint>
@@ -5014,7 +5014,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_118_fixed_joint" type="fixed">
-    <origin xyz="-0.008167581 0.027342918 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.008167581 -0.027342918 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_118"/>
   </joint>
@@ -5031,7 +5031,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_119_fixed_joint" type="fixed">
-    <origin xyz="-0.008168723 0.045701294 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.008168723 -0.045701294 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_119"/>
   </joint>
@@ -5048,7 +5048,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_120_fixed_joint" type="fixed">
-    <origin xyz="-0.008391273 0.036514596 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.008391273 -0.036514596 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_120"/>
   </joint>
@@ -5065,7 +5065,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_121_fixed_joint" type="fixed">
-    <origin xyz="-0.018117034 0.064357972 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.018117034 -0.064357972 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_121"/>
   </joint>
@@ -5082,7 +5082,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_122_fixed_joint" type="fixed">
-    <origin xyz="-0.018134053 0.008562874 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.018134053 -0.008562874 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_122"/>
   </joint>
@@ -5099,7 +5099,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_123_fixed_joint" type="fixed">
-    <origin xyz="-0.018637307 0.055045134 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.018637307 -0.055045134 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_123"/>
   </joint>
@@ -5116,7 +5116,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_124_fixed_joint" type="fixed">
-    <origin xyz="-0.018686865 0.017905597 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.018686865 -0.017905597 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_124"/>
   </joint>
@@ -5133,7 +5133,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_125_fixed_joint" type="fixed">
-    <origin xyz="-0.019148654 0.045768384 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.019148654 -0.045768384 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_125"/>
   </joint>
@@ -5150,7 +5150,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_126_fixed_joint" type="fixed">
-    <origin xyz="-0.019160506 0.027249674 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.019160506 -0.027249674 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_126"/>
   </joint>
@@ -5167,7 +5167,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_127_fixed_joint" type="fixed">
-    <origin xyz="-0.019648298 0.036516843 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.019648298 -0.036516843 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_127"/>
   </joint>
@@ -5184,7 +5184,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_128_fixed_joint" type="fixed">
-    <origin xyz="-0.028551750 0.064730392 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.028551750 -0.064730392 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_128"/>
   </joint>
@@ -5201,7 +5201,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_129_fixed_joint" type="fixed">
-    <origin xyz="-0.028648957 0.008314521 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.028648957 -0.008314521 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_129"/>
   </joint>
@@ -5218,7 +5218,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_130_fixed_joint" type="fixed">
-    <origin xyz="-0.029341931 0.017830942 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.029341931 -0.017830942 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_130"/>
   </joint>
@@ -5235,7 +5235,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_131_fixed_joint" type="fixed">
-    <origin xyz="-0.029350077 0.055212432 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.029350077 -0.055212432 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_131"/>
   </joint>
@@ -5252,7 +5252,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_132_fixed_joint" type="fixed">
-    <origin xyz="-0.030128926 0.045818101 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.030128926 -0.045818101 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_132"/>
   </joint>
@@ -5269,7 +5269,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_133_fixed_joint" type="fixed">
-    <origin xyz="-0.030131981 0.027214233 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.030131981 -0.027214233 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_133"/>
   </joint>
@@ -5286,7 +5286,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_134_fixed_joint" type="fixed">
-    <origin xyz="-0.030910792 0.036533934 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.030910792 -0.036533934 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_134"/>
   </joint>
@@ -5303,7 +5303,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_135_fixed_joint" type="fixed">
-    <origin xyz="-0.039044950 0.064441899 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.039044950 -0.064441899 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_135"/>
   </joint>
@@ -5320,7 +5320,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_136_fixed_joint" type="fixed">
-    <origin xyz="-0.039098480 0.008495040 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.039098480 -0.008495040 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_136"/>
   </joint>
@@ -5337,7 +5337,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_137_fixed_joint" type="fixed">
-    <origin xyz="-0.040073256 0.055118358 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.040073256 -0.055118358 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_137"/>
   </joint>
@@ -5354,7 +5354,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_138_fixed_joint" type="fixed">
-    <origin xyz="-0.040117283 0.017847051 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.040117283 -0.017847051 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_138"/>
   </joint>
@@ -5371,7 +5371,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_139_fixed_joint" type="fixed">
-    <origin xyz="-0.041079603 0.045818101 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.041079603 -0.045818101 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_139"/>
   </joint>
@@ -5388,7 +5388,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_140_fixed_joint" type="fixed">
-    <origin xyz="-0.041131650 0.027158638 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.041131650 -0.027158638 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_140"/>
   </joint>
@@ -5405,7 +5405,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_141_fixed_joint" type="fixed">
-    <origin xyz="-0.042144659 0.036528966 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.042144659 -0.036528966 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_141"/>
   </joint>
@@ -5422,7 +5422,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_142_fixed_joint" type="fixed">
-    <origin xyz="-0.049021378 0.061475673 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.049021378 -0.061475673 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_142"/>
   </joint>
@@ -5439,7 +5439,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_143_fixed_joint" type="fixed">
-    <origin xyz="-0.049038277 0.011539130 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.049038277 -0.011539130 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_143"/>
   </joint>
@@ -5456,7 +5456,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_144_fixed_joint" type="fixed">
-    <origin xyz="-0.049086560 0.053469234 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.049086560 -0.053469234 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_144"/>
   </joint>
@@ -5473,7 +5473,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_145_fixed_joint" type="fixed">
-    <origin xyz="-0.049149084 0.019572569 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.049149084 -0.019572569 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_145"/>
   </joint>
@@ -5490,7 +5490,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_146_fixed_joint" type="fixed">
-    <origin xyz="-0.051823514 0.045051337 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.051823514 -0.045051337 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_146"/>
   </joint>
@@ -5507,7 +5507,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_147_fixed_joint" type="fixed">
-    <origin xyz="-0.051833143 0.027943307 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.051833143 -0.027943307 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_147"/>
   </joint>
@@ -5524,7 +5524,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_148_fixed_joint" type="fixed">
-    <origin xyz="-0.053425808 0.036519215 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.053425808 -0.036519215 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_148"/>
   </joint>
@@ -5541,7 +5541,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_149_fixed_joint" type="fixed">
-    <origin xyz="-0.057171322 0.055156224 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.057171322 -0.055156224 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_149"/>
   </joint>
@@ -5558,7 +5558,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_150_fixed_joint" type="fixed">
-    <origin xyz="-0.057219176 0.017845752 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.057219176 -0.017845752 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_150"/>
   </joint>
@@ -5575,7 +5575,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_151_fixed_joint" type="fixed">
-    <origin xyz="-0.062524647 0.046439944 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.062524647 -0.046439944 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_151"/>
   </joint>
@@ -5592,7 +5592,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_152_fixed_joint" type="fixed">
-    <origin xyz="-0.062539432 0.026573761 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.062539432 -0.026573761 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_152"/>
   </joint>
@@ -5609,7 +5609,7 @@
     </visual>
   </link>
   <joint name="right_footrix_cell_153_fixed_joint" type="fixed">
-    <origin xyz="-0.064675000 0.036524377 -0.056000000" rpy="0 0 0"/>
+    <origin xyz="-0.064675000 -0.036524377 -0.056000000" rpy="0 0 0"/>
     <parent link="right_ankle_pitch_link"/>
     <child link="right_footrix_cell_153"/>
   </joint>

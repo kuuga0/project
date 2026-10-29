@@ -23,7 +23,9 @@ from ..sensor_cfg import (
     H2_PLUS_FOOTRIX_CELL_THICKNESS_M,
     H2_PLUS_FOOTRIX_CHANNELS_PER_CELL,
     H2_PLUS_FOOTRIX_LAYOUT_PATH,
+    H2_PLUS_FOOTRIX_LAYOUT_Z_M,
     H2_PLUS_FOOTRIX_LAYOUT_STATUS,
+    H2_PLUS_FOOTRIX_PROJECTION_METHOD,
     H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M,
 )
 
@@ -131,10 +133,16 @@ class H2PlusSensorRecorder(RecorderTerm):
         project_root = Path(__file__).resolve().parents[6]
         path = project_root / H2_PLUS_FOOTRIX_LAYOUT_PATH
         layout = json.loads(path.read_text(encoding="utf-8"))
-        positions = layout["feet"]["left"]["observation_layout"]["sample_positions_in_foot_link_m"]
-        if len(positions) != H2_PLUS_FOOTRIX_CELL_COUNT:
-            raise ValueError(f"FOOTRIX layout must contain {H2_PLUS_FOOTRIX_CELL_COUNT} measurement points")
-        return torch.tensor(positions, dtype=torch.float32, device=device)
+        positions = {}
+        for side in ("left", "right"):
+            side_positions = layout["feet"][side]["observation_layout"]["sample_positions_in_foot_link_m"]
+            if len(side_positions) != H2_PLUS_FOOTRIX_CELL_COUNT:
+                raise ValueError(
+                    f"FOOTRIX {side} layout must contain {H2_PLUS_FOOTRIX_CELL_COUNT} measurement points"
+                )
+            positions[side] = torch.tensor(side_positions, dtype=torch.float32, device=device)
+            positions[side][:, 2] = H2_PLUS_FOOTRIX_LAYOUT_Z_M
+        return positions
 
     @staticmethod
     def _quat_rotate_inverse(quat, vector):
@@ -176,9 +184,25 @@ class H2PlusSensorRecorder(RecorderTerm):
                 positions_b = self._quat_rotate_inverse(
                     body_quat_w.expand_as(positions_w), positions_w - body_pos_w
                 )
-                nearest = torch.cdist(positions_b, self._footrix_layout_b).argmin(dim=1)
                 forces_w = impulses / float(env.step_dt)
-                projected[side][row].index_add_(0, nearest, forces_w)
+                # FOOTRIX cells form a planar sole layout.  Use local x/y
+                # distances so small residual sole-height errors do not
+                # change the force distribution.
+                distances = torch.cdist(
+                    positions_b[:, :2], self._footrix_layout_b[side][:, :2]
+                )
+                weights = torch.clamp(
+                    1.0 - distances / float(H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M), min=0.0
+                )
+                weight_sums = weights.sum(dim=1, keepdim=True)
+                missing = weight_sums.squeeze(1) <= torch.finfo(weights.dtype).eps
+                if missing.any():
+                    nearest = distances[missing].argmin(dim=1)
+                    weights[missing] = 0.0
+                    weights[missing, nearest] = 1.0
+                    weight_sums = weights.sum(dim=1, keepdim=True)
+                weights = weights / weight_sums.clamp_min(torch.finfo(weights.dtype).eps)
+                projected[side][row] += torch.mm(weights.transpose(0, 1), forces_w)
         finite = {
             side: torch.isfinite(projected[side]).all(-1)
             for side in self.FOOTRIX_SIDES
@@ -335,21 +359,24 @@ class H2PlusSensorRecorder(RecorderTerm):
                 "measurement_frame": "ankle_pitch_link",
                 "force_frame": "world",
                 "layout_path": str(H2_PLUS_FOOTRIX_LAYOUT_PATH),
+                "layout_z_m": H2_PLUS_FOOTRIX_LAYOUT_Z_M,
+                "layout_z_calibration": "effective plane aligned to current foot mesh bottom; raw JSON remains image-derived",
                 "layout_status": H2_PLUS_FOOTRIX_LAYOUT_STATUS,
                 "cell_radius_m": H2_PLUS_FOOTRIX_CELL_RADIUS_M,
                 "cell_thickness_m": H2_PLUS_FOOTRIX_CELL_THICKNESS_M,
                 "support_radius_m": H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M,
-                "projection_method": "nearest_cell_force_bin",
+                "projection_method": H2_PLUS_FOOTRIX_PROJECTION_METHOD,
+                "projection_distance_metric": "xy_in_ankle_pitch_link",
                 "source": "PhysX contact-report impulses from complete ankle-pitch foot collision",
                 "marker_collision_enabled": False,
                 "full_foot_collision_preserved": True,
-                "coordinate_order": "image-derived left layout reused for both feet; replaceable",
+                "coordinate_order": "image-derived left layout and its lateral right-foot mirror; replaceable",
             },
             "urdf": str(urdf),
             "urdf_sha256": hashlib.sha256(urdf.read_bytes()).hexdigest(),
             "recorder_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             "imu_noise_added_by_recorder": False,
-            "contact_semantics": "Aggregate contact entries are PhysX net forces in world frame; FOOTRIX entries are contact-report impulses from the complete foot collision projected to visual measurement points, so they preserve total reported impulse but depend on the selected point-bin model",
+            "contact_semantics": "Aggregate contact entries are PhysX net forces in world frame; FOOTRIX entries are contact-report impulses from the complete foot collision distributed to nearby layout cells with normalized planar linear weights, so they preserve total reported impulse but depend on the selected point-distribution model",
             "success_semantics": "Native HDF5 success is not a locomotion quality label; use termination fields",
             "partial_episode": "A final sample with reset=false may be an interrupted or manually reset episode",
         }
