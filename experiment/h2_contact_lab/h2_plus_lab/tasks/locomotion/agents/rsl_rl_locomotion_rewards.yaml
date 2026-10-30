@@ -13,8 +13,11 @@ rewards:
     weight: 0.2
     params:
       threshold: 0.4           # 奖励时长上限，秒
+      command_threshold: 0.1    # 启用腾空奖励的最小平面指令速度，m/s
   feet_slide:                  # 支撑足滑动惩罚
     weight: -0.05
+    params:
+      contact_force_threshold: 1.0  # 判定足端接触的合力阈值，N
   joint_pos_limits:            # 关节位置越限惩罚
     weight: -1.0
   passive_joint_deviation:      # 头部／腕部偏离默认姿态惩罚
@@ -29,3 +32,49 @@ rewards:
     weight: -0.01
   joint_acceleration:          # 关节加速度惩罚
     weight: -2.5e-7
+
+domain_randomization:
+  enabled: true                 # 训练时是否启用整组域随机化；Play仍由代码强制关闭
+  foot_material:
+    static_friction_range: [0.60, 1.00]    # 左右足静摩擦系数
+    dynamic_friction_range: [0.40, 0.60]   # 左右足动摩擦系数
+    restitution_range: [0.00, 0.05]        # 左右足恢复系数
+    num_buckets: 32                        # 摩擦参数离散桶数量
+  body_mass:
+    scale_range: [0.95238095, 1.05]         # pelvis／torso_link质量缩放
+  body_com:
+    x: [-0.005, 0.005]                      # 质心x偏移，m
+    y: [-0.005, 0.005]                      # 质心y偏移，m
+    z: [-0.003, 0.003]                      # 质心z偏移，m
+  reset_joints:
+    position_range: [0.98, 1.02]             # 关节默认位置缩放
+    velocity_range: [-0.05, 0.05]            # 初始关节速度
+  reset_base:
+    pose_range:
+      x: [-0.03, 0.03]                      # 根部初始x偏移，m
+      y: [-0.03, 0.03]                      # 根部初始y偏移，m
+      yaw: [-0.03, 0.03]                     # 根部初始偏航，rad
+    velocity_range:
+      x: [-0.05, 0.05]                       # 根部初始x速度，m/s
+      y: [-0.05, 0.05]                       # 根部初始y速度，m/s
+      z: [0.00, 0.00]
+      roll: [0.00, 0.00]
+      pitch: [0.00, 0.00]
+      yaw: [-0.10, 0.10]                     # 根部初始偏航角速度，rad/s
+  push:
+    enabled: true                            # 是否保留周期水平扰动
+    interval_range_s: [8.0, 12.0]            # 两次扰动间隔，秒
+    velocity_range:
+      x: [-0.20, 0.20]                       # 扰动x速度，m/s
+      y: [-0.20, 0.20]                       # 扰动y速度，m/s
+      z: [0.00, 0.00]
+      roll: [0.00, 0.00]
+      pitch: [0.00, 0.00]
+      yaw: [0.00, 0.00]
+  observation_noise:
+    enabled: true                            # 是否启用策略观测噪声
+    base_lin_vel: [-0.05, 0.05]
+    base_ang_vel: [-0.10, 0.10]
+    projected_gravity: [-0.02, 0.02]
+    joint_pos: [-0.005, 0.005]
+    joint_vel: [-0.15, 0.15]

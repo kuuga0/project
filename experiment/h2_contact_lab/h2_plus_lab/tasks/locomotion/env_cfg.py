@@ -16,6 +16,7 @@ import yaml
 import isaaclab.sim as sim_utils
 from isaaclab.assets import ArticulationCfg, AssetBaseCfg
 from isaaclab.envs import ManagerBasedRLEnvCfg
+from isaaclab.managers import CurriculumTermCfg as CurrTerm
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import ObservationGroupCfg as ObsGroup
 from isaaclab.managers import ObservationTermCfg as ObsTerm
@@ -27,6 +28,7 @@ from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.sensors import ContactSensorCfg, ImuCfg
 from isaaclab.terrains import TerrainImporterCfg
 from isaaclab.utils import configclass
+from isaaclab.utils.noise import UniformNoiseCfg as Unoise
 
 from ...assets.h2_plus import H2_PLUS_CFG
 from .terrain_cfg import (
@@ -46,13 +48,24 @@ from .sensor_cfg import (
 from . import mdp
 
 
-def _apply_rewards_yaml(rewards, path: Path | None = None) -> None:
-    """Apply numeric reward settings before task-specific and Hydra overrides."""
+def _apply_rewards_yaml(
+    rewards,
+    path: Path | None = None,
+    *,
+    events=None,
+    observations=None,
+) -> None:
+    """Apply reward and optional domain-randomization settings from the YAML file."""
     path = Path(path) if path is not None else Path(__file__).with_name("agents") / "rsl_rl_locomotion_rewards.yaml"
     with path.open(encoding="utf-8") as stream:
         config = yaml.safe_load(stream)
-    if not isinstance(config, dict) or set(config) != {"rewards"} or not isinstance(config["rewards"], dict):
-        raise ValueError(f"{path}: expected a mapping with a single 'rewards' section")
+    if (
+        not isinstance(config, dict)
+        or "rewards" not in config
+        or set(config) - {"rewards", "domain_randomization"}
+        or not isinstance(config["rewards"], dict)
+    ):
+        raise ValueError(f"{path}: expected 'rewards' and optional 'domain_randomization' sections")
 
     def number(value, key):
         if type(value) not in (int, float) or not math.isfinite(value):
@@ -78,14 +91,227 @@ def _apply_rewards_yaml(rewards, path: Path | None = None) -> None:
             value = number(value, f"{name}.params.{key}")
             if key == "std" and value <= 0:
                 raise ValueError(f"{path}: {name}.params.std must be positive")
-            if key in {"threshold", "command_threshold"} and value < 0:
+            if key in {"threshold", "command_threshold", "contact_force_threshold"} and value < 0:
                 raise ValueError(f"{path}: {name}.params.{key} must be non-negative")
             values[key] = value
         updates.append((term, weight, values))
+    if "domain_randomization" in config:
+        if events is None or observations is None:
+            raise ValueError(f"{path}: domain_randomization requires environment events and observations")
+        _apply_domain_randomization_yaml(events, observations, config["domain_randomization"], path)
     # Validate the whole file first, so a typo never leaves a half-applied config.
     for term, weight, values in updates:
         term.weight = weight
         term.params.update(values)
+
+
+def _apply_domain_randomization_yaml(events, observations, settings, path: Path) -> None:
+    """Apply validated domain-randomization ranges to the existing event terms."""
+
+    if not isinstance(settings, dict):
+        raise ValueError(f"{path}: domain_randomization must be a mapping")
+    allowed = {
+        "enabled",
+        "foot_material",
+        "body_mass",
+        "body_com",
+        "reset_joints",
+        "reset_base",
+        "push",
+        "observation_noise",
+    }
+    unknown = set(settings) - allowed
+    if unknown:
+        raise ValueError(f"{path}: unknown domain_randomization keys: {sorted(unknown)}")
+
+    def number(value, key):
+        if type(value) not in (int, float) or not math.isfinite(value):
+            raise ValueError(f"{path}: domain_randomization.{key} must be a finite number")
+        return float(value)
+
+    def boolean(value, key):
+        if type(value) is not bool:
+            raise ValueError(f"{path}: domain_randomization.{key} must be true or false")
+        return value
+
+    def pair(value, key, *, nonnegative=False, positive=False):
+        if not isinstance(value, (list, tuple)) or len(value) != 2:
+            raise ValueError(f"{path}: domain_randomization.{key} must contain two numbers")
+        result = (number(value[0], f"{key}[0]"), number(value[1], f"{key}[1]"))
+        if result[0] > result[1]:
+            raise ValueError(f"{path}: domain_randomization.{key} lower bound exceeds upper bound")
+        if nonnegative and result[0] < 0:
+            raise ValueError(f"{path}: domain_randomization.{key} must be non-negative")
+        if positive and result[0] <= 0:
+            raise ValueError(f"{path}: domain_randomization.{key} must be positive")
+        return result
+
+    def section(name, allowed_keys):
+        value = settings.get(name, {})
+        if not isinstance(value, dict):
+            raise ValueError(f"{path}: domain_randomization.{name} must be a mapping")
+        unknown_keys = set(value) - set(allowed_keys)
+        if unknown_keys:
+            raise ValueError(f"{path}: unknown domain_randomization.{name} keys: {sorted(unknown_keys)}")
+        return value
+
+    event_updates = []
+
+    foot_material = section(
+        "foot_material",
+        {"static_friction_range", "dynamic_friction_range", "restitution_range", "num_buckets"},
+    )
+    foot_params = {}
+    if "static_friction_range" in foot_material:
+        foot_params["static_friction_range"] = pair(
+            foot_material["static_friction_range"], "foot_material.static_friction_range", nonnegative=True
+        )
+    if "dynamic_friction_range" in foot_material:
+        foot_params["dynamic_friction_range"] = pair(
+            foot_material["dynamic_friction_range"], "foot_material.dynamic_friction_range", nonnegative=True
+        )
+    if "restitution_range" in foot_material:
+        foot_params["restitution_range"] = pair(
+            foot_material["restitution_range"], "foot_material.restitution_range", nonnegative=True
+        )
+    if "num_buckets" in foot_material:
+        buckets = foot_material["num_buckets"]
+        if type(buckets) is not int or buckets <= 0:
+            raise ValueError(f"{path}: domain_randomization.foot_material.num_buckets must be a positive integer")
+        foot_params["num_buckets"] = buckets
+    if foot_params:
+        event_updates.append(("randomize_foot_material", foot_params))
+
+    body_mass = section("body_mass", {"scale_range"})
+    if "scale_range" in body_mass:
+        event_updates.append(
+            (
+                "randomize_body_mass",
+                {"mass_distribution_params": pair(body_mass["scale_range"], "body_mass.scale_range", positive=True)},
+            )
+        )
+
+    body_com = section("body_com", {"x", "y", "z"})
+    if body_com:
+        com_range = {
+            axis: pair(body_com[axis], f"body_com.{axis}") for axis in ("x", "y", "z") if axis in body_com
+        }
+        event_updates.append(("randomize_body_com", {"com_range": com_range}))
+
+    reset_joints = section("reset_joints", {"position_range", "velocity_range"})
+    if reset_joints:
+        event_updates.append(
+            (
+                "reset_joints",
+                {
+                    key: pair(reset_joints[key], f"reset_joints.{key}")
+                    for key in ("position_range", "velocity_range")
+                    if key in reset_joints
+                },
+            )
+        )
+
+    reset_base = section("reset_base", {"pose_range", "velocity_range"})
+    base_params = {}
+    for group_name, group_keys in (
+        ("pose_range", ("x", "y", "yaw")),
+        ("velocity_range", ("x", "y", "z", "roll", "pitch", "yaw")),
+    ):
+        group = reset_base.get(group_name, {})
+        if not isinstance(group, dict):
+            raise ValueError(f"{path}: domain_randomization.reset_base.{group_name} must be a mapping")
+        unknown_keys = set(group) - set(group_keys)
+        if unknown_keys:
+            raise ValueError(
+                f"{path}: unknown domain_randomization.reset_base.{group_name} keys: {sorted(unknown_keys)}"
+            )
+        if group:
+            base_params[group_name] = {
+                key: pair(group[key], f"reset_base.{group_name}.{key}") for key in group
+            }
+    if base_params:
+        event_updates.append(("reset_base", base_params))
+
+    push = section("push", {"enabled", "interval_range_s", "velocity_range"})
+    push_params = {}
+    push_enabled = True
+    if "enabled" in push:
+        push_enabled = boolean(push["enabled"], "push.enabled")
+    if "interval_range_s" in push:
+        interval = pair(push["interval_range_s"], "push.interval_range_s", nonnegative=True)
+    else:
+        interval = None
+    if "velocity_range" in push:
+        velocity = push["velocity_range"]
+        if not isinstance(velocity, dict):
+            raise ValueError(f"{path}: domain_randomization.push.velocity_range must be a mapping")
+        unknown_keys = set(velocity) - {"x", "y", "z", "roll", "pitch", "yaw"}
+        if unknown_keys:
+            raise ValueError(f"{path}: unknown domain_randomization.push.velocity_range keys: {sorted(unknown_keys)}")
+        push_params["velocity_range"] = {
+            key: pair(velocity[key], f"push.velocity_range.{key}") for key in velocity
+        }
+    if interval is not None or push_params:
+        event_updates.append(("push_robot", push_params, interval))
+
+    observation_noise = section(
+        "observation_noise",
+        {"enabled", "base_lin_vel", "base_ang_vel", "projected_gravity", "joint_pos", "joint_vel"},
+    )
+    noise_enabled = None
+    if "enabled" in observation_noise:
+        noise_enabled = boolean(observation_noise["enabled"], "observation_noise.enabled")
+    noise_updates = []
+    for term_name in ("base_lin_vel", "base_ang_vel", "projected_gravity", "joint_pos", "joint_vel"):
+        if term_name in observation_noise:
+            noise_updates.append(
+                (term_name, pair(observation_noise[term_name], f"observation_noise.{term_name}"))
+            )
+
+    enabled = boolean(settings.get("enabled", True), "enabled")
+    if not enabled:
+        _disable_domain_randomization_components(events, observations)
+        return
+
+    for update in event_updates:
+        name, params = update[:2]
+        term = getattr(events, name, None)
+        if term is None:
+            raise ValueError(f"{path}: event term {name!r} is unavailable")
+        term.params.update(params)
+        if name == "push_robot" and len(update) == 3 and update[2] is not None:
+            term.interval_range_s = update[2]
+    if not push_enabled:
+        events.push_robot = None
+    if noise_enabled is not None:
+        observations.policy.enable_corruption = noise_enabled
+    for term_name, noise_range in noise_updates:
+        term = getattr(observations.policy, term_name, None)
+        if term is None or term.noise is None:
+            raise ValueError(f"{path}: observation term {term_name!r} has no noise configuration")
+        term.noise.n_min, term.noise.n_max = noise_range
+
+
+def _disable_domain_randomization_components(events, observations) -> None:
+    """Disable randomization while preserving the mandatory scene reset event."""
+
+    events.randomize_foot_material = None
+    events.randomize_body_mass = None
+    events.randomize_body_com = None
+    events.push_robot = None
+    events.reset_joints.params.update(position_range=(1.0, 1.0), velocity_range=(0.0, 0.0))
+    events.reset_base.params.update(
+        pose_range={"x": (0.0, 0.0), "y": (0.0, 0.0), "yaw": (0.0, 0.0)},
+        velocity_range={
+            "x": (0.0, 0.0),
+            "y": (0.0, 0.0),
+            "z": (0.0, 0.0),
+            "roll": (0.0, 0.0),
+            "pitch": (0.0, 0.0),
+            "yaw": (0.0, 0.0),
+        },
+    )
+    observations.policy.enable_corruption = False
 
 
 # Scene composition
@@ -251,9 +477,9 @@ class H2PlusObservationsCfg:
 
     @configclass
     class PolicyCfg(ObsGroup):
-        base_lin_vel = ObsTerm(func=mdp.base_lin_vel)
-        base_ang_vel = ObsTerm(func=mdp.base_ang_vel)
-        projected_gravity = ObsTerm(func=mdp.projected_gravity)
+        base_lin_vel = ObsTerm(func=mdp.base_lin_vel, noise=Unoise(n_min=-0.05, n_max=0.05))
+        base_ang_vel = ObsTerm(func=mdp.base_ang_vel, noise=Unoise(n_min=-0.10, n_max=0.10))
+        projected_gravity = ObsTerm(func=mdp.projected_gravity, noise=Unoise(n_min=-0.02, n_max=0.02))
         velocity_commands = ObsTerm(
             func=mdp.generated_commands,
             params={"command_name": "base_velocity"},
@@ -261,15 +487,17 @@ class H2PlusObservationsCfg:
         joint_pos = ObsTerm(
             func=mdp.joint_pos_rel,
             params={"asset_cfg": SceneEntityCfg("robot", joint_names=H2_PLUS_ACTIVE_JOINTS)},
+            noise=Unoise(n_min=-0.005, n_max=0.005),
         )
         joint_vel = ObsTerm(
             func=mdp.joint_vel_rel,
             params={"asset_cfg": SceneEntityCfg("robot", joint_names=H2_PLUS_ACTIVE_JOINTS)},
+            noise=Unoise(n_min=-0.15, n_max=0.15),
         )
         last_action = ObsTerm(func=mdp.last_action)
 
         def __post_init__(self):
-            self.enable_corruption = False
+            self.enable_corruption = True
 
     policy: PolicyCfg = PolicyCfg()
 
@@ -283,9 +511,9 @@ class H2PlusCommandsCfg:
         resampling_time_range=(10.0, 10.0),
         heading_command=False,
         ranges=mdp.UniformVelocityCommandCfg.Ranges(
-            lin_vel_x=(0.0, 1.0),
+            lin_vel_x=(0.0, 0.20),
             lin_vel_y=(0.0, 0.0),
-            ang_vel_z=(-1.0, 1.0),
+            ang_vel_z=(-0.20, 0.20),
             heading=(0.0, 0.0),
         ),
     )
@@ -309,12 +537,17 @@ class H2PlusRewardsCfg:
     feet_air_time = RewTerm(
         func=mdp.h2_plus_feet_air_time_positive_biped,
         weight=0.2,
-        params={"command_name": "base_velocity", "threshold": 0.4},
+        params={
+            "command_name": "base_velocity",
+            "threshold": 0.4,
+            "command_threshold": 0.1,
+        },
     )
     feet_slide = RewTerm(
         func=mdp.h2_plus_feet_slide,
         weight=-0.05,
         params={
+            "contact_force_threshold": 1.0,
             "asset_cfg": SceneEntityCfg(
                 "robot", body_names=["left_ankle_pitch_link", "right_ankle_pitch_link"]
             )
@@ -372,29 +605,98 @@ class H2PlusTerminationsCfg:
 
 @configclass
 class H2PlusEventsCfg:
-    """Deterministic reset events; disturbances remain a later extension."""
+    """Training randomization events shared by the H2 Plus locomotion tasks."""
 
     reset_scene = EventTerm(func=mdp.reset_scene_to_default, mode="reset")
+    randomize_foot_material = EventTerm(
+        func=mdp.randomize_rigid_body_material,
+        mode="startup",
+        params={
+            "asset_cfg": SceneEntityCfg(
+                "robot", body_names=["left_ankle_pitch_link", "right_ankle_pitch_link"]
+            ),
+            "static_friction_range": (0.60, 1.00),
+            "dynamic_friction_range": (0.40, 0.60),
+            "restitution_range": (0.00, 0.05),
+            "num_buckets": 32,
+        },
+    )
+    randomize_body_mass = EventTerm(
+        func=mdp.randomize_rigid_body_mass,
+        mode="startup",
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names=["pelvis", "torso_link"]),
+            "mass_distribution_params": (1.0 / 1.05, 1.05),
+            "operation": "scale",
+            "distribution": "log_uniform",
+        },
+    )
+    randomize_body_com = EventTerm(
+        func=mdp.randomize_rigid_body_com,
+        mode="startup",
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names=["pelvis", "torso_link"]),
+            "com_range": {
+                "x": (-0.005, 0.005),
+                "y": (-0.005, 0.005),
+                "z": (-0.003, 0.003),
+            },
+        },
+    )
     reset_joints = EventTerm(
         func=mdp.reset_joints_by_scale,
         mode="reset",
-        params={"position_range": (1.0, 1.0), "velocity_range": (0.0, 0.0)},
+        params={"position_range": (0.98, 1.02), "velocity_range": (-0.05, 0.05)},
     )
     reset_base = EventTerm(
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
-            "pose_range": {"x": (-0.05, 0.05), "y": (-0.05, 0.05), "yaw": (-0.05, 0.05)},
+            "pose_range": {"x": (-0.03, 0.03), "y": (-0.03, 0.03), "yaw": (-0.03, 0.03)},
             "velocity_range": {
-                "x": (0.0, 0.0),
-                "y": (0.0, 0.0),
+                "x": (-0.05, 0.05),
+                "y": (-0.05, 0.05),
+                "z": (0.0, 0.0),
+                "roll": (0.0, 0.0),
+                "pitch": (0.0, 0.0),
+                "yaw": (-0.10, 0.10),
+            },
+        },
+    )
+    push_robot = EventTerm(
+        func=mdp.push_by_setting_velocity,
+        mode="interval",
+        interval_range_s=(8.0, 12.0),
+        params={
+            "velocity_range": {
+                "x": (-0.20, 0.20),
+                "y": (-0.20, 0.20),
                 "z": (0.0, 0.0),
                 "roll": (0.0, 0.0),
                 "pitch": (0.0, 0.0),
                 "yaw": (0.0, 0.0),
-            },
+            }
         },
     )
+
+
+@configclass
+class H2PlusCurriculumCfg:
+    """Command-difficulty curriculum for scenes without a terrain generator."""
+
+    command_range = CurrTerm(
+        func=mdp.h2_plus_command_curriculum,
+        params={
+            "start_step": 0,
+            "ramp_steps": 600_000,
+            "initial_lin_vel_x": 0.20,
+            "target_lin_vel_x": 1.00,
+            "initial_ang_vel_z": 0.20,
+            "target_ang_vel_z": 1.00,
+        },
+    )
+    # Reserved for a future TerrainImporter generator-backed rough-terrain task.
+    terrain_levels: CurrTerm | None = None
 
 
 @configclass
@@ -424,10 +726,11 @@ class H2PlusLocomotionEnvCfg(ManagerBasedRLEnvCfg):
     rewards: H2PlusRewardsCfg = H2PlusRewardsCfg()
     terminations: H2PlusTerminationsCfg = H2PlusTerminationsCfg()
     events: H2PlusEventsCfg = H2PlusEventsCfg()
+    curriculum: H2PlusCurriculumCfg | None = H2PlusCurriculumCfg()
     recorders: H2PlusRecorderCfg = H2PlusRecorderCfg()
 
     def __post_init__(self):
-        _apply_rewards_yaml(self.rewards)
+        _apply_rewards_yaml(self.rewards, events=self.events, observations=self.observations)
         self.decimation = 4
         self.episode_length_s = 20.0
         self.sim = sim_utils.SimulationCfg(dt=1.0 / 120.0, render_interval=self.decimation)
@@ -436,6 +739,13 @@ class H2PlusLocomotionEnvCfg(ManagerBasedRLEnvCfg):
             self.recorders.dataset_export_dir_path = str(
                 Path(__file__).resolve().parents[3] / "output" / "sensors" / f"env_{time_ns()}"
             )
+
+
+def _disable_training_randomization(env_cfg: H2PlusLocomotionEnvCfg) -> None:
+    """Keep play deterministic while leaving training randomization in place."""
+
+    env_cfg.curriculum = None
+    _disable_domain_randomization_components(env_cfg.events, env_cfg.observations)
 
 
 # Flat train/play configurations
@@ -449,6 +759,7 @@ class H2PlusFlatEnvCfg(H2PlusLocomotionEnvCfg):
 class H2PlusFlatEnvCfg_PLAY(H2PlusFlatEnvCfg):
     def __post_init__(self):
         super().__post_init__()
+        _disable_training_randomization(self)
         self.scene.num_envs = 16
         self.episode_length_s = 40.0
         self.commands.base_velocity.ranges.lin_vel_x = (0.5, 0.5)
@@ -467,6 +778,7 @@ class H2PlusLowFrictionEnvCfg(H2PlusLocomotionEnvCfg):
 class H2PlusLowFrictionEnvCfg_PLAY(H2PlusLowFrictionEnvCfg):
     def __post_init__(self):
         super().__post_init__()
+        _disable_training_randomization(self)
         self.scene.num_envs = 16
         self.episode_length_s = 40.0
         self.commands.base_velocity.ranges.lin_vel_x = (0.5, 0.5)
@@ -485,6 +797,7 @@ class H2PlusDeformableEnvCfg(H2PlusLocomotionEnvCfg):
 class H2PlusDeformableEnvCfg_PLAY(H2PlusDeformableEnvCfg):
     def __post_init__(self):
         super().__post_init__()
+        _disable_training_randomization(self)
         self.scene.num_envs = 16
         self.episode_length_s = 40.0
         self.commands.base_velocity.ranges.lin_vel_x = (0.5, 0.5)

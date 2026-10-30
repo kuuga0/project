@@ -1,6 +1,14 @@
 # H2 Plus：任务配置、训练与仿真采集
 
-更新日期：2026-10-29。训练／回放继续使用 `train.py --task`、`play.py --task`。现已通过原生RecorderManager按 `--record_sensors` 开关采集训练场景中挂载的传感器，默认关闭；开启后默认记录环境0；旧 `tools/run_h2_plus.py` 独立仿真采集入口已删除。本轮仅完成资产、传感器配置和记录逻辑调整，没有启动仿真或训练，也未进行运行验证。
+更新日期：2026-10-30。训练／回放继续使用 `train.py --task`、`play.py --task`。现已通过原生RecorderManager按 `--record_sensors` 开关采集训练场景中挂载的传感器，默认关闭；开启后默认记录环境0；旧 `tools/run_h2_plus.py` 独立仿真采集入口已删除。本轮补充了训练课程学习、域随机化和观测噪声配置，没有启动仿真或训练，也未进行运行验证。
+
+## 课程学习与域随机化（2026-10-30）
+
+训练配置已在 `h2_plus_lab/tasks/locomotion/env_cfg.py` 中启用课程学习和域随机化。课程项 `command_range` 通过任务内的 `mdp/curriculums.py` 逐步放宽速度指令：从前向速度上限 `0.20 m/s`、偏航角速度绝对值 `0.20 rad/s`，在环境控制步数 `600000` 内线性过渡到 `1.00`；它只修改 `base_velocity` 命令范围，不改变动作维度、观测结构或奖励函数。平地、低摩擦双区域和柔性地面目前都使用这一命令难度课程。
+
+训练事件包含：启动时随机化左右足材料摩擦与恢复系数、`pelvis`／`torso_link` 的质量和质心；回合重置时对关节和根部初始状态做小范围扰动；每 `8—12 s` 对根部施加一次小幅水平速度扰动。策略观测已开启轻度噪声（根部速度、投影重力、主动关节位置／速度），回放配置会关闭课程、物理随机化、周期推力、重置扰动和观测噪声，以便使用固定条件观察策略。
+
+当前没有把 `terrain_levels_vel` 挂到这些任务：平地使用普通平面，低摩擦和柔性地面使用自定义场景，均没有可供该项管理的 `TerrainImporter` 地形生成器。`H2PlusCurriculumCfg.terrain_levels` 保留为空接口；后续为局部崎岖地形注册生成器任务时，再单独添加地形行列难度课程，避免在现有场景重置时访问空地形生成器。以上为配置层修改，本轮未启动训练或仿真验证。
 
 ## 2026-10-28目录清理
 
@@ -41,7 +49,7 @@ python train.py --task Isaac-H2Plus-Blind-Locomotion-v0 --headless --checkpoint 
 
 ## 奖励权重与数值参数调优
 
-统一编辑 [rsl_rl_locomotion_rewards.yaml](h2_plus_lab/tasks/locomotion/agents/rsl_rl_locomotion_rewards.yaml)。六个训练／回放配置在创建时自动读取该文件，不需要增加启动参数，修改后重新启动任务生效。
+统一编辑 [rsl_rl_locomotion_rewards.yaml](h2_plus_lab/tasks/locomotion/agents/rsl_rl_locomotion_rewards.yaml)。文件包含 `rewards` 和 `domain_randomization` 两个配置段；六个训练／回放配置在创建时自动读取该文件，不需要增加启动参数，修改后重新启动任务生效。Play配置仍会在环境类中强制关闭域随机化和观测噪声。
 
 ```yaml
 rewards:
@@ -53,9 +61,11 @@ rewards:
     weight: -0.01
 ```
 
-文件已列出当前11项奖励／惩罚权重，以及速度跟踪尺度、腾空奖励阈值和静止速度阈值，初始值与原配置一致。权重设为0可禁用该项；遗漏的项或参数沿用Python配置中的值。奖励函数、关节选择、传感器绑定等结构仍在 `env_cfg.py` 和 `mdp/` 中维护，YAML只接受已有奖励项的权重和已有数值参数。
+文件已列出当前11项奖励／惩罚权重，以及速度跟踪尺度、腾空奖励时长阈值、腾空奖励的最小运动指令阈值、足底接触判定阈值和静止速度阈值，初始值与原配置一致。权重设为0可禁用该项；遗漏的项或参数沿用Python配置中的值。奖励函数、关节选择、传感器绑定等结构仍在 `env_cfg.py` 和 `mdp/` 中维护，YAML只接受已有奖励项的权重和已有数值参数。
 
-应用顺序为Python默认值 → YAML → 具体任务类的覆盖 → Hydra命令行覆盖。例如 `env.rewards.action_rate.weight=-0.02` 仍可临时覆盖YAML。本次运行实际使用的数值会随原有训练配置保存到 `log/rsl_rl/<实验名>/<运行时间>/params/env.yaml`。非法项名、非有限数值、非正std及负时长／速度阈值会报错，避免静默使用错误参数；本文件不是PPO算法参数文件，学习率等仍在 `agents/rsl_rl_ppo_cfg.py`。
+`domain_randomization` 段可调整足底摩擦与恢复系数、质量与质心范围、关节／根部初始状态、周期推力间隔和速度范围，以及各类策略观测噪声。`enabled: false` 会关闭训练中的随机事件和观测噪声，但保留 `reset_scene`；`push.enabled: false` 只关闭周期推力。资产、刚体和传感器绑定仍由 Python 配置固定，不放入 YAML。
+
+应用顺序为Python默认值 → YAML → 具体任务类的覆盖 → Hydra命令行覆盖。例如 `env.rewards.action_rate.weight=-0.02` 仍可临时覆盖YAML。本次运行实际使用的数值会随原有训练配置保存到 `log/rsl_rl/<实验名>/<运行时间>/params/env.yaml`。非法项名、非有限数值、非正std及负阈值会报错，避免静默使用错误参数；本文件不是PPO算法参数文件，学习率等仍在 `agents/rsl_rl_ppo_cfg.py`。
 
 ## 训练中采集传感器（RecorderManager）
 
@@ -141,7 +151,8 @@ h2_contact_lab/
 │           └── mdp/
 │               ├── rewards.py    # H2足部与速度跟踪奖励
 │               ├── terminations.py
-│               └── recorders.py  # 训练场景传感器记录项
+│               ├── recorders.py  # 训练场景传感器记录项
+│               └── curriculums.py # 速度指令课程函数
 ├── tests/                        # 注册、记录回调及HDF5读写的离线检查
 ├── log/
 └── output/

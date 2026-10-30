@@ -62,6 +62,7 @@ def h2_plus_feet_air_time_positive_biped(
     env,
     command_name: str,
     threshold: float,
+    command_threshold: float = 0.1,
     sensor_names: Sequence[str] = ("left_foot_contact", "right_foot_contact"),
 ) -> torch.Tensor:
     """Reward alternating two-foot stance using the two H2 foot sensors."""
@@ -80,13 +81,14 @@ def h2_plus_feet_air_time_positive_biped(
     single_stance = torch.sum(in_contact.int(), dim=1) == 1
     reward = torch.min(torch.where(single_stance.unsqueeze(-1), in_mode_time, 0.0), dim=1)[0]
     reward = torch.clamp(reward, max=threshold)
-    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > command_threshold
     return reward
 
 
 def h2_plus_feet_slide(
     env,
     asset_cfg: SceneEntityCfg,
+    contact_force_threshold: float = 1.0,
     sensor_names: Sequence[str] = ("left_foot_contact", "right_foot_contact"),
 ) -> torch.Tensor:
     """Penalize tangential velocity of H2 feet while they are in contact."""
@@ -95,7 +97,7 @@ def h2_plus_feet_slide(
     for sensor_name in sensor_names:
         sensor: ContactSensor = env.scene.sensors[sensor_name]
         foot_force_history = sensor.data.net_forces_w_history[:, :, 0, :]
-        contacts.append(foot_force_history.norm(dim=-1).amax(dim=1) > 1.0)
+        contacts.append(foot_force_history.norm(dim=-1).amax(dim=1) > contact_force_threshold)
     contacts = torch.stack(contacts, dim=1)
 
     asset = env.scene[asset_cfg.name]
