@@ -1,0 +1,49 @@
+# 原生Isaac Lab配置；由h2_plus_lab/config.py通过OmegaConf/Hydra加载。
+robot:
+  _target_: isaaclab.assets.ArticulationCfg
+  prim_path: '{ENV_REGEX_NS}/Robot'
+  spawn:
+    _target_: isaaclab.sim.UrdfFileCfg
+    asset_path: ${paths.project}/experiment/robot_asset/h2_plus/H2_Plus_with_footrix_no_dex_hands.urdf
+    usd_dir: ${paths.lab}/output/h2_plus_usd
+    usd_file_name: H2_Plus_sensorized.usd
+    force_usd_conversion: true
+    fix_base: false
+    root_link_name: pelvis
+    merge_fixed_joints: true
+    self_collision: false
+    activate_contact_sensors: true
+    joint_drive:
+      _target_: isaaclab.sim.UrdfFileCfg.JointDriveCfg
+      target_type: none
+      gains:
+        _target_: isaaclab.sim.UrdfFileCfg.JointDriveCfg.PDGainsCfg
+        stiffness: 0.0
+        damping: 0.0
+  init_state:
+    _target_: isaaclab.assets.ArticulationCfg.InitialStateCfg
+    # 默认关节角使用URDF零位；训练重置扰动由env_cfg.yaml中的reset_joints独立控制。
+    pos: [0.0, 0.0, 1.02]
+    joint_pos:
+      '.*': 0.0
+  actuators:
+    legs:
+      _target_: isaaclab.actuators.ImplicitActuatorCfg
+      joint_names_expr: [.*_hip_(pitch|roll|yaw)_joint, .*_knee_joint, .*_ankle_(roll|pitch)_joint]
+      stiffness: 80.0
+      damping: 8.0
+    waist:
+      _target_: isaaclab.actuators.ImplicitActuatorCfg
+      joint_names_expr: [waist_(yaw|roll|pitch)_joint]
+      stiffness: 80.0
+      damping: 8.0
+    head:
+      _target_: isaaclab.actuators.ImplicitActuatorCfg
+      joint_names_expr: [head_(pitch|yaw)_joint]
+      stiffness: 80.0
+      damping: 8.0
+    arms:
+      _target_: isaaclab.actuators.ImplicitActuatorCfg
+      joint_names_expr: [.*_shoulder_.*_joint, .*_elbow_joint, .*_wrist_.*_joint]
+      stiffness: 80.0
+      damping: 8.0

@@ -29,12 +29,11 @@ def h2_plus_command_curriculum(
     max_lin_vel_x = initial_lin_vel_x + progress * (target_lin_vel_x - initial_lin_vel_x)
     max_ang_vel_z = initial_ang_vel_z + progress * (target_ang_vel_z - initial_ang_vel_z)
 
-    command_cfg = env.command_manager.get_term_cfg("base_velocity")
+    command_cfg = env.command_manager.get_term("base_velocity").cfg
     command_cfg.ranges.lin_vel_x = (0.0, max_lin_vel_x)
     command_cfg.ranges.lin_vel_y = (0.0, 0.0)
     command_cfg.ranges.ang_vel_z = (-max_ang_vel_z, max_ang_vel_z)
-    command_cfg.ranges.heading = (0.0, 0.0)
-    env.command_manager.set_term_cfg("base_velocity", command_cfg)
+    command_cfg.ranges.heading = None  # direct yaw-rate commands, no heading target
 
     return {
         "progress": progress,

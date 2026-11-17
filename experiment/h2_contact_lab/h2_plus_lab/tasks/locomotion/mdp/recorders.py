@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -26,24 +27,26 @@ from ..sensor_cfg import (
     H2_PLUS_FOOTRIX_LAYOUT_Z_M,
     H2_PLUS_FOOTRIX_LAYOUT_STATUS,
     H2_PLUS_FOOTRIX_PROJECTION_METHOD,
-    H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M,
+    H2_PLUS_FOOTRIX_SURFACE_TOLERANCE_M,
 )
 
 __all__ = ["H2PlusSensorRecorder"]
 
 
 class _FootrixContactReportBuffer:
-    """Collect full-foot PhysX contact impulses before point projection."""
+    """Collect full-foot PhysX contact impulses before strict region selection."""
 
     SIDES = ("left", "right")
 
-    def __init__(self, physics_dt: float):
+    def __init__(self, physics_dt: float, env_ids):
         try:
             import omni.physx
             from pxr import PhysicsSchemaTools
         except ImportError as exc:  # pragma: no cover - only reached outside Kit
             raise RuntimeError("FOOTRIX contact reports require the Isaac Sim omni.physx runtime") from exc
         self._physics_dt = float(physics_dt)
+        self._env_ids = frozenset(env_ids)
+        self._closed = False
         self._physics_schema_tools = PhysicsSchemaTools
         self._packets = defaultdict(list)
         # Current Omni Physics documents expose this on the simulation
@@ -64,6 +67,8 @@ class _FootrixContactReportBuffer:
         return None
 
     def _on_contact_report(self, contact_headers, contact_data):
+        if self._closed:
+            return
         for header in contact_headers:
             actor0 = str(self._physics_schema_tools.intToSdfPath(header.actor0))
             actor1 = str(self._physics_schema_tools.intToSdfPath(header.actor1))
@@ -78,6 +83,8 @@ class _FootrixContactReportBuffer:
             if match is None:
                 continue
             env_id = int(match.group(1))
+            if env_id not in self._env_ids:
+                continue
             sign = 1.0 if foot_is_actor0 else -1.0
             start = int(header.contact_data_offset)
             stop = start + int(header.num_contact_data)
@@ -95,6 +102,8 @@ class _FootrixContactReportBuffer:
         return packets
 
     def close(self):
+        self._closed = True
+        # PhysX releases the callback when its subscription handle is dropped.
         self._subscription = None
         self._packets.clear()
 
@@ -124,7 +133,8 @@ class H2PlusSensorRecorder(RecorderTerm):
             "left": robot.body_names.index("left_ankle_pitch_link"),
             "right": robot.body_names.index("right_ankle_pitch_link"),
         }
-        self._footrix_contact_reports = _FootrixContactReportBuffer(env.physics_dt)
+        self._footrix_contact_reports = _FootrixContactReportBuffer(env.physics_dt, env_ids=ids)
+        self._footrix_local_packets = defaultdict(list)
 
     @staticmethod
     def _load_footrix_layout(device):
@@ -134,6 +144,10 @@ class H2PlusSensorRecorder(RecorderTerm):
         path = project_root / H2_PLUS_FOOTRIX_LAYOUT_PATH
         layout = json.loads(path.read_text(encoding="utf-8"))
         positions = {}
+        if not math.isfinite(H2_PLUS_FOOTRIX_CELL_RADIUS_M) or H2_PLUS_FOOTRIX_CELL_RADIUS_M <= 0:
+            raise ValueError("FOOTRIX cell_radius_m must be finite and positive")
+        if not math.isfinite(H2_PLUS_FOOTRIX_SURFACE_TOLERANCE_M) or H2_PLUS_FOOTRIX_SURFACE_TOLERANCE_M < 0:
+            raise ValueError("FOOTRIX surface_tolerance_m must be finite and nonnegative")
         for side in ("left", "right"):
             side_positions = layout["feet"][side]["observation_layout"]["sample_positions_in_foot_link_m"]
             if len(side_positions) != H2_PLUS_FOOTRIX_CELL_COUNT:
@@ -141,19 +155,51 @@ class H2PlusSensorRecorder(RecorderTerm):
                     f"FOOTRIX {side} layout must contain {H2_PLUS_FOOTRIX_CELL_COUNT} measurement points"
                 )
             positions[side] = torch.tensor(side_positions, dtype=torch.float32, device=device)
+            if positions[side].shape != (H2_PLUS_FOOTRIX_CELL_COUNT, 3) or not torch.isfinite(positions[side]).all():
+                raise ValueError(f"FOOTRIX {side} layout must be finite xyz coordinates")
             positions[side][:, 2] = H2_PLUS_FOOTRIX_LAYOUT_Z_M
+            distances = torch.cdist(positions[side][:, :2], positions[side][:, :2])
+            distances.fill_diagonal_(float("inf"))
+            if (distances <= 2 * H2_PLUS_FOOTRIX_CELL_RADIUS_M).any():
+                raise ValueError(f"FOOTRIX {side} circular regions must not overlap or touch")
         return positions
+
+    def record_post_physics_decimation_step(self):
+        """Attach each substep's contact points to its current physical link frame.
+
+        Lab invokes this before scene.update(), so bypass stale scene caches and
+        read only raw PhysX transforms. IMU/contact sensor snapshots stay post-step.
+        """
+        env = self._env
+        packets = self._footrix_contact_reports.pop(self._ids)
+        if not any(packets.values()):
+            return None, None
+        robot = env.scene["robot"]
+        robot.data._physics_sim_view.update_articulations_kinematic()
+        poses = robot.root_physx_view.get_link_transforms()  # native tensor convention: xyzw
+        for env_id in self._ids:
+            for side in self.FOOTRIX_SIDES:
+                samples = packets[(env_id, side)]
+                if not samples:
+                    continue
+                pose = poses[env_id, self._footrix_body_indices[side]]
+                quat = pose[[6, 3, 4, 5]]
+                points = torch.tensor([sample[0] for sample in samples], device=env.device, dtype=torch.float32)
+                local = self._quat_rotate_inverse(quat.unsqueeze(0).expand(len(samples), -1), points - pose[:3])
+                self._footrix_local_packets[(env_id, side)].extend(
+                    (position, sample[1]) for position, sample in zip(local.detach().cpu().tolist(), samples)
+                )
+        return None, None
 
     @staticmethod
     def _quat_rotate_inverse(quat, vector):
         q_xyz = quat[..., 1:]
         q_w = quat[..., 0:1]
         cross_1 = torch.cross(q_xyz, vector, dim=-1)
-        cross_2 = torch.cross(q_xyz, vector + q_w * cross_1, dim=-1)
-        return vector - 2.0 * cross_2
+        cross_2 = torch.cross(q_xyz, cross_1, dim=-1)
+        return vector - 2.0 * q_w * cross_1 + 2.0 * cross_2
 
     def _project_footrix_contacts(self, env, ids, packets):
-        robot = env.scene["robot"]
         projected = {
             "left": torch.zeros(
                 (len(ids), self.FOOTRIX_CELL_COUNT, 3), dtype=torch.float32, device=env.device
@@ -166,49 +212,40 @@ class H2PlusSensorRecorder(RecorderTerm):
             "left": torch.zeros((len(ids), 1), dtype=torch.int64),
             "right": torch.zeros((len(ids), 1), dtype=torch.int64),
         }
+        rejected = {side: torch.zeros((len(ids), 3), device=env.device) for side in self.FOOTRIX_SIDES}
+        selected_counts = {side: torch.zeros((len(ids), 1), dtype=torch.int64) for side in self.FOOTRIX_SIDES}
+        cell_counts = {side: torch.zeros((len(ids), self.FOOTRIX_CELL_COUNT), dtype=torch.int64, device=env.device)
+                       for side in self.FOOTRIX_SIDES}
         for row, env_id in enumerate(ids):
             for side in self.FOOTRIX_SIDES:
                 samples = packets[(int(env_id), side)]
                 source_counts[side][row, 0] = len(samples)
                 if not samples:
                     continue
-                positions_w = torch.tensor(
+                positions_b = torch.tensor(
                     [sample[0] for sample in samples], dtype=torch.float32, device=env.device
                 )
                 impulses = torch.tensor(
                     [sample[1] for sample in samples], dtype=torch.float32, device=env.device
                 )
-                body_index = self._footrix_body_indices[side]
-                body_pos_w = robot.data.body_pos_w[env_id, body_index]
-                body_quat_w = robot.data.body_quat_w[env_id, body_index]
-                positions_b = self._quat_rotate_inverse(
-                    body_quat_w.expand_as(positions_w), positions_w - body_pos_w
-                )
                 forces_w = impulses / float(env.step_dt)
-                # FOOTRIX cells form a planar sole layout.  Use local x/y
-                # distances so small residual sole-height errors do not
-                # change the force distribution.
-                distances = torch.cdist(
-                    positions_b[:, :2], self._footrix_layout_b[side][:, :2]
+                delta = positions_b[:, None, :] - self._footrix_layout_b[side][None, :, :]
+                inside = (delta[:, :, :2].square().sum(-1) <= H2_PLUS_FOOTRIX_CELL_RADIUS_M**2) & (
+                    delta[:, :, 2].abs() <= H2_PLUS_FOOTRIX_SURFACE_TOLERANCE_M
                 )
-                weights = torch.clamp(
-                    1.0 - distances / float(H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M), min=0.0
-                )
-                weight_sums = weights.sum(dim=1, keepdim=True)
-                missing = weight_sums.squeeze(1) <= torch.finfo(weights.dtype).eps
-                if missing.any():
-                    nearest = distances[missing].argmin(dim=1)
-                    weights[missing] = 0.0
-                    weights[missing, nearest] = 1.0
-                    weight_sums = weights.sum(dim=1, keepdim=True)
-                weights = weights / weight_sums.clamp_min(torch.finfo(weights.dtype).eps)
-                projected[side][row] += torch.mm(weights.transpose(0, 1), forces_w)
+                # Layout validation forbids overlap; a contact may belong to at most one disk.
+                selected = inside.any(dim=1)
+                selected_counts[side][row, 0] = int(selected.sum())
+                cell_counts[side][row] = inside.sum(dim=0)
+                rejected[side][row] = forces_w[~selected].sum(dim=0)
+                point_ids, cell_ids = inside.nonzero(as_tuple=True)
+                projected[side][row].index_add_(0, cell_ids, forces_w[point_ids])
         finite = {
             side: torch.isfinite(projected[side]).all(-1)
             for side in self.FOOTRIX_SIDES
         }
         in_contact = {
-            side: finite[side] & (projected[side].norm(dim=-1) > 1.0)
+            side: finite[side] & (cell_counts[side] > 0)
             for side in self.FOOTRIX_SIDES
         }
         return {
@@ -217,6 +254,10 @@ class H2PlusSensorRecorder(RecorderTerm):
                 "finite": finite[side].detach().cpu().clone(),
                 "in_contact": in_contact[side].detach().cpu().clone(),
                 "source_contact_count": source_counts[side],
+                "selected_contact_count": selected_counts[side],
+                "cell_contact_count": cell_counts[side].detach().cpu().clone(),
+                "unmeasured_force_w_N": rejected[side].detach().cpu().clone(),
+                "unmeasured_contact_count": source_counts[side] - selected_counts[side],
             }
             for side in self.FOOTRIX_SIDES
         }
@@ -224,12 +265,27 @@ class H2PlusSensorRecorder(RecorderTerm):
     def reset(self, env_ids=None):
         """Advance episode IDs only after an episode actually had a step."""
         ids = self._ids if env_ids is None else env_ids
+        reset_ids = []
         for env_id in ids:
             env_id = int(env_id)
             if env_id in self._steps:
+                reset_ids.append(env_id)
                 if self._steps[env_id] > 0:
                     self._episode_ids[env_id] += 1
                 self._steps[env_id] = 0
+        if self._footrix_contact_reports is not None:
+            self._footrix_contact_reports.pop(reset_ids)
+        for env_id in reset_ids:
+            for side in self.FOOTRIX_SIDES:
+                self._footrix_local_packets.pop((env_id, side), None)
+
+    def close(self, file_path):
+        """Release the PhysX callback through RecorderManager's lifecycle."""
+        reports = getattr(self, "_footrix_contact_reports", None)
+        if reports is not None:
+            reports.close()
+            self._footrix_contact_reports = None
+        self._footrix_local_packets.clear()
 
     @torch.no_grad()
     def record_post_step(self):
@@ -237,7 +293,8 @@ class H2PlusSensorRecorder(RecorderTerm):
         for env_id in self._ids:
             self._steps[env_id] += 1
         done = env.reset_buf[self._ids].detach().cpu().tolist()
-        contact_packets = self._footrix_contact_reports.pop(self._ids)
+        contact_packets = {(env_id, side): self._footrix_local_packets.pop((env_id, side), [])
+                           for env_id in self._ids for side in self.FOOTRIX_SIDES}
         # Always capture a terminal frame, even when downsampling.
         ids = [i for i, terminal in zip(self._ids, done) if self._steps[i] % self.cfg.record_every == 0 or terminal]
         if not ids:
@@ -338,7 +395,7 @@ class H2PlusSensorRecorder(RecorderTerm):
             sensors[name] = description
         urdf = Path(robot.cfg.spawn.asset_path)
         metadata = {
-            "schema_version": 1,
+            "schema_version": 2,
             "task": getattr(env.cfg, "env_name", None),
             "training_log_dir": env.cfg.log_dir,
             "physics_dt_s": env.physics_dt,
@@ -363,10 +420,18 @@ class H2PlusSensorRecorder(RecorderTerm):
                 "layout_z_calibration": "JSON sample positions and effective plane aligned to current foot mesh bottom",
                 "layout_status": H2_PLUS_FOOTRIX_LAYOUT_STATUS,
                 "cell_radius_m": H2_PLUS_FOOTRIX_CELL_RADIUS_M,
+                "sample_positions_in_foot_link_m": {
+                    side: positions.detach().cpu().tolist() for side, positions in self._footrix_layout_b.items()
+                },
                 "cell_thickness_m": H2_PLUS_FOOTRIX_CELL_THICKNESS_M,
-                "support_radius_m": H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M,
+                "surface_tolerance_m": H2_PLUS_FOOTRIX_SURFACE_TOLERANCE_M,
                 "projection_method": H2_PLUS_FOOTRIX_PROJECTION_METHOD,
+                "force_averaging_interval_s": env.step_dt,
                 "projection_distance_metric": "xy_in_ankle_pitch_link",
+                "contact_position_frame": "per-physics-substep ankle link pose from raw PhysX transforms",
+                "outside_region_policy": "exclude; accumulate separately as unmeasured_force_w_N",
+                "overlap_policy": "reject overlapping or touching circular layouts",
+                "in_contact_semantics": "at least one reported contact inside the cell; not a 1 N force threshold",
                 "source": "PhysX contact-report impulses from complete ankle-pitch foot collision",
                 "marker_collision_enabled": False,
                 "full_foot_collision_preserved": True,
@@ -376,7 +441,7 @@ class H2PlusSensorRecorder(RecorderTerm):
             "urdf_sha256": hashlib.sha256(urdf.read_bytes()).hexdigest(),
             "recorder_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             "imu_noise_added_by_recorder": False,
-            "contact_semantics": "Aggregate contact entries are PhysX net forces in world frame; FOOTRIX entries are contact-report impulses from the complete foot collision distributed to nearby layout cells with normalized planar linear weights, so they preserve total reported impulse but depend on the selected point-distribution model",
+            "contact_semantics": "Aggregate contacts are PhysX net forces. FOOTRIX sums only reported impulses inside each non-overlapping circular sole region, divided by control dt; outside impulses remain unmeasured. There is no smoothing, nearest-cell fallback or full-foot force redistribution. This is filtering of discrete PhysX contacts, not an independent local-pressure solver or a guarantee of real sensor readings.",
             "success_semantics": "Native HDF5 success is not a locomotion quality label; use termination fields",
             "partial_episode": "A final sample with reset=false may be an interrupted or manually reset episode",
         }

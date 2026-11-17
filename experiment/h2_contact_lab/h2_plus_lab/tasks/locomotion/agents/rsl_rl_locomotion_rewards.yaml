@@ -4,18 +4,19 @@ rewards:
   track_lin_vel_xy:             # 平面线速度跟踪
     weight: 1.5
     params:
-      std: 0.5                 # 指数奖励的误差尺度，必须大于0
+      std: 0.25                # 线速度误差尺度；低速阶段收紧，必须大于0
   track_ang_vel_z:              # 偏航角速度跟踪
     weight: 0.5
     params:
-      std: 0.5
+      std: 0.35                # 偏航跟踪尺度
   feet_air_time:                # 双足交替支撑奖励
-    weight: 0.2
+    weight: 0.4
     params:
       threshold: 0.4           # 奖励时长上限，秒
-      command_threshold: 0.1    # 启用腾空奖励的最小平面指令速度，m/s
+      command_threshold: 0.05   # 平移超过此值或偏航超过下项时启用
+      angular_command_threshold: 0.1  # rad/s，允许原地转向获得交替支撑奖励
   feet_slide:                  # 支撑足滑动惩罚
-    weight: -0.05
+    weight: -0.2
     params:
       contact_force_threshold: 1.0  # 判定足端接触的合力阈值，N
   joint_pos_limits:            # 关节位置越限惩罚
@@ -25,56 +26,152 @@ rewards:
   stand_still:                 # 小速度指令下偏离默认姿态惩罚
     weight: -0.1
     params:
-      command_threshold: 0.06  # 平面速度指令阈值，m/s
-  flat_orientation:            # 躯干倾斜惩罚
+      command_threshold: 0.03  # m/s；平移和偏航都低于阈值才视为站立
+      angular_command_threshold: 0.05  # rad/s
+  flat_orientation:            # 骨盆根体倾斜惩罚
     weight: -0.5
+  pelvis_roll:                # 单独加强骨盆左右侧倾，不增加俯仰或偏航约束
+    weight: -2.0
+    params:
+      roll_weight: 1.0
+      pitch_weight: 0.0
+  pelvis_roll_velocity:       # 抑制骨盆快速左右横滚，允许整体偏航转向
+    weight: -0.1
+  body_lateral_position:      # 约束身体相对双足中点的左右平移，不把躯干位置固定在世界坐标
+    weight: -0.5
+    params:
+      tolerance: 0.025        # m，小幅重心转移免罚
+      std: 0.08
+      angular_command_threshold: 0.1 # 转向时关闭该侧向平移约束
+  body_lateral_velocity:
+    weight: -0.4
+    params:
+      tolerance: 0.05         # m/s，允许小幅平衡调整
+      std: 0.3
+      angular_command_threshold: 0.1
+  torso_orientation:           # 直接约束torso_link倾斜，不限制偏航朝向
+    weight: -1.0
+    params:
+      roll_weight: 6.0        # 在此前3倍基础上再提高2倍，仅加强左右侧倾
+      pitch_weight: 1.0       # 前后倾斜分量保持原强度
+  torso_roll_velocity:         # 额外抑制左右摆动速度，不约束纯偏航转向
+    weight: -0.15
+  torso_vertical_velocity:     # torso_link世界系竖直速度平方，抑制上下起伏，不锁定高度
+    weight: -0.03              # 再次减弱，允许合理步态起伏
+  contact_foot_flat:           # 稳定接触足的水平姿态奖励；仅姿态代理，非全足底接触面积
+    weight: 0.1
+    params:
+      tilt_std: 0.25          # 单位投影重力水平分量的尺度；不约束yaw
+      contact_force_threshold: 1.0  # N，当前帧合力阈值
+      settle_time_s: 0.05     # 接触持续超过此时长才参与，弱化落脚瞬间影响
+  knee_motion:                 # 实测关节运动小奖励；仅运动命令下启用，跟踪差则衰减
+    weight: 0.06
+    params:
+      speed_scale: 1.5        # rad/s；峰值改为1.6 rad/s，给较快屈伸更多空间
+      speed_deadband: 0.1     # rad/s；忽略微小运动
+      command_threshold: 0.05
+      angular_command_threshold: 0.1
+      tracking_std: 0.5       # m/s，实际平面速度跟踪门控
+      yaw_tracking_std: 0.5   # rad/s，实际转向跟踪门控
+  knee_inactivity:             # 移动命令下膝部近1秒活动范围不足；不要求固定屈膝姿态
+    weight: -0.3
+    params:
+      window_s: 1.0           # s，窗口未填满时不罚，回合重置／站立后重新计时
+      min_excursion: 0.25     # rad，每侧膝盖窗口内max-min目标，约14.3度
+      command_threshold: 0.05
+      angular_command_threshold: 0.1
+  knee_target_limits:          # 惩罚裁剪前的不可达膝目标，不让物理限位掩盖无效动作
+    weight: -0.2
+    params:
+      std: 0.5                # rad；log1p归一化超限平方，极端动作时避免二次惩罚过大
+  elbow_motion:                # 鼓励适量肘运动，不规定角度、方向或固定摆臂相位
+    weight: 0.08
+    params:
+      speed_scale: 0.8
+      speed_deadband: 0.1
+      command_threshold: 0.05
+      angular_command_threshold: 0.1
+      tracking_std: 0.5
+      yaw_tracking_std: 0.5
+  elbow_inactivity:            # 有运动指令时持续少动才罚；不约束固定肘角
+    weight: -0.2
+    params:
+      window_s: 1.5
+      min_excursion: 0.15     # rad，窗口内约8.6度活动范围
+      command_threshold: 0.05
+      angular_command_threshold: 0.1
+  elbow_target_limits:         # 避免肘部沿用无效目标顶压物理限位
+    weight: -0.1
+    params:
+      std: 0.35
+  arm_leg_coordination:        # 按实际左右迈步位置引导前后摆臂和肘屈伸，非固定时钟
+    weight: 0.25
+    params:
+      phase_length: 0.15      # m，左右脚前后差的归一化尺度
+      shoulder_amplitude: 0.3 # rad，软参考最大约17度，不是硬角度限制
+      elbow_amplitude: 0.2   # rad，软参考最大约11.5度
+      std: 0.25
+      command_threshold: 0.05
+      angular_command_threshold: 0.1
+  ankle_roll_limits:           # 实际踝roll正常区间不罚，仅接近两端限位时逐渐加罚
+    weight: -0.5
+    params:
+      margin_ratio: 0.15      # 两端各15%行程为惩罚带，中间70%不罚
+  ankle_roll_target_limits:    # 检查裁剪前目标，避免策略用超限目标持续顶压踝部
+    weight: -0.1
+    params:
+      std: 0.1               # rad
+      margin_ratio: 0.15
+  waist_posture:               # 行走／站立均生效，允许小幅腰部调整
+    weight: -0.2
+    params:
+      reference_angle: 0.0
+  arm_posture:                 # 仅肩roll／yaw零位约束；放开pitch前后摆臂，肘部不参与
+    weight: -0.05
+    params:
+      reference_angle: 0.0
+  shoulder_roll_posture:       # 只抑制过大的肩roll，保留小幅调整和前后摆臂
+    weight: -0.3
+    params:
+      reference_angle: 0.0
+      tolerance: 0.1745329252 # rad，约±10度内此项不罚，超出后平方增长
+      std: 0.35              # rad，约20度的误差尺度
+  shoulder_roll_velocity:      # 抑制肩roll快速左右摆动，仅选择肩roll，不选择肘
+    weight: -0.03
+  shoulder_roll_target_limits: # 惩罚裁剪前的超物理限位目标，避免向肩限位顶压
+    weight: -0.1
+    params:
+      std: 0.35
+  swing_clearance:             # 正奖励：单足支撑时摆动足接近目标高度，非地形净空测量
+    weight: 0.2
+    params:
+      target_height: 0.06      # m；仅水平运动中的摆动足参与
+      height_std: 0.05         # m，误差归一化尺度，必须大于0
+      speed_scale: 0.3        # m/s，摆动足水平速度达到此值后不再增加奖励
+      command_threshold: 0.05
+      angular_command_threshold: 0.1
+  feet_lateral_symmetry:       # 双足在骨盆偏航系左右居中；允许前后交替，转向时关闭
+    weight: -0.1
+    params:
+      lateral_std: 0.1        # m，侧向误差归一化尺度
+      command_threshold: 0.05
+      angular_command_threshold: 0.1
+  stance_width:                # 双踝原点在骨盆偏航系的侧向距离，不是足底外缘间距
+    weight: -0.3
+    params:
+      min_width: 0.1         # m，避免为了缩窄步宽而交叉或挤在一起
+      max_width: 0.25        # m，零位双踝原点约0.157 m
+      width_std: 0.1         # m，超出正常区间的误差尺度
+  foot_heading:               # 双脚各自相对骨盆偏航，抑制内／外八字和双脚同向歪转
+    weight: -0.3
+    params:
+      tolerance: 0.0872664626 # rad，约5度内允许小幅调整；超出后逐渐惩罚
+      std: 0.35              # rad，角度误差归一化尺度
   action_rate:                 # 相邻控制步动作变化惩罚
     weight: -0.01
   joint_acceleration:          # 关节加速度惩罚
     weight: -2.5e-7
-
-domain_randomization:
-  enabled: true                 # 训练时是否启用整组域随机化；Play仍由代码强制关闭
-  foot_material:
-    static_friction_range: [0.60, 1.00]    # 左右足静摩擦系数
-    dynamic_friction_range: [0.40, 0.60]   # 左右足动摩擦系数
-    restitution_range: [0.00, 0.05]        # 左右足恢复系数
-    num_buckets: 32                        # 摩擦参数离散桶数量
-  body_mass:
-    scale_range: [0.95238095, 1.05]         # pelvis／torso_link质量缩放
-  body_com:
-    x: [-0.005, 0.005]                      # 质心x偏移，m
-    y: [-0.005, 0.005]                      # 质心y偏移，m
-    z: [-0.003, 0.003]                      # 质心z偏移，m
-  reset_joints:
-    position_range: [0.98, 1.02]             # 关节默认位置缩放
-    velocity_range: [-0.05, 0.05]            # 初始关节速度
-  reset_base:
-    pose_range:
-      x: [-0.03, 0.03]                      # 根部初始x偏移，m
-      y: [-0.03, 0.03]                      # 根部初始y偏移，m
-      yaw: [-0.03, 0.03]                     # 根部初始偏航，rad
-    velocity_range:
-      x: [-0.05, 0.05]                       # 根部初始x速度，m/s
-      y: [-0.05, 0.05]                       # 根部初始y速度，m/s
-      z: [0.00, 0.00]
-      roll: [0.00, 0.00]
-      pitch: [0.00, 0.00]
-      yaw: [-0.10, 0.10]                     # 根部初始偏航角速度，rad/s
-  push:
-    enabled: true                            # 是否保留周期水平扰动
-    interval_range_s: [8.0, 12.0]            # 两次扰动间隔，秒
-    velocity_range:
-      x: [-0.20, 0.20]                       # 扰动x速度，m/s
-      y: [-0.20, 0.20]                       # 扰动y速度，m/s
-      z: [0.00, 0.00]
-      roll: [0.00, 0.00]
-      pitch: [0.00, 0.00]
-      yaw: [0.00, 0.00]
-  observation_noise:
-    enabled: true                            # 是否启用策略观测噪声
-    base_lin_vel: [-0.05, 0.05]
-    base_ang_vel: [-0.10, 0.10]
-    projected_gravity: [-0.02, 0.02]
-    joint_pos: [-0.005, 0.005]
-    joint_vel: [-0.15, 0.15]
+  non_foot_contact:            # 平地双足任务的非足支撑软惩罚，不增加硬终止
+    weight: -1.0
+    params:
+      threshold: 1.0           # N，聚合接触力判定阈值

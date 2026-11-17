@@ -10,7 +10,9 @@ __pycache__/
 .venv/
 venv/
 .env
-
+experiment/h2_contact_lab/log/rsl_rl/**/model_*.pt
+experiment/h2_contact_lab/output/play/**/exported/policy.pt
+experiment/h2_contact_lab/output/play/**/exported/policy.onnx
 # Re-generable build output (keep project metadata, source and launch files)
 工程/09_DUAL_M0404_PARSER/Debug/
 工程/09_DUAL_M0404_PARSER/Release/

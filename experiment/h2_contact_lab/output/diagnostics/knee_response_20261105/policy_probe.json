@@ -1,0 +1,32 @@
+{
+  "checkpoint": "log/rsl_rl/h2_plus_blind_locomotion/2026-11-05_02-04-16/model_11599.pt",
+  "exported_policy": "output/play/2026-11-05_11-43-42/exported/policy.pt",
+  "exported_actor_weights_match_checkpoint": true,
+  "input": "81-dim nominal zero joint/root velocity observation, projected gravity [0,0,-1], command [0.5,0,0], previous action zero; synthetic probe, not a replay trajectory",
+  "knee_action_indices_zero_based": [
+    6,
+    7
+  ],
+  "raw_knee_actions": [
+    -1.7030953168869019,
+    -1.2302027940750122
+  ],
+  "knee_scale": 0.5,
+  "target_angles_rad": [
+    -0.8515476584434509,
+    -0.6151013970375061
+  ],
+  "lower_joint_limit_rad": -0.08725,
+  "policy_noise_std": [
+    1.579468846321106,
+    1.5743359327316284
+  ],
+  "last500_training_means": {
+    "Episode_Reward/knee_motion": 7.227551711548586e-05,
+    "Episode_Reward/knee_inactivity": -0.23455087313055992,
+    "Episode_Reward/joint_pos_limits": -0.00018254761685966515,
+    "Train/mean_episode_length": 530.0619000244141,
+    "Train/mean_reward": 9.623101350784301
+  },
+  "interpretation": "Probe requests extension beyond the lower limit; possible policy-driven stop loading, not proof of actual replay targets over time. Saved training configuration already contains knee scale 0.5 and inactivity weight -0.3."
+}

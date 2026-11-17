@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "/tmp/h2_shoulder_pitch_diagnostic.py", line 32, in <module>
+    obs,_=env.reset(seed=42);rows=[]
+          ^^^^^^^^^^^^^^^^^^
+  File "/home/bblabhumanoid/miniconda3/envs/project/lib/python3.11/site-packages/gymnasium/wrappers/common.py", line 400, in reset
+    return super().reset(seed=seed, options=options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/bblabhumanoid/miniconda3/envs/project/lib/python3.11/site-packages/gymnasium/core.py", line 333, in reset
+    return self.env.reset(seed=seed, options=options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/bblabhumanoid/wyp/IsaacLab/source/isaaclab/isaaclab/envs/manager_based_env.py", line 372, in reset
+    self._reset_idx(env_ids)
+  File "/home/bblabhumanoid/wyp/IsaacLab/source/isaaclab/isaaclab/envs/manager_based_rl_env.py", line 362, in _reset_idx
+    self.event_manager.apply(mode="reset", env_ids=env_ids, global_env_step_count=env_step_count)
+  File "/home/bblabhumanoid/wyp/IsaacLab/source/isaaclab/isaaclab/managers/event_manager.py", line 247, in apply
+    term_cfg.func(self._env, env_ids, **term_cfg.params)
+  File "/home/bblabhumanoid/wyp/IsaacLab/source/isaaclab/isaaclab/envs/mdp/events.py", line 1382, in reset_scene_to_default
+    articulation_asset.write_root_pose_to_sim(default_root_state[:, :7], env_ids=env_ids)
+  File "/home/bblabhumanoid/wyp/IsaacLab/source/isaaclab/isaaclab/assets/articulation/articulation.py", line 408, in write_root_pose_to_sim
+    self.write_root_link_pose_to_sim(root_pose, env_ids=env_ids)
+  File "/home/bblabhumanoid/wyp/IsaacLab/source/isaaclab/isaaclab/assets/articulation/articulation.py", line 427, in write_root_link_pose_to_sim
+    self._data.root_link_pose_w[env_ids] = root_pose.clone()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+RuntimeError: Inplace update to inference tensor outside InferenceMode is not allowed.You can make a clone to get a normal tensor before doing inplace update.See https://github.com/pytorch/rfcs/pull/17 for more details.

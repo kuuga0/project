@@ -7,6 +7,7 @@ import os
 import sys
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -16,6 +17,7 @@ sys.path.insert(0, str(LAB_DIR))
 import gymnasium as gym
 import cli_args
 import h2_plus_lab
+import view_logs
 
 
 class TaskStructureTests(unittest.TestCase):
@@ -58,6 +60,82 @@ class TaskStructureTests(unittest.TestCase):
                 gym.registry.pop(task_id, None)
                 sys.modules.pop(module_name, None)
                 vars(h2_plus_lab.tasks).pop("discovery_example", None)
+
+    def test_markers_are_massless_visuals_without_extra_links_or_colliders(self):
+        from h2_plus_lab.config import config_data
+        merge = config_data("robot.spawn")["merge_fixed_joints"]
+        urdf = LAB_DIR.parent / "robot_asset/h2_plus/H2_Plus_with_footrix_no_dex_hands.urdf"
+        robot = ET.parse(urdf).getroot()
+        links = {link.get("name"): link for link in robot.findall("link")}
+        fixed_parents = {
+            joint.find("child").get("link"): joint.find("parent").get("link")
+            for joint in robot.findall("joint") if joint.get("type") == "fixed"
+        } if merge else {}
+
+        def body(name):
+            while name in fixed_parents:
+                name = fixed_parents[name]
+            return name
+
+        active = [joint for joint in robot.findall("joint") if joint.get("type") == "revolute"]
+        self.assertEqual(len({body(name) for name in links}), 32)
+        self.assertEqual(len(active), 31)
+        for joint in active:
+            self.assertNotEqual(body(joint.find("parent").get("link")), body(joint.find("child").get("link")))
+        self.assertEqual(len(links), 32)
+        self.assertFalse(any("_footrix_cell_" in name for name in links))
+        from h2_plus_lab.config import config_data
+        import json
+        layout = json.loads((LAB_DIR.parents[1] / config_data("sensors.footrix")["layout_path"]).read_text())
+        for side in ("left", "right"):
+            foot = links[f"{side}_ankle_pitch_link"]
+            markers = [v for v in foot.findall("visual") if "_footrix_cell_" in v.get("name", "")]
+            self.assertEqual(len(markers), 154)
+            self.assertEqual(len(foot.findall("collision")), 1)
+            for i, visual in enumerate(markers):
+                self.assertIsNone(visual.find("inertial"))
+                self.assertIsNone(visual.find("collision"))
+                xyz = list(map(float, visual.find("origin").get("xyz").split()))
+                expected = layout["feet"][side]["observation_layout"]["sample_positions_in_foot_link_m"][i]
+                for actual, target in zip(xyz, expected):
+                    self.assertAlmostEqual(actual, target, places=7)
+        for side in ("left", "right"):
+            self.assertIsNotNone(links[f"{side}_ankle_pitch_link"].find("collision"))
+
+    def test_tensorboard_selects_latest_event_writer_not_newest_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            old = root / "experiment/old_run"
+            recent = root / "experiment/new_run"
+            empty = root / "experiment/empty_run"
+            for directory in (old, recent, empty):
+                directory.mkdir(parents=True)
+            first = old / "events.out.tfevents.old"
+            second = recent / "events.out.tfevents.new"
+            first.write_bytes(b"event data")
+            second.write_bytes(b"event data")
+            (empty / "events.out.tfevents.empty").touch()
+            os.utime(first, ns=(10, 10))
+            os.utime(second, ns=(20, 20))
+            self.assertEqual(view_logs.select_log_dir(root), recent)
+            os.utime(first, ns=(30, 30))  # continued training in an older run
+            self.assertEqual(view_logs.select_log_dir(root), old)
+            nested = old / "summaries"
+            nested.mkdir()
+            event = nested / "events.out.tfevents.child"
+            event.write_bytes(b"event data")
+            os.utime(event, ns=(40, 40))
+            self.assertEqual(view_logs.select_log_dir(root), old)
+
+    def test_tensorboard_selection_handles_explicit_all_and_missing_runs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.assertEqual(view_logs.select_log_dir(root, all_runs=True), root)
+            self.assertEqual(view_logs.select_log_dir(root, run=root), root)
+            with self.assertRaises(FileNotFoundError):
+                view_logs.select_log_dir(root)
+            with self.assertRaises(FileNotFoundError):
+                view_logs.select_log_dir(root, run=root / "missing")
 
     def test_hydra_paths_do_not_depend_on_working_directory(self):
         old_cwd = Path.cwd()

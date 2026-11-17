@@ -1,0 +1,76 @@
+{
+  "label": "baseline",
+  "steps": 600,
+  "duration_s": 20.0,
+  "policy": "/home/bblabhumanoid/wyp/project/experiment/h2_contact_lab/output/play/2026-11-05_11-43-42/exported/policy.pt",
+  "deterministic": true,
+  "command": [
+    0.5,
+    0,
+    0
+  ],
+  "resets": 0,
+  "joint_names": [
+    "left_knee_joint",
+    "right_knee_joint"
+  ],
+  "limits_rad": [
+    [
+      -0.0872499942779541,
+      2.530249834060669
+    ],
+    [
+      -0.0872499942779541,
+      2.530249834060669
+    ]
+  ],
+  "mean_root_vx_m_s": 0.47863411241831877,
+  "training_started": false,
+  "estimated_torque_note": "Implicit actuator PD estimate, not a measured reaction torque.",
+  "knees": {
+    "left_knee_joint": {
+      "raw_action_min_max": [
+        -8.395306587219238,
+        -1.4267246723175049
+      ],
+      "target_min_max_rad": [
+        -4.197653293609619,
+        -0.7133623361587524
+      ],
+      "actual_min_max_rad": [
+        -0.08736766129732132,
+        -0.08718407899141312
+      ],
+      "actual_range_rad": 0.00018358230590820312,
+      "target_below_lower_fraction": 1.0,
+      "near_lower_stop_fraction": 1.0,
+      "mean_estimated_torque_Nm": -281.58749568303426,
+      "requested_target_below_lower_fraction": 1.0,
+      "mean_abs_estimated_torque_Nm": 281.58749568303426,
+      "actual_range_after5s_rad": 0.00012421607971191406
+    },
+    "right_knee_joint": {
+      "raw_action_min_max": [
+        -25.8365421295166,
+        -1.2302029132843018
+      ],
+      "target_min_max_rad": [
+        -12.9182710647583,
+        -0.6151014566421509
+      ],
+      "actual_min_max_rad": [
+        -0.08749885857105255,
+        -0.08706484735012054
+      ],
+      "actual_range_rad": 0.00043401122093200684,
+      "target_below_lower_fraction": 1.0,
+      "near_lower_stop_fraction": 1.0,
+      "mean_estimated_torque_Nm": -357.33820318222047,
+      "requested_target_below_lower_fraction": 1.0,
+      "mean_abs_estimated_torque_Nm": 357.33820318222047,
+      "actual_range_after5s_rad": 0.0002888292074203491
+    }
+  },
+  "limit_comparison_tolerance_rad": 1e-06,
+  "raw_knee_target_scale": 0.5
+}

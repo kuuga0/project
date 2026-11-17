@@ -1,0 +1,39 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/bblabhumanoid/wyp/IsaacLab/apps/isaaclab.python.headless.kit
+
+[36m=================================================================================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /home/bblabhumanoid/wyp/project/experiment/h2_contact_lab/log/sim/diagnostics/isaaclab_2026-11-05_11-48-01.log[0m
+[36m=================================================================================================================================================[0m
+
+[33m11:48:01 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+KNEE_RESPONSE {'target_rad': 0.0, 'actual_rad': [0.0, 0.0]}
+KNEE_RESPONSE {'target_rad': 0.3, 'actual_rad': [0.2986675202846527, 0.29863986372947693]}
+KNEE_RESPONSE {'target_rad': 0.6, 'actual_rad': [0.5987532138824463, 0.5987266898155212]}
+KNEE_RESPONSE {'target_rad': 0.0, 'actual_rad': [0.0028246459551155567, 0.0028727753087878227]}
+DIAGNOSTIC_RESULT {"test": "direct position targets with no ground and zero gravity", "policy_used": false, "training_started": false, "physics_steps": 480, "dt_s": 0.008333333333333333, "joint_names": ["left_knee_joint", "right_knee_joint"], "joint_ids": [9, 10], "phases": [{"target_rad": 0.0, "actual_rad": [0.0, 0.0]}, {"target_rad": 0.3, "actual_rad": [0.2986675202846527, 0.29863986372947693]}, {"target_rad": 0.6, "actual_rad": [0.5987532138824463, 0.5987266898155212]}, {"target_rad": 0.0, "actual_rad": [0.0028246459551155567, 0.0028727753087878227]}], "passed": true, "limits_rad": [[-0.0872500017285347, 2.530249834060669], [-0.0872500017285347, 2.530249834060669]], "stiffness": [80.0, 80.0], "damping": [8.0, 8.0], "kit_log": "/home/bblabhumanoid/wyp/project/experiment/h2_contact_lab/log/kit/knee_response_1793850474026620092.log", "limitation": "Unloaded joint response does not establish loaded gait tracking or gait quality."}
+Loading user config located at: '/home/bblabhumanoid/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/bblabhumanoid/wyp/project/experiment/h2_contact_lab/log/kit/knee_response_1793850474026620092.log
+2026-11-05T03:47:54Z [426ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-11-05T03:47:55Z [984ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-11-05T03:47:55Z [1,260ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.178.04    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 4090          | Yes: 0 |     | 24810   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2684      | 1357b578.. |
+|     |                                  |        |     |            | 41        |            |
+|=============================================================================================|
+| OS: 22.04.5 LTS (Jammy Jellyfish) ubuntu, Version: 22.04.5, Kernel: 6.8.0-138-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101004 (1.21.1.4)
+| Processor: AMD EPYC 7B12 64-Core Processor
+| Cores: 128 | Logical Cores: 128
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 515743 | Free Memory: 499040
+| Total Page/Swap (MB): 9536 | Free Page/Swap: 9536
+|---------------------------------------------------------------------------------------------|
+2026-11-05T03:48:00Z [6,885ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.

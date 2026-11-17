@@ -109,6 +109,7 @@ from isaaclab_rl.rsl_rl import RslRlBaseRunnerCfg, RslRlVecEnvWrapper
 
 import isaaclab_tasks  # noqa: F401
 import h2_plus_lab  # noqa: F401  # register project tasks after AppLauncher
+from h2_plus_lab.config import restore_config_types
 from isaaclab_tasks.utils import get_checkpoint_path
 from isaaclab_tasks.utils.hydra import hydra_task_config
 
@@ -187,6 +188,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     env_cfg.sim.log_dir = str(LAB_DIR / "log" / "sim" / "train")
 
     cli_args.configure_recording_output(env_cfg, log_dir, "train", args_cli.task, enabled=args_cli.record_sensors)
+
+    # Hydra CLI overrides can introduce lists again; restore native vector types.
+    restore_config_types(env_cfg)
 
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)

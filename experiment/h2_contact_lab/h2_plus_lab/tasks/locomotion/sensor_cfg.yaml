@@ -1,0 +1,95 @@
+# 原生Isaac Lab配置；由h2_plus_lab/config.py通过OmegaConf/Hydra加载。
+sensors:
+  left_foot_contact:
+    _target_: isaaclab.sensors.ContactSensorCfg
+    prim_path: '{ENV_REGEX_NS}/Robot/left_ankle_pitch_link'
+    update_period: 0.0
+    history_length: 3
+    filter_prim_paths_expr: []
+    track_air_time: true
+    track_contact_points: false
+    track_friction_forces: false
+    max_contact_data_count_per_prim: 64
+  right_foot_contact:
+    _target_: isaaclab.sensors.ContactSensorCfg
+    prim_path: '{ENV_REGEX_NS}/Robot/right_ankle_pitch_link'
+    update_period: 0.0
+    history_length: 3
+    filter_prim_paths_expr: []
+    track_air_time: true
+    track_contact_points: false
+    track_friction_forces: false
+    max_contact_data_count_per_prim: 64
+  body_contact:
+    _target_: isaaclab.sensors.ContactSensorCfg
+    prim_path: '{ENV_REGEX_NS}/Robot/(pelvis|torso_link|waist_.*|head_.*|.*_hip_.*|.*_knee_link|.*_ankle_roll_link|.*_shoulder_.*|.*_elbow_link|.*_wrist_.*)'
+    update_period: 0.0
+    history_length: 4
+    filter_prim_paths_expr: []
+    track_air_time: false
+    track_contact_points: false
+    track_friction_forces: false
+    max_contact_data_count_per_prim: 16
+  torso_imu:
+    _target_: isaaclab.sensors.ImuCfg
+    prim_path: '{ENV_REGEX_NS}/Robot/torso_link'
+    update_period: 0.008333333333333333
+    history_length: 6
+    offset:
+      _target_: isaaclab.sensors.ImuCfg.OffsetCfg
+      pos: [0.0, 0.0, 0.0]
+      rot: [1.0, 0.0, 0.0, 0.0]
+    gravity_bias: [0.0, 0.0, 9.81]
+    debug_vis: false
+  left_foot_imu:
+    _target_: isaaclab.sensors.ImuCfg
+    prim_path: '{ENV_REGEX_NS}/Robot/left_ankle_pitch_link'
+    update_period: 0.008333333333333333
+    history_length: 6
+    offset:
+      _target_: isaaclab.sensors.ImuCfg.OffsetCfg
+      pos: [-0.047, 0.0373, -0.0222]
+      rot: [0.7071067812, 0.0, 0.0, -0.7071067812]
+    gravity_bias: [0.0, 0.0, 9.81]
+    debug_vis: false
+  right_foot_imu:
+    _target_: isaaclab.sensors.ImuCfg
+    prim_path: '{ENV_REGEX_NS}/Robot/right_ankle_pitch_link'
+    update_period: 0.008333333333333333
+    history_length: 6
+    offset:
+      _target_: isaaclab.sensors.ImuCfg.OffsetCfg
+      pos: [-0.047, -0.0373, -0.0222]
+      rot: [0.7071067812, 0.0, 0.0, -0.7071067812]
+    gravity_bias: [0.0, 0.0, 9.81]
+    debug_vis: false
+  footrix:
+    cell_count: 154
+    channels_per_cell: 3
+    cell_radius_m: 0.003401643
+    cell_thickness_m: 0.004
+    surface_tolerance_m: 0.002  # 接触点离足底平面的最大距离；排除侧面／上表面接触
+    projection_method: strict_circular_contact_regions
+    layout_z_m: -0.0521
+    layout_path: experiment/h2_contact_lab/output/history/windows_footrix_points_checks_20261015/footrix_layout.json
+    layout_status: image-derived non-overlapping left/right mirrored circular regions; z aligned to current foot mesh
+      bottom; installation coordinates and physical cell radius remain replaceable
+  imu_noise:
+    linear_acceleration_std_m_s2: 0.05
+    angular_velocity_std_rad_s: 0.005
+    linear_acceleration_bias_std_m_s2: 0.02
+    angular_velocity_bias_std_rad_s: 0.001
+  ray_caster:
+    _target_: isaaclab.sensors.RayCasterCfg
+    prim_path: '{ENV_REGEX_NS}/Robot/pelvis'
+    update_period: 0.016666666666666666
+    offset:
+      _target_: isaaclab.sensors.RayCasterCfg.OffsetCfg
+      pos: [0.0, 0.0, 0.5]
+    ray_alignment: yaw
+    pattern_cfg:
+      _target_: isaaclab.sensors.ray_caster.patterns.GridPatternCfg
+      resolution: 0.2
+      size: [1.6, 1.0]
+    mesh_prim_paths: [/World/ground]
+    debug_vis: false

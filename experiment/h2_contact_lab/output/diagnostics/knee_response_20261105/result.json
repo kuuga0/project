@@ -1,0 +1,66 @@
+{
+  "test": "direct position targets with no ground and zero gravity",
+  "policy_used": false,
+  "training_started": false,
+  "physics_steps": 480,
+  "dt_s": 0.008333333333333333,
+  "joint_names": [
+    "left_knee_joint",
+    "right_knee_joint"
+  ],
+  "joint_ids": [
+    9,
+    10
+  ],
+  "phases": [
+    {
+      "target_rad": 0.0,
+      "actual_rad": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "target_rad": 0.3,
+      "actual_rad": [
+        0.2986675202846527,
+        0.29863986372947693
+      ]
+    },
+    {
+      "target_rad": 0.6,
+      "actual_rad": [
+        0.5987532138824463,
+        0.5987266898155212
+      ]
+    },
+    {
+      "target_rad": 0.0,
+      "actual_rad": [
+        0.0028246459551155567,
+        0.0028727753087878227
+      ]
+    }
+  ],
+  "passed": true,
+  "limits_rad": [
+    [
+      -0.0872500017285347,
+      2.530249834060669
+    ],
+    [
+      -0.0872500017285347,
+      2.530249834060669
+    ]
+  ],
+  "stiffness": [
+    80.0,
+    80.0
+  ],
+  "damping": [
+    8.0,
+    8.0
+  ],
+  "kit_log": "/home/bblabhumanoid/wyp/project/experiment/h2_contact_lab/log/kit/knee_response_1793850474026620092.log",
+  "limitation": "Unloaded joint response does not establish loaded gait tracking or gait quality."
+}

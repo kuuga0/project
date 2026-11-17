@@ -15,9 +15,10 @@ class H2PlusBlindPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     """Initial PPO settings; observation/action dimensions are inferred by the environment."""
 
     num_steps_per_env = 24
-    max_iterations = 3000
-    save_interval = 50
+    max_iterations = 9000
+    save_interval = 100
     experiment_name = "h2_plus_blind_locomotion"
+    logger = "tensorboard"
     policy = RslRlPpoActorCriticCfg(
         init_noise_std=1.0,
         actor_obs_normalization=False,

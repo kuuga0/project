@@ -1,0 +1,76 @@
+# 原生Isaac Lab配置；由h2_plus_lab/config.py通过OmegaConf/Hydra加载。
+terrain:
+  hard_material:
+    _target_: isaaclab.sim.RigidBodyMaterialCfg
+    static_friction: 0.8
+    dynamic_friction: 0.7
+    restitution: 0.0
+  low_friction_material:
+    _target_: isaaclab.sim.RigidBodyMaterialCfg
+    static_friction: 0.25
+    dynamic_friction: 0.2
+    restitution: 0.0
+  flat:
+    _target_: isaaclab.terrains.TerrainImporterCfg
+    prim_path: /World/ground
+    terrain_type: plane
+    terrain_generator: null
+    physics_material: ${terrain.hard_material}
+  rough:
+    _target_: isaaclab.terrains.TerrainImporterCfg
+    prim_path: /World/ground
+    terrain_type: generator
+    terrain_generator:
+      _target_: isaaclab.terrains.TerrainGeneratorCfg
+      seed: 20261027
+      curriculum: false
+      size: [4.0, 4.0]
+      border_width: 0.25
+      border_height: 1.0
+      num_rows: 1
+      num_cols: 1
+      color_scheme: height
+      horizontal_scale: 0.1
+      vertical_scale: 0.005
+      slope_threshold: null
+      sub_terrains:
+        random_grid_roughness:
+          _target_: isaaclab.terrains.height_field.hf_terrains_cfg.HfRandomUniformTerrainCfg
+          proportion: 1.0
+          noise_range: [-0.08, 0.08]
+          noise_step: 0.02
+          downsampled_scale: 0.25
+          size: [4.0, 4.0]
+          border_width: 0.25
+          horizontal_scale: 0.1
+          vertical_scale: 0.005
+          slope_threshold: null
+      difficulty_range: [0.0, 1.0]
+      use_cache: false
+    physics_material: ${terrain.hard_material}
+  deformable:
+    _target_: isaaclab.assets.DeformableObjectCfg
+    prim_path: '{ENV_REGEX_NS}/Terrain/FlexibleGround'
+    spawn:
+      _target_: isaaclab.sim.MeshCuboidCfg
+      size: [4.0, 4.0, 0.2]
+      deformable_props:
+        _target_: isaaclab.sim.DeformableBodyPropertiesCfg
+        deformable_enabled: true
+        rest_offset: 0.0
+        contact_offset: 0.001
+      collision_props:
+        _target_: isaaclab.sim.CollisionPropertiesCfg
+      physics_material:
+        _target_: isaaclab.sim.DeformableBodyMaterialCfg
+        density: 650.0
+        dynamic_friction: 0.7
+        youngs_modulus: 250000.0
+        poissons_ratio: 0.35
+      visual_material:
+        _target_: isaaclab.sim.PreviewSurfaceCfg
+        diffuse_color: [0.25, 0.42, 0.28]
+    init_state:
+      _target_: isaaclab.assets.DeformableObjectCfg.InitialStateCfg
+      pos: [0.0, 0.0, -0.1]
+    debug_vis: false

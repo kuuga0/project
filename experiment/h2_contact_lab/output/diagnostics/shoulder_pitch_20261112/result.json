@@ -1,0 +1,290 @@
+{
+  "training_started": false,
+  "command": [
+    0.5,
+    0,
+    0
+  ],
+  "terrain": "current configured plane",
+  "replays": {
+    "latest_checkpoint": {
+      "source": "/home/bblabhumanoid/wyp/project/experiment/h2_contact_lab/log/rsl_rl/h2_plus_blind_locomotion/2026-11-12_02-54-37/model_42199.pt",
+      "duration_s": 20.0,
+      "settling_excluded_s": 2.0,
+      "resets": 0,
+      "mean_root_vx_m_s": 0.4976840770354977,
+      "joints": {
+        "left_shoulder_pitch_joint": {
+          "actual_min_max_deg": [
+            -150.00428670273988,
+            -96.08041448854193
+          ],
+          "actual_peak_to_peak_deg": 53.923872214197935,
+          "actual_p5_p95_deg": [
+            -150.00024323075124,
+            -97.14099021191697
+          ],
+          "target_min_max_deg": [
+            -222.54693357550158,
+            -106.37687685101197
+          ],
+          "mean_abs_estimated_torque_Nm": 43.09361919341264,
+          "target_below_lower_fraction": 0.5833333333333334
+        },
+        "right_shoulder_pitch_joint": {
+          "actual_min_max_deg": [
+            -150.00695047651618,
+            -83.0645874401122
+          ],
+          "actual_peak_to_peak_deg": 66.94236303640398,
+          "actual_p5_p95_deg": [
+            -150.00222466862945,
+            -85.71791034396814
+          ],
+          "target_min_max_deg": [
+            -220.34035900185893,
+            -94.6346751771145
+          ],
+          "mean_abs_estimated_torque_Nm": 40.20277503508109,
+          "target_below_lower_fraction": 0.5314814814814814
+        },
+        "left_shoulder_roll_joint": {
+          "actual_min_max_deg": [
+            -1.6541968983396298,
+            3.860419076909799
+          ],
+          "actual_peak_to_peak_deg": 5.514615975249429,
+          "actual_p5_p95_deg": [
+            -1.3588337079837352,
+            3.5130625069041246
+          ],
+          "target_min_max_deg": [
+            1.3390748084802786,
+            9.923898595134284
+          ],
+          "mean_abs_estimated_torque_Nm": 4.83622280239231
+        },
+        "right_shoulder_roll_joint": {
+          "actual_min_max_deg": [
+            -1.5636188782700344,
+            3.736080605711594
+          ],
+          "actual_peak_to_peak_deg": 5.2996994839816285,
+          "actual_p5_p95_deg": [
+            -1.2668155158472163,
+            3.593256611722891
+          ],
+          "target_min_max_deg": [
+            -6.761725488206658,
+            3.6280346970048085
+          ],
+          "mean_abs_estimated_torque_Nm": 4.720429283518482
+        },
+        "left_shoulder_yaw_joint": {
+          "actual_min_max_deg": [
+            -2.458561169578763,
+            6.792869016387801
+          ],
+          "actual_peak_to_peak_deg": 9.251430185966564,
+          "actual_p5_p95_deg": [
+            -2.0060796639535416,
+            6.369102330396572
+          ],
+          "target_min_max_deg": [
+            -4.310863222482969,
+            7.177561492142198
+          ],
+          "mean_abs_estimated_torque_Nm": 0.7811599220390673
+        },
+        "right_shoulder_yaw_joint": {
+          "actual_min_max_deg": [
+            -8.870686840212905,
+            3.040007489659132
+          ],
+          "actual_peak_to_peak_deg": 11.910694329872037,
+          "actual_p5_p95_deg": [
+            -8.547888386122741,
+            2.275550124766188
+          ],
+          "target_min_max_deg": [
+            -10.217450734151324,
+            4.593641164971137
+          ],
+          "mean_abs_estimated_torque_Nm": 0.5447095224495839
+        },
+        "left_elbow_joint": {
+          "actual_min_max_deg": [
+            50.91657407358717,
+            77.78014521135421
+          ],
+          "actual_peak_to_peak_deg": 26.863571137767032,
+          "actual_p5_p95_deg": [
+            51.90800420614485,
+            76.25265331669414
+          ],
+          "target_min_max_deg": [
+            44.28282455919857,
+            79.87661030538709
+          ],
+          "mean_abs_estimated_torque_Nm": 2.9583382647346568
+        },
+        "right_elbow_joint": {
+          "actual_min_max_deg": [
+            65.78530850043632,
+            83.91907825622664
+          ],
+          "actual_peak_to_peak_deg": 18.133769755790333,
+          "actual_p5_p95_deg": [
+            68.97322757855348,
+            83.19959842339802
+          ],
+          "target_min_max_deg": [
+            58.09436523084021,
+            84.47737108879431
+          ],
+          "mean_abs_estimated_torque_Nm": 4.01799543130177
+        }
+      }
+    },
+    "latest_viewed_export": {
+      "source": "/home/bblabhumanoid/wyp/project/experiment/h2_contact_lab/output/play/2026-11-12_17-08-51/exported/policy.pt",
+      "duration_s": 20.0,
+      "settling_excluded_s": 2.0,
+      "resets": 0,
+      "mean_root_vx_m_s": 0.49118274367517895,
+      "joints": {
+        "left_shoulder_pitch_joint": {
+          "actual_min_max_deg": [
+            -150.00991477861598,
+            -90.11227032386567
+          ],
+          "actual_peak_to_peak_deg": 59.8976444547503,
+          "actual_p5_p95_deg": [
+            -150.00029787226458,
+            -91.07038023233109
+          ],
+          "target_min_max_deg": [
+            -197.28180428843595,
+            -102.74502621269524
+          ],
+          "mean_abs_estimated_torque_Nm": 31.81446344565462,
+          "target_below_lower_fraction": 0.5388888888888889
+        },
+        "right_shoulder_pitch_joint": {
+          "actual_min_max_deg": [
+            -150.00980549558923,
+            -85.78475125820479
+          ],
+          "actual_peak_to_peak_deg": 64.22505423738446,
+          "actual_p5_p95_deg": [
+            -150.00247123845847,
+            -86.81834192869749
+          ],
+          "target_min_max_deg": [
+            -191.65484856336934,
+            -98.75193369936571
+          ],
+          "mean_abs_estimated_torque_Nm": 28.03680148301301,
+          "target_below_lower_fraction": 0.5333333333333333
+        },
+        "left_shoulder_roll_joint": {
+          "actual_min_max_deg": [
+            -3.6653868671414926,
+            3.447625068475854
+          ],
+          "actual_peak_to_peak_deg": 7.1130119356173465,
+          "actual_p5_p95_deg": [
+            -3.4798531239754884,
+            3.1918573331760838
+          ],
+          "target_min_max_deg": [
+            0.5106951118717046,
+            7.53114416377448
+          ],
+          "mean_abs_estimated_torque_Nm": 4.8129822017969905
+        },
+        "right_shoulder_roll_joint": {
+          "actual_min_max_deg": [
+            -2.0537561345962057,
+            3.826187449450164
+          ],
+          "actual_peak_to_peak_deg": 5.879943584046369,
+          "actual_p5_p95_deg": [
+            -1.8649901644880513,
+            3.647895286285619
+          ],
+          "target_min_max_deg": [
+            -7.904104082082087,
+            1.1439593557814631
+          ],
+          "mean_abs_estimated_torque_Nm": 4.799060448424684
+        },
+        "left_shoulder_yaw_joint": {
+          "actual_min_max_deg": [
+            -2.563074376380771,
+            3.540250544470866
+          ],
+          "actual_peak_to_peak_deg": 6.1033249208516365,
+          "actual_p5_p95_deg": [
+            -2.3620723144736093,
+            3.232341486556677
+          ],
+          "target_min_max_deg": [
+            -3.7326620960320027,
+            4.048375210697971
+          ],
+          "mean_abs_estimated_torque_Nm": 0.49597954736263666
+        },
+        "right_shoulder_yaw_joint": {
+          "actual_min_max_deg": [
+            -3.850716793193796,
+            6.550971463629453
+          ],
+          "actual_peak_to_peak_deg": 10.401688256823249,
+          "actual_p5_p95_deg": [
+            -3.4971044209107953,
+            6.155076944027706
+          ],
+          "target_min_max_deg": [
+            -6.392167004105717,
+            6.189962241935252
+          ],
+          "mean_abs_estimated_torque_Nm": 0.9081692892713127
+        },
+        "left_elbow_joint": {
+          "actual_min_max_deg": [
+            69.14552251546164,
+            98.69340580836787
+          ],
+          "actual_peak_to_peak_deg": 29.54788329290623,
+          "actual_p5_p95_deg": [
+            70.36536629745032,
+            97.0834130832516
+          ],
+          "target_min_max_deg": [
+            62.64044351975232,
+            99.98604642954946
+          ],
+          "mean_abs_estimated_torque_Nm": 3.782102114182931
+        },
+        "right_elbow_joint": {
+          "actual_min_max_deg": [
+            58.84821320953452,
+            81.79137187693013
+          ],
+          "actual_peak_to_peak_deg": 22.9431586673956,
+          "actual_p5_p95_deg": [
+            60.51001496856208,
+            80.09865770624745
+          ],
+          "target_min_max_deg": [
+            56.93995056298675,
+            79.78958686517196
+          ],
+          "mean_abs_estimated_torque_Nm": 3.5327540706429215
+        }
+      }
+    }
+  },
+  "latest_viewed_export_matches_checkpoint": "log/rsl_rl/h2_plus_blind_locomotion/2026-11-12_02-54-37/model_38000.pt"
+}

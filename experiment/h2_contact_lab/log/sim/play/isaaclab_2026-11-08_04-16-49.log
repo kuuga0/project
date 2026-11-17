@@ -1,0 +1,43 @@
+2026-11-08 04:16:49 [extension.py:165] INFO: Looking for Python nodes to register in omni.physx.fabric-107.3.26
+2026-11-08 04:16:49 [extension.py:194] INFO:  -> Registered nodes from module omni.physxfabric at /home/bblabhumanoid/isaacsim/extscache/omni.physx.fabric-107.3.26+107.3.3.lx64.r.cp311.u353
+2026-11-08 04:16:49 [registration.py:33] INFO: Registering nodes in /home/bblabhumanoid/isaacsim/extscache/omni.physx.fabric-107.3.26+107.3.3.lx64.r.cp311.u353 imported as omni.physxfabric with AutoNode config {}
+2026-11-08 04:16:49 [register_python_ogn.py:72] INFO: Registering Python Node Types from omni.physxfabric at /home/bblabhumanoid/isaacsim/extscache/omni.physx.fabric-107.3.26+107.3.3.lx64.r.cp311.u353 in omni.physx.fabric
+2026-11-08 04:16:49 [register_python_ogn.py:73] INFO: ========================================================================================================================
+2026-11-08 04:16:49 [extension_management.py:139] INFO: No dependency on omni.graph, therefore no nodes to register in omni.physx.fabric
+2026-11-08 04:16:49 [register_python_ogn.py:79] INFO: ...None found, no registration to do
+2026-11-08 04:16:49 [extension.py:206] INFO: ...Skipping: No OmniGraph presence in the module omni.physxfabric - No nodes in this module, do not remember it
+2026-11-08 04:16:49 [registration.py:50] INFO: Destroying registration record for omni.physx.fabric
+2026-11-08 04:16:49 [extension.py:215] INFO: OGN register omni.physx.fabric-107.3.26 took 1969216.000000
+2026-11-08 04:16:49 [simulation_context.py:836] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/pelvis'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_hip_pitch_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_hip_roll_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_hip_yaw_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_knee_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_ankle_roll_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_ankle_pitch_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_hip_pitch_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_hip_roll_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_hip_yaw_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_knee_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_ankle_roll_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_ankle_pitch_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/waist_yaw_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/waist_roll_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/torso_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/head_pitch_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/head_yaw_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_shoulder_pitch_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_shoulder_roll_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_shoulder_yaw_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_elbow_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_wrist_roll_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_wrist_pitch_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/left_wrist_yaw_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_shoulder_pitch_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_shoulder_roll_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_shoulder_yaw_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_elbow_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_wrist_roll_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_wrist_pitch_link'
+2026-11-08 04:16:54 [schemas.py:557] DEBUG: Adding contact report API to prim: '/World/envs/env_0/Robot/right_wrist_yaw_link'

@@ -1,0 +1,765 @@
+# H2 Plus任务配置：environment为训练基线，terrains为地形覆盖，play为回放覆盖。
+# _target_构造原生Isaac Lab对象；函数仍由Python的mdp模块实现。
+environment:
+  scene:
+    _target_: h2_plus_lab.config.config_group
+    class_path: isaaclab.scene.InteractiveSceneCfg
+    num_envs: 1024
+    env_spacing: 3.0
+    robot: ${robot}
+    terrain: ${terrain.flat}
+    left_foot_contact: ${sensors.left_foot_contact}
+    right_foot_contact: ${sensors.right_foot_contact}
+    body_contact: ${sensors.body_contact}
+    torso_imu: ${sensors.torso_imu}
+    left_foot_imu: ${sensors.left_foot_imu}
+    right_foot_imu: ${sensors.right_foot_imu}
+    dome_light:
+      _target_: isaaclab.assets.AssetBaseCfg
+      prim_path: /World/DomeLight
+      spawn:
+        _target_: isaaclab.sim.DomeLightCfg
+        intensity: 1500.0
+        color: [0.8, 0.8, 0.8]
+  observations:
+    _target_: h2_plus_lab.config.config_group
+    class_path: h2_plus_lab.config.ManagerTermsCfg
+    policy:
+      _target_: h2_plus_lab.config.config_group
+      class_path: isaaclab.managers.ObservationGroupCfg
+      base_lin_vel:
+        _target_: isaaclab.managers.ObservationTermCfg
+        params: {}
+        func: h2_plus_lab.tasks.locomotion.mdp:base_lin_vel
+        noise:
+          _target_: isaaclab.utils.noise.UniformNoiseCfg
+          n_min: -0.05
+          n_max: 0.05
+      base_ang_vel:
+        _target_: isaaclab.managers.ObservationTermCfg
+        params: {}
+        func: h2_plus_lab.tasks.locomotion.mdp:base_ang_vel
+        noise:
+          _target_: isaaclab.utils.noise.UniformNoiseCfg
+          n_min: -0.1
+          n_max: 0.1
+      projected_gravity:
+        _target_: isaaclab.managers.ObservationTermCfg
+        params: {}
+        func: h2_plus_lab.tasks.locomotion.mdp:projected_gravity
+        noise:
+          _target_: isaaclab.utils.noise.UniformNoiseCfg
+          n_min: -0.02
+          n_max: 0.02
+      velocity_commands:
+        _target_: isaaclab.managers.ObservationTermCfg
+        params:
+          command_name: base_velocity
+        func: h2_plus_lab.tasks.locomotion.mdp:generated_commands
+      joint_pos:
+        _target_: isaaclab.managers.ObservationTermCfg
+        params:
+          asset_cfg:
+            _target_: isaaclab.managers.SceneEntityCfg
+            joint_names: [.*_hip_(pitch|roll|yaw)_joint, .*_knee_joint, .*_ankle_(roll|pitch)_joint, waist_(yaw|roll|pitch)_joint,
+              .*_shoulder_(pitch|roll|yaw)_joint, .*_elbow_joint]
+            name: robot
+        func: h2_plus_lab.tasks.locomotion.mdp:joint_pos_rel
+        noise:
+          _target_: isaaclab.utils.noise.UniformNoiseCfg
+          n_min: -0.005
+          n_max: 0.005
+      joint_vel:
+        _target_: isaaclab.managers.ObservationTermCfg
+        params:
+          asset_cfg:
+            _target_: isaaclab.managers.SceneEntityCfg
+            joint_names: [.*_hip_(pitch|roll|yaw)_joint, .*_knee_joint, .*_ankle_(roll|pitch)_joint, waist_(yaw|roll|pitch)_joint,
+              .*_shoulder_(pitch|roll|yaw)_joint, .*_elbow_joint]
+            name: robot
+        func: h2_plus_lab.tasks.locomotion.mdp:joint_vel_rel
+        noise:
+          _target_: isaaclab.utils.noise.UniformNoiseCfg
+          n_min: -0.15
+          n_max: 0.15
+      last_action:
+        _target_: isaaclab.managers.ObservationTermCfg
+        params: {}
+        func: h2_plus_lab.tasks.locomotion.mdp:last_action
+      enable_corruption: true
+  actions:
+    _target_: h2_plus_lab.config.config_group
+    class_path: h2_plus_lab.config.ManagerTermsCfg
+    legs:
+      _target_: isaaclab.envs.mdp.JointPositionActionCfg
+      asset_name: robot
+      joint_names: [.*_hip_(pitch|roll|yaw)_joint, .*_knee_joint, .*_ankle_(roll|pitch)_joint]
+      # 保持原动作排列，只放大膝关节目标角响应；scale不是关节硬限幅。
+      scale:
+        '.*_hip_(pitch|roll|yaw)_joint': 0.25
+        '.*_knee_joint': 0.5
+        '.*_ankle_(roll|pitch)_joint': 0.25
+      # 原生JointAction在缩放后裁剪目标角（rad）；与当前URDF膝限位一致。
+      clip:
+        '.*_knee_joint': [-0.08725, 2.53025]
+        left_ankle_roll_joint: [-0.3490658503, 0.296705972783]
+        right_ankle_roll_joint: [-0.296705972783, 0.3490658503]
+      use_default_offset: true
+    waist:
+      _target_: isaaclab.envs.mdp.JointPositionActionCfg
+      asset_name: robot
+      joint_names: [waist_(yaw|roll|pitch)_joint]
+      scale: 0.15
+      use_default_offset: true
+    shoulders_elbows:
+      _target_: isaaclab.envs.mdp.JointPositionActionCfg
+      asset_name: robot
+      joint_names: [.*_shoulder_(pitch|roll|yaw)_joint, .*_elbow_joint]
+      scale: 0.2
+      clip:
+        left_shoulder_roll_joint: [-0.517, 2.494]
+        right_shoulder_roll_joint: [-2.494, 0.517]
+        '.*_elbow_joint': [-0.986, 3.071]
+      use_default_offset: true
+  commands:
+    _target_: h2_plus_lab.config.config_group
+    class_path: h2_plus_lab.config.ManagerTermsCfg
+    base_velocity:
+      _target_: isaaclab.envs.mdp.UniformVelocityCommandCfg
+      asset_name: robot
+      resampling_time_range: [10.0, 10.0]
+      heading_command: false
+      ranges:
+        _target_: isaaclab.envs.mdp.UniformVelocityCommandCfg.Ranges
+        lin_vel_x: [0.0, 0.2]
+        lin_vel_y: [0.0, 0.0]
+        ang_vel_z: [-0.2, 0.2]
+        heading: null
+      rel_standing_envs: 0.05
+  rewards:
+    _target_: h2_plus_lab.config.config_group
+    class_path: h2_plus_lab.config.ManagerTermsCfg
+    termination_penalty:
+      _target_: isaaclab.managers.RewardTermCfg
+      params: {}
+      func: h2_plus_lab.tasks.locomotion.mdp:is_terminated
+    track_lin_vel_xy:
+      _target_: isaaclab.managers.RewardTermCfg
+      params:
+        command_name: base_velocity
+      func: h2_plus_lab.tasks.locomotion.mdp:track_lin_vel_xy_yaw_frame_exp
+    track_ang_vel_z:
+      _target_: isaaclab.managers.RewardTermCfg
+      params:
+        command_name: base_velocity
+      func: h2_plus_lab.tasks.locomotion.mdp:track_ang_vel_z_world_exp
+    feet_air_time:
+      _target_: isaaclab.managers.RewardTermCfg
+      params:
+        command_name: base_velocity
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_feet_air_time_positive_biped
+    feet_slide:
+      _target_: isaaclab.managers.RewardTermCfg
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          body_names: [left_ankle_pitch_link, right_ankle_pitch_link]
+          name: robot
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_feet_slide
+    joint_pos_limits:
+      _target_: isaaclab.managers.RewardTermCfg
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          joint_names: [.*_hip_(pitch|roll|yaw)_joint, .*_knee_joint, .*_ankle_(roll|pitch)_joint, waist_(yaw|roll|pitch)_joint,
+            .*_shoulder_(pitch|roll|yaw)_joint, .*_elbow_joint]
+          name: robot
+      func: h2_plus_lab.tasks.locomotion.mdp:joint_pos_limits
+    passive_joint_deviation:
+      _target_: isaaclab.managers.RewardTermCfg
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          joint_names: [head_(pitch|yaw)_joint, .*_wrist_(roll|pitch|yaw)_joint]
+          name: robot
+      func: h2_plus_lab.tasks.locomotion.mdp:joint_deviation_l1
+    stand_still:
+      _target_: isaaclab.managers.RewardTermCfg
+      params:
+        command_name: base_velocity
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          joint_names: [.*_hip_(pitch|roll|yaw)_joint, .*_ankle_(roll|pitch)_joint, waist_(yaw|roll|pitch)_joint,
+            .*_shoulder_(pitch|roll|yaw)_joint]
+          name: robot
+      func: h2_plus_lab.tasks.locomotion.mdp:stand_still_joint_deviation_l1
+    flat_orientation:
+      _target_: isaaclab.managers.RewardTermCfg
+      params: {}
+      func: h2_plus_lab.tasks.locomotion.mdp:flat_orientation_l2
+    pelvis_roll:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_torso_orientation_l2
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [pelvis]
+    pelvis_roll_velocity:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_torso_roll_velocity_l2
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [pelvis]
+    body_lateral_position:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_body_lateral_position_l2
+      params:
+        command_name: base_velocity
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [pelvis, torso_link]
+        feet_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [left_ankle_pitch_link, right_ankle_pitch_link]
+          preserve_order: true
+    body_lateral_velocity:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_body_lateral_velocity_l2
+      params:
+        command_name: base_velocity
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [pelvis, torso_link]
+    torso_orientation:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_torso_orientation_l2
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [torso_link]
+    torso_roll_velocity:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_torso_roll_velocity_l2
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [torso_link]
+    contact_foot_flat:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_contact_foot_flat_reward
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [left_ankle_pitch_link, right_ankle_pitch_link]
+          preserve_order: true
+    torso_vertical_velocity:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_torso_vertical_velocity_l2
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [torso_link]
+    knee_motion:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_joint_motion_reward
+      params:
+        command_name: base_velocity
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [.*_knee_joint]
+    knee_inactivity:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:H2PlusJointInactivity
+      params:
+        command_name: base_velocity
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [.*_knee_joint]
+    knee_target_limits:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:H2PlusJointTargetLimitPenalty
+      params:
+        action_name: legs
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [.*_knee_joint]
+    elbow_motion:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_joint_motion_reward
+      params:
+        command_name: base_velocity
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [.*_elbow_joint]
+    elbow_inactivity:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:H2PlusJointInactivity
+      params:
+        command_name: base_velocity
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [.*_elbow_joint]
+    elbow_target_limits:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:H2PlusJointTargetLimitPenalty
+      params:
+        action_name: shoulders_elbows
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [.*_elbow_joint]
+    arm_leg_coordination:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_arm_leg_coordination_exp
+      params:
+        command_name: base_velocity
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [left_shoulder_pitch_joint, right_shoulder_pitch_joint, left_elbow_joint, right_elbow_joint]
+          preserve_order: true
+        feet_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [left_ankle_pitch_link, right_ankle_pitch_link]
+          preserve_order: true
+    ankle_roll_limits:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_joint_limit_margin_l2
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [.*_ankle_roll_joint]
+    ankle_roll_target_limits:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:H2PlusJointTargetLimitPenalty
+      params:
+        action_name: legs
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [.*_ankle_roll_joint]
+    waist_posture:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_joint_reference_l1
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [waist_(yaw|roll|pitch)_joint]
+    arm_posture:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_joint_reference_l1
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [.*_shoulder_(roll|yaw)_joint]
+    shoulder_roll_posture:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_joint_reference_deadband_l2
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [.*_shoulder_roll_joint]
+    shoulder_roll_velocity:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:joint_vel_l2
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [.*_shoulder_roll_joint]
+    shoulder_roll_target_limits:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:H2PlusJointTargetLimitPenalty
+      params:
+        action_name: shoulders_elbows
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          joint_names: [.*_shoulder_roll_joint]
+    swing_clearance:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_swing_clearance_exp
+      params:
+        command_name: base_velocity
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [left_ankle_pitch_link, right_ankle_pitch_link]
+          preserve_order: true
+    feet_lateral_symmetry:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_feet_lateral_symmetry_l2
+      params:
+        command_name: base_velocity
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [left_ankle_pitch_link, right_ankle_pitch_link]
+          preserve_order: true
+    stance_width:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_stance_width_l2
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [left_ankle_pitch_link, right_ankle_pitch_link]
+          preserve_order: true
+    foot_heading:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_foot_heading_l2
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+          body_names: [left_ankle_pitch_link, right_ankle_pitch_link]
+          preserve_order: true
+    action_rate:
+      _target_: isaaclab.managers.RewardTermCfg
+      params: {}
+      func: h2_plus_lab.tasks.locomotion.mdp:action_rate_l2
+    joint_acceleration:
+      _target_: isaaclab.managers.RewardTermCfg
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          joint_names: [.*_hip_(pitch|roll|yaw)_joint, .*_knee_joint, .*_ankle_(roll|pitch)_joint, waist_(yaw|roll|pitch)_joint,
+            .*_shoulder_(pitch|roll|yaw)_joint, .*_elbow_joint]
+          name: robot
+      func: h2_plus_lab.tasks.locomotion.mdp:joint_acc_l2
+    non_foot_contact:
+      _target_: isaaclab.managers.RewardTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:undesired_contacts
+      params:
+        sensor_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: body_contact
+          body_names: [.*]
+  terminations:
+    _target_: h2_plus_lab.config.config_group
+    class_path: h2_plus_lab.config.ManagerTermsCfg
+    time_out:
+      _target_: isaaclab.managers.TerminationTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:time_out
+      time_out: true
+    body_contact:
+      _target_: isaaclab.managers.TerminationTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_body_contact
+      params:
+        sensor_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          body_names: [pelvis, torso_link]
+          name: body_contact
+        threshold: 1.0
+    bad_orientation:
+      _target_: isaaclab.managers.TerminationTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:bad_orientation
+      params:
+        limit_angle: 1.0
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+    terrain_out_of_bounds:
+      _target_: isaaclab.managers.TerminationTermCfg
+      func: h2_plus_lab.tasks.locomotion.mdp:terrain_out_of_bounds
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          name: robot
+        distance_buffer: 0.5
+  events:
+    _target_: h2_plus_lab.config.config_group
+    class_path: h2_plus_lab.config.ManagerTermsCfg
+    reset_scene:
+      _target_: isaaclab.managers.EventTermCfg
+      params: {}
+      func: h2_plus_lab.tasks.locomotion.mdp:reset_scene_to_default
+      mode: reset
+    randomize_foot_material:
+      _target_: isaaclab.managers.EventTermCfg
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          body_names: [left_ankle_pitch_link, right_ankle_pitch_link]
+          name: robot
+        static_friction_range: [0.6, 1.0]
+        dynamic_friction_range: [0.4, 0.6]
+        restitution_range: [0.0, 0.05]
+        num_buckets: 32
+      func: h2_plus_lab.tasks.locomotion.mdp:randomize_rigid_body_material
+      mode: startup
+    randomize_body_mass:
+      _target_: isaaclab.managers.EventTermCfg
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          body_names: [pelvis, torso_link]
+          name: robot
+        mass_distribution_params: [0.95238095, 1.05]
+        operation: scale
+        distribution: log_uniform
+      func: h2_plus_lab.tasks.locomotion.mdp:randomize_rigid_body_mass
+      mode: startup
+    randomize_body_com:
+      _target_: isaaclab.managers.EventTermCfg
+      params:
+        asset_cfg:
+          _target_: isaaclab.managers.SceneEntityCfg
+          body_names: [pelvis, torso_link]
+          name: robot
+        com_range:
+          x: [-0.005, 0.005]
+          y: [-0.005, 0.005]
+          z: [-0.003, 0.003]
+      func: h2_plus_lab.tasks.locomotion.mdp:randomize_rigid_body_com
+      mode: startup
+    reset_joints:
+      _target_: isaaclab.managers.EventTermCfg
+      params:
+        position_range: [-0.02, 0.02]
+        velocity_range: [-0.05, 0.05]
+      func: h2_plus_lab.tasks.locomotion.mdp:reset_joints_by_offset
+      mode: reset
+    reset_base:
+      _target_: isaaclab.managers.EventTermCfg
+      params:
+        pose_range:
+          x: [-0.03, 0.03]
+          y: [-0.03, 0.03]
+          yaw: [-0.03, 0.03]
+        velocity_range:
+          x: [-0.05, 0.05]
+          y: [-0.05, 0.05]
+          z: [0.0, 0.0]
+          roll: [0.0, 0.0]
+          pitch: [0.0, 0.0]
+          yaw: [-0.1, 0.1]
+      func: h2_plus_lab.tasks.locomotion.mdp:reset_root_state_uniform
+      mode: reset
+    push_robot:
+      _target_: isaaclab.managers.EventTermCfg
+      params:
+        velocity_range:
+          x: [-0.2, 0.2]
+          y: [-0.2, 0.2]
+          z: [0.0, 0.0]
+          roll: [0.0, 0.0]
+          pitch: [0.0, 0.0]
+          yaw: [0.0, 0.0]
+      func: h2_plus_lab.tasks.locomotion.mdp:push_by_setting_velocity
+      mode: interval
+      interval_range_s: [8.0, 12.0]
+  curriculum:
+    _target_: h2_plus_lab.config.config_group
+    class_path: h2_plus_lab.config.ManagerTermsCfg
+    command_range:
+      _target_: isaaclab.managers.CurriculumTermCfg
+      params:
+        start_step: 0
+        ramp_steps: 144000
+        initial_lin_vel_x: 0.2
+        target_lin_vel_x: 1.0
+        initial_ang_vel_z: 0.2
+        target_ang_vel_z: 1.0
+      func: h2_plus_lab.tasks.locomotion.mdp:h2_plus_command_curriculum
+    terrain_levels: null
+  recorders:
+    _target_: h2_plus_lab.config.config_group
+    class_path: isaaclab.managers.RecorderManagerBaseCfg
+    dataset_filename: sensors
+    dataset_export_mode: 1
+    export_in_record_pre_reset: true
+    export_in_close: true
+    sensors:
+      _target_: h2_plus_lab.config.config_group
+      class_path: isaaclab.managers.RecorderTermCfg
+      class_type:
+        _target_: hydra.utils.get_class
+        path: h2_plus_lab.tasks.locomotion.mdp.H2PlusSensorRecorder
+      env_ids: [0]
+      record_every: 1
+    dataset_export_dir_path: ${paths.lab}/output/sensors
+  decimation: 4
+  episode_length_s: 20.0
+  sim:
+    _target_: isaaclab.sim.SimulationCfg
+    dt: 0.008333333333333333
+    render_interval: 4
+terrains:
+  flat: {}
+  low_friction:
+    scene:
+      env_spacing: 5.0
+      terrain: null
+      reference_region:
+        _target_: isaaclab.assets.AssetBaseCfg
+        prim_path: '{ENV_REGEX_NS}/Terrain/ReferenceRegion'
+        spawn:
+          _target_: isaaclab.sim.CuboidCfg
+          size: [4.0, 2.0, 0.1]
+          rigid_props:
+            _target_: isaaclab.sim.RigidBodyPropertiesCfg
+            kinematic_enabled: true
+          collision_props:
+            _target_: isaaclab.sim.CollisionPropertiesCfg
+          physics_material: ${terrain.hard_material}
+          visual_material:
+            _target_: isaaclab.sim.PreviewSurfaceCfg
+            diffuse_color: [0.35, 0.35, 0.35]
+        init_state:
+          _target_: isaaclab.assets.AssetBaseCfg.InitialStateCfg
+          pos: [0.0, -1.0, -0.05]
+      low_friction_region:
+        _target_: isaaclab.assets.AssetBaseCfg
+        prim_path: '{ENV_REGEX_NS}/Terrain/LowFrictionRegion'
+        spawn:
+          _target_: isaaclab.sim.CuboidCfg
+          size: [4.0, 2.0, 0.1]
+          rigid_props:
+            _target_: isaaclab.sim.RigidBodyPropertiesCfg
+            kinematic_enabled: true
+          collision_props:
+            _target_: isaaclab.sim.CollisionPropertiesCfg
+          physics_material: ${terrain.low_friction_material}
+          visual_material:
+            _target_: isaaclab.sim.PreviewSurfaceCfg
+            diffuse_color: [0.55, 0.35, 0.2]
+        init_state:
+          _target_: isaaclab.assets.AssetBaseCfg.InitialStateCfg
+          pos: [0.0, 1.0, -0.05]
+  deformable:
+    scene:
+      num_envs: 64
+      env_spacing: 5.0
+      terrain: null
+      deformable_backing:
+        _target_: isaaclab.assets.AssetBaseCfg
+        prim_path: '{ENV_REGEX_NS}/Terrain/FlexibleBacking'
+        spawn:
+          _target_: isaaclab.sim.CuboidCfg
+          size: [4.0, 4.0, 0.05]
+          rigid_props:
+            _target_: isaaclab.sim.RigidBodyPropertiesCfg
+            kinematic_enabled: true
+          collision_props:
+            _target_: isaaclab.sim.CollisionPropertiesCfg
+          physics_material: ${terrain.hard_material}
+          visual_material:
+            _target_: isaaclab.sim.PreviewSurfaceCfg
+            diffuse_color: [0.18, 0.18, 0.18]
+        init_state:
+          _target_: isaaclab.assets.AssetBaseCfg.InitialStateCfg
+          pos: [0.0, 0.0, -0.225]
+      replicate_physics: false
+      deformable_ground: ${terrain.deformable}
+play:
+  scene:
+    num_envs: 16
+  observations:
+    policy:
+      enable_corruption: false
+  commands:
+    base_velocity:
+      rel_standing_envs: 0.0
+      ranges:
+        lin_vel_x: [0.5, 0.5]
+        ang_vel_z: [0.0, 0.0]
+  events:
+    randomize_foot_material: null
+    randomize_body_mass: null
+    randomize_body_com: null
+    reset_joints:
+      params:
+        position_range: [0.0, 0.0]
+        velocity_range: [0.0, 0.0]
+    reset_base:
+      params:
+        pose_range:
+          x: [0.0, 0.0]
+          y: [0.0, 0.0]
+          yaw: [0.0, 0.0]
+        velocity_range:
+          x: [0.0, 0.0]
+          y: [0.0, 0.0]
+          yaw: [0.0, 0.0]
+    push_robot: null
+  curriculum: null
+  episode_length_s: 40.0
+checks:
+  positive: [rewards.track_lin_vel_xy.params.std, rewards.track_ang_vel_z.params.std,
+    rewards.swing_clearance.params.height_std, rewards.feet_lateral_symmetry.params.lateral_std,
+    rewards.contact_foot_flat.params.tilt_std,
+    rewards.knee_motion.params.speed_scale, rewards.knee_motion.params.tracking_std,
+    rewards.knee_motion.params.yaw_tracking_std, rewards.elbow_motion.params.speed_scale,
+    rewards.elbow_motion.params.tracking_std, rewards.elbow_motion.params.yaw_tracking_std,
+    rewards.knee_inactivity.params.window_s, rewards.knee_inactivity.params.min_excursion,
+    rewards.knee_target_limits.params.std, rewards.elbow_inactivity.params.window_s,
+    rewards.elbow_inactivity.params.min_excursion, rewards.ankle_roll_limits.params.margin_ratio,
+    rewards.ankle_roll_target_limits.params.std, rewards.swing_clearance.params.speed_scale,
+    rewards.stance_width.params.width_std, rewards.foot_heading.params.std,
+    rewards.shoulder_roll_posture.params.std, rewards.shoulder_roll_target_limits.params.std,
+    rewards.body_lateral_position.params.std, rewards.body_lateral_velocity.params.std,
+    rewards.elbow_target_limits.params.std, rewards.arm_leg_coordination.params.std,
+    rewards.arm_leg_coordination.params.phase_length]
+  nonnegative:
+  - rewards.pelvis_roll.params.roll_weight
+  - rewards.pelvis_roll.params.pitch_weight
+  - rewards.torso_orientation.params.roll_weight
+  - rewards.torso_orientation.params.pitch_weight
+  - rewards.feet_air_time.params.threshold
+  - rewards.feet_air_time.params.command_threshold
+  - rewards.feet_slide.params.contact_force_threshold
+  - rewards.stand_still.params.command_threshold
+  - rewards.stand_still.params.angular_command_threshold
+  - rewards.feet_air_time.params.angular_command_threshold
+  - rewards.non_foot_contact.params.threshold
+  - rewards.swing_clearance.params.target_height
+  - rewards.swing_clearance.params.command_threshold
+  - rewards.swing_clearance.params.angular_command_threshold
+  - rewards.feet_lateral_symmetry.params.command_threshold
+  - rewards.feet_lateral_symmetry.params.angular_command_threshold
+  - rewards.knee_motion.params.speed_deadband
+  - rewards.knee_motion.params.command_threshold
+  - rewards.knee_motion.params.angular_command_threshold
+  - rewards.elbow_motion.params.speed_deadband
+  - rewards.elbow_motion.params.command_threshold
+  - rewards.elbow_motion.params.angular_command_threshold
+  - rewards.contact_foot_flat.params.contact_force_threshold
+  - rewards.contact_foot_flat.params.settle_time_s
+  - rewards.knee_inactivity.params.command_threshold
+  - rewards.knee_inactivity.params.angular_command_threshold
+  - rewards.elbow_inactivity.params.command_threshold
+  - rewards.elbow_inactivity.params.angular_command_threshold
+  - rewards.ankle_roll_target_limits.params.margin_ratio
+  - rewards.stance_width.params.min_width
+  - rewards.stance_width.params.max_width
+  - rewards.foot_heading.params.tolerance
+  - rewards.shoulder_roll_posture.params.tolerance
+  - rewards.body_lateral_position.params.tolerance
+  - rewards.body_lateral_velocity.params.tolerance
+  - rewards.body_lateral_position.params.angular_command_threshold
+  - rewards.body_lateral_velocity.params.angular_command_threshold
+  - rewards.arm_leg_coordination.params.shoulder_amplitude
+  - rewards.arm_leg_coordination.params.elbow_amplitude
+  - rewards.arm_leg_coordination.params.command_threshold
+  - rewards.arm_leg_coordination.params.angular_command_threshold

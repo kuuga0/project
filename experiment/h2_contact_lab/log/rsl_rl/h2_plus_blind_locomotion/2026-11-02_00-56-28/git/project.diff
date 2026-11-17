@@ -1,0 +1,749 @@
+--- git status ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   README.md
+	modified:   experiment/h2_contact_lab/README.md
+	modified:   experiment/h2_contact_lab/h2_plus_lab/assets/h2_plus.py
+	modified:   experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/agents/rsl_rl_locomotion_rewards.yaml
+	modified:   experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/env_cfg.py
+	modified:   experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/curriculums.py
+	modified:   experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/recorders.py
+	modified:   experiment/h2_contact_lab/output/h2_plus_usd/.asset_hash
+	modified:   experiment/h2_contact_lab/output/h2_plus_usd/config.yaml
+	modified:   experiment/h2_contact_lab/output/h2_plus_usd/configuration/H2_Plus_sensorized_base.usd
+	modified:   experiment/h2_contact_lab/output/h2_plus_usd/configuration/H2_Plus_sensorized_physics.usd
+	modified:   experiment/h2_contact_lab/tests/test_reward_yaml.py
+	modified:   experiment/h2_contact_lab/tests/test_sensor_recording.py
+	modified:   experiment/h2_contact_lab/tests/test_task_structure.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	experiment/h2_contact_lab/log/kit/train_1793551115184446123.log
+	experiment/h2_contact_lab/log/kit/train_1793552178256967036.log
+	experiment/h2_contact_lab/log/rsl_rl/h2_plus_blind_locomotion/2026-11-02_00-56-28/
+	experiment/h2_contact_lab/log/sim/train/isaaclab_2026-11-02_00-38-44.log
+	experiment/h2_contact_lab/log/sim/train/isaaclab_2026-11-02_00-56-28.log
+	experiment/h2_contact_lab/output/hydra/2026-11-02/
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/README.md b/README.md
+index 3485c71..321a13d 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+ # 课题资料入口
+ 
+-更新日期：2026-10-29。本文说明当前研究定位、文件用途与证据状态；详细推导、候选方案和演变理由保存在 [研究主文档](research/research_main.md)。H2 Plus训练配置与入口阻塞已修复，平地1024环境实际进入PPO更新，随后按用户要求停止；后续由用户手动启动，详见 [H2实验README](experiment/h2_contact_lab/README.md)。训练未完成，特殊地形和行走效果尚未验证。 最新结构已改为 `train.py --task`／`play.py --task` 直接入口，任务环境、agent与MDP按职责分开，行走场景及各地形环境类集中在 `env_cfg.py`；现通过RecorderManager采集同一训练环境的传感器，采集默认关闭，显式添加 `--record_sensors` 后默认环境0、控制步采样，写入 `output/sensors/`；旧独立采集工具已删除。本次未启动仿真或训练。
++更新日期：2026-11-02。本文说明当前研究定位、文件用途与证据状态；详细推导、候选方案和演变理由保存在 [研究主文档](research/research_main.md)。H2 Plus训练配置与入口阻塞已修复，平地1024环境实际进入PPO更新，随后按用户要求停止；后续由用户手动启动，详见 [H2实验README](experiment/h2_contact_lab/README.md)。训练未完成，特殊地形和行走效果尚未验证。 最新结构已改为 `train.py --task`／`play.py --task` 直接入口，任务环境、agent与MDP按职责分开，行走场景及各地形环境类集中在 `env_cfg.py`；现通过RecorderManager采集同一训练环境的传感器，采集默认关闭，显式添加 `--record_sensors` 后默认环境0、控制步采样，写入 `output/sensors/`；旧独立采集工具已删除。本次未启动仿真或训练。 2026-11-02已修复课程API、关节加性重置、FOOTRIX投影与清理及测试问题，21项离线测试通过；本轮已开启固定关节合并，预计导入为32个物理body、31个活动关节，22项离线测试通过；实际GPU运行仍待用户启动验证，详见H2实验README。
+ 
+ ## 第一次阅读
+ 
+diff --git a/experiment/h2_contact_lab/README.md b/experiment/h2_contact_lab/README.md
+index c791db2..a8966d9 100644
+--- a/experiment/h2_contact_lab/README.md
++++ b/experiment/h2_contact_lab/README.md
+@@ -1,12 +1,50 @@
+ # H2 Plus：任务配置、训练与仿真采集
+ 
+-更新日期：2026-10-30。训练／回放继续使用 `train.py --task`、`play.py --task`。现已通过原生RecorderManager按 `--record_sensors` 开关采集训练场景中挂载的传感器，默认关闭；开启后默认记录环境0；旧 `tools/run_h2_plus.py` 独立仿真采集入口已删除。本轮补充了训练课程学习、域随机化和观测噪声配置，没有启动仿真或训练，也未进行运行验证。
++更新日期：2026-11-02。训练／回放继续使用 `train.py --task`、`play.py --task`。现已通过原生RecorderManager按 `--record_sensors` 开关采集训练场景中挂载的传感器，默认关闭；开启后默认记录环境0；旧 `tools/run_h2_plus.py` 独立仿真采集入口已删除。课程API、关节重置与FOOTRIX记录已修复；本轮开启固定关节合并以排查GPU初始化故障，22项离线测试通过，未启动仿真或训练。
++
++## 2026-11-02固定关节导入调整（等待用户启动验证）
++
++`assets/h2_plus.py` 已将 `merge_fixed_joints` 改为True，308个无碰撞FOOTRIX固定标记应在URDF→USD时合入脚踝父body，视觉几何仍由导入器保留。原始URDF仍为340个link，**导入后的物理body预计为32个，活动关节仍为31个**。这是对日志中340-body GPU初始化故障的定向调整，不是已完成GPU验证的结论。
++
++本机UrdfConverter会同时传递固定关节合并和忽略固定link惯性限制的合并选项。现有 `force_usd_conversion=True` 已保留，下次启动自动重新转换 `output/h2_plus_usd/`，无需手动删除文件；本次没有重写既有USD或修改原始URDF。左右脚踝仍由活动关节连接，接触传感器、IMU和点力投影读取这些父body，不依赖标记作为独立物理body。
++
++新增离线结构检查验证：根据当前URDF与合并配置，固定关节折叠后为32个body，31个活动关节没有被合并，308个标记均有visual而无collision，完整足部碰撞保留。总计22项离线测试通过；未执行Isaac导入、物理步进或训练，真实视觉保留情况和GPU故障是否消失需下次运行确认。
++
++用户结束已报错的挂起进程后，可在本目录、已激活的project环境中手动续训：
++
++```bash
++python train.py --task Isaac-H2Plus-Blind-Locomotion-v0 --headless --ckpt log/rsl_rl/h2_plus_blind_locomotion/2026-10-29_01-27-52/model_1150.pt
++```
++
++启动时检查 `Number of bodies: 32`、`Number of joints: 31`。若仍显示340个body，则新合并配置没有实际反映到导入结果；即使body数正确，也仍需根据这次输出判断是否成功进入PPO。采集仍由 `--record_sensors` 显式开启。
++
++## 2026-11-02修复与验证
++
++本次在当前课程学习、域随机化和左右脚独立平面加权投影实现上修复复核发现的问题：
++
++- 课程项改用本机原生公开接口 `command_manager.get_term("base_velocity").cfg` 更新范围，不再调用不存在的get/set配置方法；初始、半程、完成及超过完成步数的测试通过。
++- 关节重置改用原生 `reset_joints_by_offset`，使零默认关节状态也能得到实际扰动。**YAML中 `domain_randomization.reset_joints.position_range` 现为加性角度偏移（rad），默认[-0.02, 0.02]，不再是[0.98, 1.02]缩放系数；`velocity_range` 为速度偏移（rad/s）。** Play和整组域随机化关闭时都使用零偏移，不会引入1 rad偏置。
++- FOOTRIX四元数按N×4展开，修正逆旋转；保留当前平面加权分配和支持半径外最近点回退，新增旋转后分配及总冲量守恒测试。
++- 接触回调先筛选记录环境，防止其他环境缓冲积压；重置清理对应环境接触包；记录项close释放订阅句柄，重复关闭及迟到回调安全。
++- 奖励YAML测试补齐域随机化事件／观测上下文和实际辅助函数；传感器测试改为带包名加载，并接入实际FOOTRIX常量与模拟接触事件源。
++
++21项离线测试全部通过，包括原生CommandManager接口、原生关节重置函数在零默认值上的效果、Play关闭扰动、YAML加载、FOOTRIX投影与缓冲生命周期、原生RecorderManager回合导出及HDF5读写。测试使用合成环境／接触事件，不启动Isaac Sim或训练；通过不代表实际GPU仿真已经验收，也未据此归因或解决此前CUDA故障。
++
++## 2026-11-02用户启动失败日志定位
++
++最新日志 `log/kit/train_1793551115184446123.log` 第7993行在本地时间2026-11-02 00:39附近首次报告 `PhysX Internal CUDA error ... Error code 700`，随后出现非法内存访问、CUDA上下文失效和多条分配失败信息。对应 `log/sim/train/isaaclab_2026-11-02_00-38-44.log` 记录机器人340个body、31个关节，处于机器人和场景初始化阶段。按训练入口执行顺序，此时尚未进入checkpoint加载与PPO更新；这是物理场景初始化失败，不能把后续分配失败直接解释成普通显存不足。
++
++该失败运行的模型结构为：新增308个FOOTRIX固定可视标记link，当时资产转换设置 `merge_fixed_joints=False`，使标记一并成为Articulation body。[PhysX官方仓库的讨论417](https://github.com/NVIDIA-Omniverse/PhysX/discussions/417) 记录过5.6.0中大于255个link导致初始化越界的缺陷，并获维护者确认建单；这为本次340-body场景提供了具体排查线索，但不能直接证明当前Isaac Sim内置版本的故障与其完全相同。当前已开启USD导入时的固定关节合并，见上方调整说明；效果尚待实际运行验证。
++
++用户补充的终端调用栈进一步确认失败链为 `train.py: gym.make()` → `sim.reset()` → Articulation初始化 → `ArticulationData`；错误在创建GPU重力张量时暴露，输出明确提示CUDA错误可能异步上报，不能据此把该张量语句当成根因。输入命令已使用完整checkpoint路径，失败发生在加载权重之前。终端最后的Ctrl+Z使已报错进程挂起而非退出，应在重新尝试之前结束该挂起进程。
++
++此次仅检查既有日志、配置和上游问题记录，没有再次启动训练或仿真，没有修改模型或GPU参数；CUDA故障仍未验证解决。
+ 
+ ## 课程学习与域随机化（2026-10-30）
+ 
+ 训练配置已在 `h2_plus_lab/tasks/locomotion/env_cfg.py` 中启用课程学习和域随机化。课程项 `command_range` 通过任务内的 `mdp/curriculums.py` 逐步放宽速度指令：从前向速度上限 `0.20 m/s`、偏航角速度绝对值 `0.20 rad/s`，在环境控制步数 `600000` 内线性过渡到 `1.00`；它只修改 `base_velocity` 命令范围，不改变动作维度、观测结构或奖励函数。平地、低摩擦双区域和柔性地面目前都使用这一命令难度课程。
+ 
+-训练事件包含：启动时随机化左右足材料摩擦与恢复系数、`pelvis`／`torso_link` 的质量和质心；回合重置时对关节和根部初始状态做小范围扰动；每 `8—12 s` 对根部施加一次小幅水平速度扰动。策略观测已开启轻度噪声（根部速度、投影重力、主动关节位置／速度），回放配置会关闭课程、物理随机化、周期推力、重置扰动和观测噪声，以便使用固定条件观察策略。
++训练事件包含：启动时随机化左右足材料摩擦与恢复系数、`pelvis`／`torso_link` 的质量和质心；回合重置时对关节位置／速度做加性偏移、对根部初始状态做小范围扰动；每 `8—12 s` 对根部施加一次小幅水平速度扰动。策略观测已开启轻度噪声（根部速度、投影重力、主动关节位置／速度），回放配置会关闭课程、物理随机化、周期推力、重置扰动和观测噪声，以便使用固定条件观察策略。
+ 
+ 当前没有把 `terrain_levels_vel` 挂到这些任务：平地使用普通平面，低摩擦和柔性地面使用自定义场景，均没有可供该项管理的 `TerrainImporter` 地形生成器。`H2PlusCurriculumCfg.terrain_levels` 保留为空接口；后续为局部崎岖地形注册生成器任务时，再单独添加地形行列难度课程，避免在现有场景重置时访问空地形生成器。以上为配置层修改，本轮未启动训练或仿真验证。
+ 
+diff --git a/experiment/h2_contact_lab/h2_plus_lab/assets/h2_plus.py b/experiment/h2_contact_lab/h2_plus_lab/assets/h2_plus.py
+index 914e749..d840f62 100644
+--- a/experiment/h2_contact_lab/h2_plus_lab/assets/h2_plus.py
++++ b/experiment/h2_contact_lab/h2_plus_lab/assets/h2_plus.py
+@@ -62,7 +62,10 @@ H2_PLUS_CFG = ArticulationCfg(
+         force_usd_conversion=True,
+         fix_base=False,
+         root_link_name="pelvis",
+-        merge_fixed_joints=False,
++        # FOOTRIX markers are fixed visual children, not independent physics
++        # bodies. Collapse their fixed joints while preserving revolute joints
++        # and marker visuals; otherwise this URDF creates a 340-body articulation.
++        merge_fixed_joints=True,
+         self_collision=False,
+         activate_contact_sensors=True,
+         joint_drive=sim_utils.UrdfFileCfg.JointDriveCfg(
+diff --git a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/agents/rsl_rl_locomotion_rewards.yaml b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/agents/rsl_rl_locomotion_rewards.yaml
+index 130a3d9..190b9b6 100644
+--- a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/agents/rsl_rl_locomotion_rewards.yaml
++++ b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/agents/rsl_rl_locomotion_rewards.yaml
+@@ -47,8 +47,8 @@ domain_randomization:
+     y: [-0.005, 0.005]                      # 质心y偏移，m
+     z: [-0.003, 0.003]                      # 质心z偏移，m
+   reset_joints:
+-    position_range: [0.98, 1.02]             # 关节默认位置缩放
+-    velocity_range: [-0.05, 0.05]            # 初始关节速度
++    position_range: [-0.02, 0.02]           # 默认关节角附近的加性偏移，rad
++    velocity_range: [-0.05, 0.05]            # 默认关节速度附近的加性偏移，rad/s
+   reset_base:
+     pose_range:
+       x: [-0.03, 0.03]                      # 根部初始x偏移，m
+diff --git a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/env_cfg.py b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/env_cfg.py
+index 3453f7d..56df68f 100644
+--- a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/env_cfg.py
++++ b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/env_cfg.py
+@@ -299,7 +299,7 @@ def _disable_domain_randomization_components(events, observations) -> None:
+     events.randomize_body_mass = None
+     events.randomize_body_com = None
+     events.push_robot = None
+-    events.reset_joints.params.update(position_range=(1.0, 1.0), velocity_range=(0.0, 0.0))
++    events.reset_joints.params.update(position_range=(0.0, 0.0), velocity_range=(0.0, 0.0))
+     events.reset_base.params.update(
+         pose_range={"x": (0.0, 0.0), "y": (0.0, 0.0), "yaw": (0.0, 0.0)},
+         velocity_range={
+@@ -644,9 +644,9 @@ class H2PlusEventsCfg:
+         },
+     )
+     reset_joints = EventTerm(
+-        func=mdp.reset_joints_by_scale,
++        func=mdp.reset_joints_by_offset,
+         mode="reset",
+-        params={"position_range": (0.98, 1.02), "velocity_range": (-0.05, 0.05)},
++        params={"position_range": (-0.02, 0.02), "velocity_range": (-0.05, 0.05)},
+     )
+     reset_base = EventTerm(
+         func=mdp.reset_root_state_uniform,
+diff --git a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/curriculums.py b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/curriculums.py
+index 072b1ef..4c5b046 100644
+--- a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/curriculums.py
++++ b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/curriculums.py
+@@ -29,12 +29,11 @@ def h2_plus_command_curriculum(
+     max_lin_vel_x = initial_lin_vel_x + progress * (target_lin_vel_x - initial_lin_vel_x)
+     max_ang_vel_z = initial_ang_vel_z + progress * (target_ang_vel_z - initial_ang_vel_z)
+ 
+-    command_cfg = env.command_manager.get_term_cfg("base_velocity")
++    command_cfg = env.command_manager.get_term("base_velocity").cfg
+     command_cfg.ranges.lin_vel_x = (0.0, max_lin_vel_x)
+     command_cfg.ranges.lin_vel_y = (0.0, 0.0)
+     command_cfg.ranges.ang_vel_z = (-max_ang_vel_z, max_ang_vel_z)
+     command_cfg.ranges.heading = (0.0, 0.0)
+-    env.command_manager.set_term_cfg("base_velocity", command_cfg)
+ 
+     return {
+         "progress": progress,
+diff --git a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/recorders.py b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/recorders.py
+index 4af2902..1f33cad 100644
+--- a/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/recorders.py
++++ b/experiment/h2_contact_lab/h2_plus_lab/tasks/locomotion/mdp/recorders.py
+@@ -37,13 +37,15 @@ class _FootrixContactReportBuffer:
+ 
+     SIDES = ("left", "right")
+ 
+-    def __init__(self, physics_dt: float):
++    def __init__(self, physics_dt: float, env_ids):
+         try:
+             import omni.physx
+             from pxr import PhysicsSchemaTools
+         except ImportError as exc:  # pragma: no cover - only reached outside Kit
+             raise RuntimeError("FOOTRIX contact reports require the Isaac Sim omni.physx runtime") from exc
+         self._physics_dt = float(physics_dt)
++        self._env_ids = frozenset(env_ids)
++        self._closed = False
+         self._physics_schema_tools = PhysicsSchemaTools
+         self._packets = defaultdict(list)
+         # Current Omni Physics documents expose this on the simulation
+@@ -64,6 +66,8 @@ class _FootrixContactReportBuffer:
+         return None
+ 
+     def _on_contact_report(self, contact_headers, contact_data):
++        if self._closed:
++            return
+         for header in contact_headers:
+             actor0 = str(self._physics_schema_tools.intToSdfPath(header.actor0))
+             actor1 = str(self._physics_schema_tools.intToSdfPath(header.actor1))
+@@ -78,6 +82,8 @@ class _FootrixContactReportBuffer:
+             if match is None:
+                 continue
+             env_id = int(match.group(1))
++            if env_id not in self._env_ids:
++                continue
+             sign = 1.0 if foot_is_actor0 else -1.0
+             start = int(header.contact_data_offset)
+             stop = start + int(header.num_contact_data)
+@@ -95,6 +101,8 @@ class _FootrixContactReportBuffer:
+         return packets
+ 
+     def close(self):
++        self._closed = True
++        # PhysX releases the callback when its subscription handle is dropped.
+         self._subscription = None
+         self._packets.clear()
+ 
+@@ -124,7 +132,7 @@ class H2PlusSensorRecorder(RecorderTerm):
+             "left": robot.body_names.index("left_ankle_pitch_link"),
+             "right": robot.body_names.index("right_ankle_pitch_link"),
+         }
+-        self._footrix_contact_reports = _FootrixContactReportBuffer(env.physics_dt)
++        self._footrix_contact_reports = _FootrixContactReportBuffer(env.physics_dt, env_ids=ids)
+ 
+     @staticmethod
+     def _load_footrix_layout(device):
+@@ -149,8 +157,8 @@ class H2PlusSensorRecorder(RecorderTerm):
+         q_xyz = quat[..., 1:]
+         q_w = quat[..., 0:1]
+         cross_1 = torch.cross(q_xyz, vector, dim=-1)
+-        cross_2 = torch.cross(q_xyz, vector + q_w * cross_1, dim=-1)
+-        return vector - 2.0 * cross_2
++        cross_2 = torch.cross(q_xyz, cross_1, dim=-1)
++        return vector - 2.0 * q_w * cross_1 + 2.0 * cross_2
+ 
+     def _project_footrix_contacts(self, env, ids, packets):
+         robot = env.scene["robot"]
+@@ -182,7 +190,7 @@ class H2PlusSensorRecorder(RecorderTerm):
+                 body_pos_w = robot.data.body_pos_w[env_id, body_index]
+                 body_quat_w = robot.data.body_quat_w[env_id, body_index]
+                 positions_b = self._quat_rotate_inverse(
+-                    body_quat_w.expand_as(positions_w), positions_w - body_pos_w
++                    body_quat_w.unsqueeze(0).expand(len(samples), -1), positions_w - body_pos_w
+                 )
+                 forces_w = impulses / float(env.step_dt)
+                 # FOOTRIX cells form a planar sole layout.  Use local x/y
+@@ -224,12 +232,23 @@ class H2PlusSensorRecorder(RecorderTerm):
+     def reset(self, env_ids=None):
+         """Advance episode IDs only after an episode actually had a step."""
+         ids = self._ids if env_ids is None else env_ids
++        reset_ids = []
+         for env_id in ids:
+             env_id = int(env_id)
+             if env_id in self._steps:
++                reset_ids.append(env_id)
+                 if self._steps[env_id] > 0:
+                     self._episode_ids[env_id] += 1
+                 self._steps[env_id] = 0
++        if self._footrix_contact_reports is not None:
++            self._footrix_contact_reports.pop(reset_ids)
++
++    def close(self, file_path):
++        """Release the PhysX callback through RecorderManager's lifecycle."""
++        reports = getattr(self, "_footrix_contact_reports", None)
++        if reports is not None:
++            reports.close()
++            self._footrix_contact_reports = None
+ 
+     @torch.no_grad()
+     def record_post_step(self):
+@@ -366,6 +385,7 @@ class H2PlusSensorRecorder(RecorderTerm):
+                 "cell_thickness_m": H2_PLUS_FOOTRIX_CELL_THICKNESS_M,
+                 "support_radius_m": H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M,
+                 "projection_method": H2_PLUS_FOOTRIX_PROJECTION_METHOD,
++                "force_averaging_interval_s": env.step_dt,
+                 "projection_distance_metric": "xy_in_ankle_pitch_link",
+                 "source": "PhysX contact-report impulses from complete ankle-pitch foot collision",
+                 "marker_collision_enabled": False,
+diff --git a/experiment/h2_contact_lab/output/h2_plus_usd/.asset_hash b/experiment/h2_contact_lab/output/h2_plus_usd/.asset_hash
+index ea3a589..fa3429a 100644
+--- a/experiment/h2_contact_lab/output/h2_plus_usd/.asset_hash
++++ b/experiment/h2_contact_lab/output/h2_plus_usd/.asset_hash
+@@ -1 +1 @@
+-2709ca5732149ca8d074b1ce07680570
+\ No newline at end of file
++d43f6dc4c8bd505a749d6dd2eb793675
+\ No newline at end of file
+diff --git a/experiment/h2_contact_lab/output/h2_plus_usd/config.yaml b/experiment/h2_contact_lab/output/h2_plus_usd/config.yaml
+index d3190db..08d59de 100644
+--- a/experiment/h2_contact_lab/output/h2_plus_usd/config.yaml
++++ b/experiment/h2_contact_lab/output/h2_plus_usd/config.yaml
+@@ -6,7 +6,7 @@ make_instanceable: true
+ fix_base: false
+ root_link_name: pelvis
+ link_density: 0.0
+-merge_fixed_joints: false
++merge_fixed_joints: true
+ convert_mimic_joints_to_normal_joints: false
+ joint_drive:
+   drive_type: force
+@@ -35,5 +35,5 @@ joint_drive_props: null
+ visual_material_path: material
+ visual_material: null
+ ##
+-# Generated by UrdfConverter on 2026-10-29 at 01:27:55.
++# Generated by UrdfConverter on 2026-11-02 at 00:56:32.
+ ##
+diff --git a/experiment/h2_contact_lab/output/h2_plus_usd/configuration/H2_Plus_sensorized_base.usd b/experiment/h2_contact_lab/output/h2_plus_usd/configuration/H2_Plus_sensorized_base.usd
+index b378729..c019e01 100644
+Binary files a/experiment/h2_contact_lab/output/h2_plus_usd/configuration/H2_Plus_sensorized_base.usd and b/experiment/h2_contact_lab/output/h2_plus_usd/configuration/H2_Plus_sensorized_base.usd differ
+diff --git a/experiment/h2_contact_lab/output/h2_plus_usd/configuration/H2_Plus_sensorized_physics.usd b/experiment/h2_contact_lab/output/h2_plus_usd/configuration/H2_Plus_sensorized_physics.usd
+index faca58d..795fd64 100644
+Binary files a/experiment/h2_contact_lab/output/h2_plus_usd/configuration/H2_Plus_sensorized_physics.usd and b/experiment/h2_contact_lab/output/h2_plus_usd/configuration/H2_Plus_sensorized_physics.usd differ
+diff --git a/experiment/h2_contact_lab/tests/test_reward_yaml.py b/experiment/h2_contact_lab/tests/test_reward_yaml.py
+index 29513c8..2893898 100644
+--- a/experiment/h2_contact_lab/tests/test_reward_yaml.py
++++ b/experiment/h2_contact_lab/tests/test_reward_yaml.py
+@@ -2,6 +2,8 @@
+ 
+ import ast
+ import copy
++import importlib.util
++import runpy
+ import math
+ import tempfile
+ import unittest
+@@ -9,6 +11,7 @@ from pathlib import Path
+ from types import SimpleNamespace
+ 
+ import yaml
++import torch
+ 
+ LOC = Path(__file__).resolve().parents[1] / "h2_plus_lab/tasks/locomotion"
+ SOURCE = LOC / "env_cfg.py"
+@@ -17,23 +20,32 @@ TREE = ast.parse(SOURCE.read_text())
+ 
+ class MdpFunctions:
+     def __getattr__(self, name):
+-        return lambda *args, **kwargs: None
++        def function(*args, **kwargs):
++            return None
++        function.__name__ = name
++        return function
+ 
+ 
+ def term(*, func, weight, params=None):
+     return SimpleNamespace(func=func, weight=weight, params={} if params is None else params)
+ 
+ 
+-# Load the actual pure configuration function and declarations, without Sim imports.
+-loader = next(node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name == "_apply_rewards_yaml")
+-reward_class = copy.deepcopy(next(node for node in TREE.body if isinstance(node, ast.ClassDef) and node.name == "H2PlusRewardsCfg"))
+-reward_class.decorator_list = []
++# Load pure YAML helpers and actual event/reward declarations without Sim.
++helpers = [node for node in TREE.body if isinstance(node, ast.FunctionDef) and node.name in {
++    "_apply_rewards_yaml", "_apply_domain_randomization_yaml", "_disable_domain_randomization_components",
++}]
++classes = [copy.deepcopy(node) for node in TREE.body if isinstance(node, ast.ClassDef) and node.name in {
++    "H2PlusRewardsCfg", "H2PlusEventsCfg",
++}]
++for node in classes:
++    node.decorator_list = []
+ namespace = {
+     "__file__": str(SOURCE), "Path": Path, "math": math, "yaml": yaml,
+-    "RewTerm": term, "mdp": MdpFunctions(), "SceneEntityCfg": lambda *args, **kwargs: object(),
++    "RewTerm": term, "EventTerm": lambda **kwargs: SimpleNamespace(**kwargs),
++    "mdp": MdpFunctions(), "SceneEntityCfg": lambda *args, **kwargs: object(),
+     "H2_PLUS_ACTIVE_JOINTS": ["active"], "H2_PLUS_PASSIVE_JOINTS": ["passive"],
+ }
+-exec(compile(ast.Module(body=[loader, reward_class], type_ignores=[]), str(SOURCE), "exec"), namespace)
++exec(compile(ast.Module(body=helpers+classes, type_ignores=[]), str(SOURCE), "exec"), namespace)
+ apply_yaml = namespace["_apply_rewards_yaml"]
+ 
+ 
+@@ -41,12 +53,22 @@ def rewards():
+     return SimpleNamespace(**copy.deepcopy({name: value for name, value in vars(namespace["H2PlusRewardsCfg"]).items() if not name.startswith("_")}))
+ 
+ 
++def training_context():
++    events = SimpleNamespace(**copy.deepcopy({name: value for name, value in vars(namespace["H2PlusEventsCfg"]).items() if not name.startswith("_")}))
++    policy = SimpleNamespace(enable_corruption=True, **{
++        name: SimpleNamespace(noise=SimpleNamespace(n_min=0., n_max=0.))
++        for name in ("base_lin_vel", "base_ang_vel", "projected_gravity", "joint_pos", "joint_vel")
++    })
++    return events, SimpleNamespace(policy=policy)
++
++
+ class RewardYamlTests(unittest.TestCase):
+     def test_shipped_yaml_matches_existing_defaults_and_preserves_bindings(self):
+         cfg = rewards()
+         weights = {name: value.weight for name, value in vars(cfg).items()}
+         foot_binding = cfg.feet_slide.params["asset_cfg"]
+-        apply_yaml(cfg)
++        events, observations = training_context()
++        apply_yaml(cfg, events=events, observations=observations)
+         self.assertEqual(weights, {name: value.weight for name, value in vars(cfg).items()})
+         self.assertIs(cfg.feet_slide.params["asset_cfg"], foot_binding)
+         self.assertEqual(cfg.track_lin_vel_xy.params["std"], 0.5)
+@@ -65,6 +87,67 @@ class RewardYamlTests(unittest.TestCase):
+         self.assertEqual(cfg.feet_air_time.weight, 0.2)
+         self.assertEqual(cfg.termination_penalty.weight, -200.0)
+ 
++    def test_domain_yaml_and_play_disable_keep_reset_consistent(self):
++        events, observations = training_context()
++        apply_yaml(rewards(), events=events, observations=observations)
++        self.assertEqual(events.reset_joints.params["position_range"], (-0.02, 0.02))
++        self.assertEqual(events.reset_joints.params["velocity_range"], (-0.05, 0.05))
++        self.assertTrue(observations.policy.enable_corruption)
++        self.assertEqual(observations.policy.joint_vel.noise.n_max, 0.15)
++        namespace["_disable_domain_randomization_components"](events, observations)
++        self.assertIsNone(events.randomize_foot_material)
++        self.assertIsNone(events.push_robot)
++        self.assertIsNotNone(events.reset_scene)
++        self.assertEqual(events.reset_joints.params["position_range"], (0., 0.))
++        self.assertEqual(events.reset_joints.params["velocity_range"], (0., 0.))
++        self.assertFalse(observations.policy.enable_corruption)
++
++    def test_configured_native_joint_reset_perturbs_zero_defaults(self):
++        events, observations = training_context()
++        apply_yaml(rewards(), events=events, observations=observations)
++        isaac = Path(importlib.util.find_spec("isaaclab").origin).parent
++        source = ast.parse((isaac / "envs/mdp/events.py").read_text())
++        function = next(node for node in source.body if isinstance(node, ast.FunctionDef) and node.name == events.reset_joints.func.__name__)
++        scope = {
++            "SceneEntityCfg": lambda name: SimpleNamespace(name=name, joint_ids=slice(None)),
++            "math_utils": SimpleNamespace(sample_uniform=lambda low, high, shape, device: torch.full(shape, high, device=device)),
++        }
++        future = ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0)
++        exec(compile(ast.fix_missing_locations(ast.Module(body=[future, function], type_ignores=[])), "<native reset>", "exec"), scope)
++        data = SimpleNamespace(default_joint_pos=torch.zeros(2, 3), default_joint_vel=torch.zeros(2, 3),
++            soft_joint_pos_limits=torch.tensor([[[-1., 1.]]*3]*2), soft_joint_vel_limits=torch.ones(2, 3))
++        state = {}
++        asset = SimpleNamespace(data=data, write_joint_state_to_sim=lambda pos, vel, **kwargs: state.update(pos=pos, vel=vel))
++        env = SimpleNamespace(scene={"robot": asset})
++        reset = scope[function.name]
++        reset(env, torch.tensor([0, 1]), **events.reset_joints.params)
++        torch.testing.assert_close(state["pos"], torch.full((2, 3), 0.02))
++        torch.testing.assert_close(state["vel"], torch.full((2, 3), 0.05))
++        namespace["_disable_domain_randomization_components"](events, observations)
++        reset(env, torch.tensor([0, 1]), **events.reset_joints.params)
++        self.assertTrue(torch.all(state["pos"] == 0))
++        self.assertTrue(torch.all(state["vel"] == 0))
++
++    def test_curriculum_uses_native_command_manager_public_api(self):
++        isaac = Path(importlib.util.find_spec("isaaclab").origin).parent
++        source = ast.parse((isaac / "managers/command_manager.py").read_text())
++        cls = next(node for node in source.body if isinstance(node, ast.ClassDef) and node.name == "CommandManager")
++        future = ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0)
++        scope = {"ManagerBase": object}
++        exec(compile(ast.fix_missing_locations(ast.Module(body=[future, cls], type_ignores=[])), "<native CommandManager>", "exec"), scope)
++        manager = scope["CommandManager"].__new__(scope["CommandManager"])
++        ranges = SimpleNamespace()
++        manager._terms = {"base_velocity": SimpleNamespace(cfg=SimpleNamespace(ranges=ranges))}
++        curriculum = runpy.run_path(str(LOC / "mdp/curriculums.py"))["h2_plus_command_curriculum"]
++        env = SimpleNamespace(command_manager=manager, common_step_counter=0)
++        for step, expected in ((0, .2), (300000, .6), (600000, 1.), (900000, 1.)):
++            env.common_step_counter = step
++            with self.subTest(step=step):
++                result = curriculum(env, [0])
++                self.assertAlmostEqual(ranges.lin_vel_x[1], expected)
++                self.assertAlmostEqual(ranges.ang_vel_z[0], -expected)
++                self.assertAlmostEqual(result["ang_vel_z_abs_max"], expected)
++
+     def test_invalid_values_or_keys_fail_before_any_changes(self):
+         invalid = [
+             "rewards: []", "wrong_section: {}",
+diff --git a/experiment/h2_contact_lab/tests/test_sensor_recording.py b/experiment/h2_contact_lab/tests/test_sensor_recording.py
+index 9af2e2b..c2b0aa9 100644
+--- a/experiment/h2_contact_lab/tests/test_sensor_recording.py
++++ b/experiment/h2_contact_lab/tests/test_sensor_recording.py
+@@ -1,10 +1,11 @@
+ """Native RecorderManager/HDF5 lifecycle with synthetic sensor buffers, no Sim.
+ 
+-Only ManagerBase (which imports omni.timeline) and configclass are replaced by
+-small construction stubs. RecorderManager callbacks, EpisodeData and the HDF5
+-handler are loaded unchanged from the installed Isaac Lab source.
++Simulator-facing construction and the PhysX event source are stubbed. Layout
++constants come from the actual sensor config; recorder callbacks, EpisodeData,
++projection calculations and HDF5 handling execute unchanged.
+ """
+ 
++import ast
+ import importlib
+ import importlib.util
+ import json
+@@ -12,6 +13,7 @@ import sys
+ import tempfile
+ import types
+ import unittest
++import weakref
+ from pathlib import Path
+ from types import SimpleNamespace as NS
+ from unittest.mock import patch
+@@ -61,8 +63,64 @@ stubs = {
+ }
+ with patch.dict(sys.modules, stubs):
+     native = load_file("_h2_test_managers.recorder_manager", ISAAC / "managers/recorder_manager.py")
+-with patch.dict(sys.modules, {"isaaclab.managers.recorder_manager": native}):
+-    recording = load_file("_h2_sensor_recorder_test", LAB / "h2_plus_lab/tasks/locomotion/mdp/recorders.py")
++loc = LAB / "h2_plus_lab/tasks/locomotion"
++constants = [n for n in ast.parse((loc / "sensor_cfg.py").read_text()).body
++    if isinstance(n, ast.Assign) and all(isinstance(t, ast.Name) and t.id.startswith("H2_PLUS_FOOTRIX_") for t in n.targets)]
++sensor_constants = module("_h2_test_locomotion.sensor_cfg", Path=Path)
++exec(compile(ast.Module(body=constants, type_ignores=[]), str(loc / "sensor_cfg.py"), "exec"), sensor_constants.__dict__)
++with patch.dict(sys.modules, {
++    "isaaclab.managers.recorder_manager": native,
++    "_h2_test_locomotion": module("_h2_test_locomotion", __path__=[str(loc)]),
++    "_h2_test_locomotion.mdp": module("_h2_test_locomotion.mdp", __path__=[str(loc / "mdp")]),
++    "_h2_test_locomotion.sensor_cfg": sensor_constants,
++}):
++    recording = load_file("_h2_test_locomotion.mdp.recorders", loc / "mdp/recorders.py")
++
++
++class ContactSubscription:
++    def __init__(self, callback):
++        self.callback = callback
++
++
++class ContactInterface:
++    def __init__(self):
++        self.subscriptions = []
++
++    def subscribe_contact_report_events(self, callback):
++        subscription = ContactSubscription(callback)
++        self.subscriptions.append(weakref.ref(subscription))
++        return subscription
++
++    def emit(self, headers, contacts):
++        for reference in self.subscriptions:
++            subscription = reference()
++            if subscription is not None:
++                subscription.callback(headers, contacts)
++
++    @property
++    def active_count(self):
++        return sum(reference() is not None for reference in self.subscriptions)
++
++
++def contact_runtime(interface):
++    physx = module("omni.physx", get_physx_simulation_interface=lambda: interface)
++    return patch.dict(sys.modules, {
++        "omni": module("omni", __path__=[], physx=physx), "omni.physx": physx,
++        "pxr": module("pxr", PhysicsSchemaTools=NS(intToSdfPath=lambda path: path)),
++    })
++
++
++def contact_header(env_id):
++    return NS(actor0=f"/World/envs/env_{env_id}/Robot/left_ankle_pitch_link", actor1="/World/ground",
++        contact_data_offset=0, num_contact_data=1)
++
++
++def make_term(env, ids, stride):
++    interface = ContactInterface()
++    with contact_runtime(interface):
++        term = recording.H2PlusSensorRecorder(NS(env_ids=ids, record_every=stride), env)
++    env.contact_interface = interface
++    return term
+ 
+ 
+ class Scene(dict):
+@@ -77,8 +135,10 @@ def make_env(directory, num_envs=2):
+         root_lin_vel_w=torch.zeros(num_envs, 3), root_ang_vel_w=torch.zeros(num_envs, 3),
+         joint_pos=torch.zeros(num_envs, 2), joint_vel=torch.zeros(num_envs, 2),
+         joint_pos_target=torch.ones(num_envs, 2),
++        body_pos_w=torch.zeros(num_envs, 2, 3),
++        body_quat_w=torch.tensor([[[1., 0., 0., 0.]] * 2] * num_envs),
+     )
+-    scene = Scene(robot=NS(data=data, joint_names=["joint_a", "joint_b"], cfg=NS(spawn=NS(asset_path=str(urdf)))))
++    scene = Scene(robot=NS(data=data, joint_names=["joint_a", "joint_b"], body_names=["left_ankle_pitch_link", "right_ankle_pitch_link"], cfg=NS(spawn=NS(asset_path=str(urdf)))))
+     scene.sensors = {}
+     for name in recording.H2PlusSensorRecorder.IMUS:
+         scene.sensors[name] = NS(
+@@ -104,7 +164,7 @@ def make_env(directory, num_envs=2):
+ 
+ 
+ def attach_manager(env, ids, stride):
+-    term = recording.H2PlusSensorRecorder(NS(env_ids=ids, record_every=stride), env)
++    term = make_term(env, ids, stride)
+     cfg = native.RecorderManagerBaseCfg()
+     cfg.dataset_export_dir_path = env.cfg.recorders.dataset_export_dir_path
+     cfg.dataset_filename = "sensors"
+@@ -128,6 +188,10 @@ def step(env, manager, value):
+     env.scene.sensors["torso_imu"].data.lin_acc_b.fill_(value)
+     env.scene.sensors["left_foot_contact"].data.net_forces_w[:, :, 2] = value
+     env.action_manager.action.fill_(value / 10)
++    position = manager._terms["sensors"]._footrix_layout_b["left"][0].tolist()
++    for _ in range(4):
++        for env_id in range(env.num_envs):
++            env.contact_interface.emit([contact_header(env_id)], [NS(position=position, impulse=(0., 0., value * env.physics_dt))])
+     manager.record_post_step()
+ 
+ 
+@@ -151,6 +215,7 @@ class SensorRecordingTests(unittest.TestCase):
+             step(env, manager, 5)
+             manager.close()  # native export_in_close saves unfinished episode
+             manager.close()  # environment destruction may close it again
++            self.assertEqual(env.contact_interface.active_count, 0)
+             with h5py.File(Path(tmp) / "dataset/sensors.hdf5", "r") as file:
+                 self.assertEqual(len(file["data"]), 2)  # env 0 has no data
+                 complete, partial = file["data/demo_0"], file["data/demo_1"]
+@@ -159,6 +224,9 @@ class SensorRecordingTests(unittest.TestCase):
+                 self.assertEqual(complete["episode_step"][:, 0].tolist(), [2, 3])
+                 self.assertEqual(complete["imu/torso_imu/linear_accel_b_m_s2"][:, 0].tolist(), [2, 3])
+                 self.assertEqual(complete["terminated"][:].tolist(), [False, True])
++                forces = torch.tensor(complete["footrix/left/force_w_N"][:])
++                torch.testing.assert_close(forces.sum(dim=1)[:, 2], torch.tensor([2., 3.]))
++                self.assertEqual(complete["footrix/left/source_contact_count"][:, 0].tolist(), [4, 4])
+                 self.assertAlmostEqual(complete["simulation_time_s"][-1, 0], 12/120)
+                 self.assertEqual(partial["episode_id"][:, 0].tolist(), [1])
+                 self.assertFalse(partial["reset"][-1])
+@@ -182,6 +250,76 @@ class SensorRecordingTests(unittest.TestCase):
+                 self.assertTrue(sample["contact/left_foot_contact/in_contact"][0, 0])
+                 self.assertFalse(sample["contact/right_foot_contact/in_contact"][0, 0])
+ 
++    def test_inverse_rotation_for_known_unit_quaternion(self):
++        vectors = torch.eye(3)
++        quat = torch.tensor([2**-0.5, 0., 0., 2**-0.5]).expand(3, -1)
++        result = recording.H2PlusSensorRecorder._quat_rotate_inverse(quat, vectors)
++        expected = torch.tensor([[0., -1., 0.], [1., 0., 0.], [0., 0., 1.]])
++        torch.testing.assert_close(result, expected, atol=1e-6, rtol=1e-6)
++        torch.testing.assert_close(result.norm(dim=-1), vectors.norm(dim=-1))
++
++    def test_rotated_weighted_projection_and_fallback_conserve_impulse(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            env = make_env(Path(tmp)); term = make_term(env, [1], 1)
++            try:
++                radius = recording.H2_PLUS_FOOTRIX_SUPPORT_RADIUS_M
++                layout = term._footrix_layout_b["left"]
++                layout.fill_(100.)
++                layout[0] = torch.tensor([-radius/2, 0., -0.0521])
++                layout[1] = torch.tensor([radius/2, 0., -0.0521])
++                env.scene["robot"].data.body_pos_w[1, 0] = torch.tensor([0.2, -0.1, 0.])
++                env.scene["robot"].data.body_quat_w[1, 0] = torch.tensor([2**-0.5, 0., 0., 2**-0.5])
++                impulses = torch.tensor([[0.02, -0.01, 0.1], [-0.03, 0.005, 0.05]])
++                packets = {(1, "left"): [
++                    ((0.2, -0.1+radius/4, -0.0521), tuple(impulses[0].tolist())),
++                    ((0.2, -0.1+3*radius, -0.0521), tuple(impulses[1].tolist())),
++                ], (1, "right"): []}
++                result = term._project_footrix_contacts(env, [1], packets)
++                forces = result["left"]["force_w_N"][0]
++                expected = torch.stack([.25*impulses[0], .75*impulses[0]+impulses[1]]) / env.step_dt
++                torch.testing.assert_close(forces[:2], expected, rtol=1e-5, atol=2e-5)
++                torch.testing.assert_close(forces.sum(0)*env.step_dt, impulses.sum(0))
++            finally:
++                term.close("")
++
++    def test_left_and_right_layouts_are_loaded_separately(self):
++        positions = recording.H2PlusSensorRecorder._load_footrix_layout("cpu")
++        project = Path(recording.__file__).resolve().parents[6]
++        source = json.loads((project / recording.H2_PLUS_FOOTRIX_LAYOUT_PATH).read_text())
++        for side in ("left", "right"):
++            expected = torch.tensor(source["feet"][side]["observation_layout"]["sample_positions_in_foot_link_m"])
++            expected[:, 2] = recording.H2_PLUS_FOOTRIX_LAYOUT_Z_M
++            torch.testing.assert_close(positions[side], expected)
++        self.assertNotEqual(positions["left"].data_ptr(), positions["right"].data_ptr())
++
++    def test_unselected_envs_are_not_buffered_and_closed_callback_is_inert(self):
++        interface = ContactInterface()
++        with contact_runtime(interface):
++            buffer = recording._FootrixContactReportBuffer(1/120, env_ids=[0])
++        contact = NS(position=(0., 0., 0.), impulse=(0., 0., 1.))
++        for _ in range(100):
++            interface.emit([contact_header(1)], [contact]); buffer.pop([0])
++        self.assertEqual(len(buffer._packets), 0)
++        interface.emit([contact_header(0)], [contact])
++        self.assertEqual(len(buffer._packets[(0, "left")]), 1)
++        buffer.close(); buffer.close()
++        self.assertEqual(interface.active_count, 0)
++        buffer._on_contact_report([contact_header(0)], [contact])
++        self.assertEqual(len(buffer._packets), 0)
++
++    def test_reset_discards_only_reset_env_contact_packets(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            env = make_env(Path(tmp)); manager = attach_manager(env, None, 1)
++            contact = NS(position=(0., 0., 0.), impulse=(0., 0., 1.))
++            for env_id in range(env.num_envs):
++                env.contact_interface.emit([contact_header(env_id)], [contact])
++            manager.reset([0])
++            reports = manager._terms["sensors"]._footrix_contact_reports
++            self.assertNotIn((0, "left"), reports._packets)
++            self.assertEqual(len(reports._packets[(1, "left")]), 1)
++            manager.close()
++            self.assertEqual(env.contact_interface.active_count, 0)
++
+     def test_bad_selection_or_stride_is_rejected(self):
+         with tempfile.TemporaryDirectory() as tmp:
+             env = make_env(Path(tmp))
+diff --git a/experiment/h2_contact_lab/tests/test_task_structure.py b/experiment/h2_contact_lab/tests/test_task_structure.py
+index afb6bd1..75cf0c1 100644
+--- a/experiment/h2_contact_lab/tests/test_task_structure.py
++++ b/experiment/h2_contact_lab/tests/test_task_structure.py
+@@ -7,6 +7,7 @@ import os
+ import sys
+ import tempfile
+ import unittest
++import xml.etree.ElementTree as ET
+ from pathlib import Path
+ from types import SimpleNamespace
+ 
+@@ -59,6 +60,40 @@ class TaskStructureTests(unittest.TestCase):
+                 sys.modules.pop(module_name, None)
+                 vars(h2_plus_lab.tasks).pop("discovery_example", None)
+ 
++    def test_marker_links_collapse_without_merging_actuated_joints(self):
++        source = LAB_DIR / "h2_plus_lab/assets/h2_plus.py"
++        tree = ast.parse(source.read_text())
++        asset = next(node.value for node in tree.body if isinstance(node, ast.Assign)
++            and any(isinstance(target, ast.Name) and target.id == "H2_PLUS_CFG" for target in node.targets))
++        spawn = next(keyword.value for keyword in asset.keywords if keyword.arg == "spawn")
++        merge = ast.literal_eval(next(keyword.value for keyword in spawn.keywords if keyword.arg == "merge_fixed_joints"))
++        urdf = LAB_DIR.parent / "robot_asset/h2_plus/H2_Plus_with_footrix_no_dex_hands.urdf"
++        robot = ET.parse(urdf).getroot()
++        links = {link.get("name"): link for link in robot.findall("link")}
++        fixed_parents = {
++            joint.find("child").get("link"): joint.find("parent").get("link")
++            for joint in robot.findall("joint") if joint.get("type") == "fixed"
++        } if merge else {}
++
++        def body(name):
++            while name in fixed_parents:
++                name = fixed_parents[name]
++            return name
++
++        active = [joint for joint in robot.findall("joint") if joint.get("type") == "revolute"]
++        self.assertEqual(len({body(name) for name in links}), 32)
++        self.assertEqual(len(active), 31)
++        for joint in active:
++            self.assertNotEqual(body(joint.find("parent").get("link")), body(joint.find("child").get("link")))
++        markers = [name for name in links if "_footrix_cell_" in name]
++        self.assertEqual(len(markers), 308)
++        for name in markers:
++            self.assertEqual(body(name), f"{name.split('_')[0]}_ankle_pitch_link")
++            self.assertIsNone(links[name].find("collision"))
++            self.assertIsNotNone(links[name].find("visual"))
++        for side in ("left", "right"):
++            self.assertIsNotNone(links[f"{side}_ankle_pitch_link"].find("collision"))
++
+     def test_hydra_paths_do_not_depend_on_working_directory(self):
+         old_cwd = Path.cwd()
+         with tempfile.TemporaryDirectory() as root:

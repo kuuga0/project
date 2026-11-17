@@ -1,0 +1,11 @@
+{
+  "usd": "/home/bblabhumanoid/wyp/project/experiment/h2_contact_lab/output/h2_plus_usd/H2_Plus_sensorized.usd",
+  "rigid_bodies": 32,
+  "revolute_joints": 31,
+  "visual_disks": 308,
+  "markers_have_mass_or_collision": false,
+  "physical_mass_matches_urdf": true,
+  "physics_stepped": false,
+  "training_started": false,
+  "source_urdf": "experiment/robot_asset/h2_plus/H2_Plus_with_footrix_no_dex_hands.urdf"
+}

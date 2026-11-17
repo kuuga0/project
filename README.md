@@ -1,6 +1,38 @@
 # 课题资料入口
 
-更新日期：2026-10-29。本文说明当前研究定位、文件用途与证据状态；详细推导、候选方案和演变理由保存在 [研究主文档](research/research_main.md)。H2 Plus训练配置与入口阻塞已修复，平地1024环境实际进入PPO更新，随后按用户要求停止；后续由用户手动启动，详见 [H2实验README](experiment/h2_contact_lab/README.md)。训练未完成，特殊地形和行走效果尚未验证。 最新结构已改为 `train.py --task`／`play.py --task` 直接入口，任务环境、agent与MDP按职责分开，行走场景及各地形环境类集中在 `env_cfg.py`；现通过RecorderManager采集同一训练环境的传感器，采集默认关闭，显式添加 `--record_sensors` 后默认环境0、控制步采样，写入 `output/sensors/`；旧独立采集工具已删除。本次未启动仿真或训练。
+2026-11-12新增H2肩pitch诊断：最新model_42199在单环境直行20秒回放中，左右实际峰峰摆幅约53.9°／66.9°，反复接近−150°限位；最近回放导出策略实际匹配model_38000，也存在同类问题。仅做诊断回放、未训练或改参数，条件、轨迹与曲线见[H2实验README](experiment/h2_contact_lab/README.md#2026-11-12肩pitch实际回放诊断)。
+
+更新日期：2026-11-02。本文说明当前研究定位、文件用途与证据状态；详细推导、候选方案和演变理由保存在 [研究主文档](research/research_main.md)。H2 Plus训练配置与入口阻塞已修复，平地1024环境实际进入PPO更新，随后按用户要求停止；后续由用户手动启动，详见 [H2实验README](experiment/h2_contact_lab/README.md)。训练未完成，特殊地形和行走效果尚未验证。 最新结构已改为 `train.py --task`／`play.py --task` 直接入口，任务环境、agent与MDP按职责分开，环境参数集中在模块对应YAML，`env_cfg.py` 保留薄任务类与原生管理器组装；现通过RecorderManager采集同一训练环境的传感器，采集默认关闭，显式添加 `--record_sensors` 后默认环境0、控制步采样，写入 `output/sensors/`；旧独立采集工具已删除。本次未启动仿真或训练。 2026-11-02已修复课程API、关节加性重置、FOOTRIX投影与清理及测试问题，21项离线测试通过；本轮已开启固定关节合并，用户日志已确认导入为32个物理body、31个活动关节，环境参数已迁入模块对应YAML，env_cfg.py收敛为64行，本轮保留用户9000轮从零训练设置，课程调整为144000控制步，完善转向与非足接触奖励，YAML向量类型恢复已补齐，管理器分组已恢复为属性式对象，30项离线测试及独立USD颜色属性写入检查通过；实际GPU运行仍待用户启动验证，详见H2实验README。
+
+2026-11-04补充运行证据：离线读取H2 Plus最近训练 `2026-11-02_03-25-29`，确认已完成9000轮并保存8999权重；最后1000轮平均回合约16.84秒（上限20秒），转向跟踪仍弱、探索噪声与动作变化惩罚较大，尚不能认定稳定行走验收。上文“训练未完成／GPU待验证”属于此前记录；本次完整统计、图表和解释见[H2实验README](experiment/h2_contact_lab/README.md#2026-11-04最近训练日志分析)。本次未启动训练／回放，未修改任务参数。
+
+2026-11-04姿态约束最终按用户要求调整：初始关节角恢复全0、根高度1.02 m，删除膝部姿态奖励，肩部姿态项排除肘部，站立姿态项也排除膝肘；保留躯干直立、腰／肩姿态、摆动足相对高度和侧向对称约束。训练原有重置扰动保留；未启动仿真／训练，具体配置与验证见H2实验README。
+
+2026-11-04随后新增躯干竖直速度惩罚（−0.5）、膝部运动奖励（+0.03）和肘部运动奖励（+0.01），默认角仍为0。运动奖励使用实际关节速度，设死区、过速衰减及命令／跟踪门控；它仍有诱导无意义摆动的风险，尚待训练验证。37项离线测试通过，未启动训练或Play，详情见H2实验README。
+
+2026-11-04新增接触足水平姿态奖励contact_foot_flat（+0.1），当前共21项奖励／惩罚；按当前接触与持续时长门控、对接触足平均，鼓励平地足部放平，不将姿态等同于全足底接触。38项离线测试通过，未启动训练／回放，详见H2实验README。
+
+2026-11-05按用户要求完成FOOTRIX严格小圆域采集：删除12 mm邻域扩散／最近点兜底，圆外受力单列，使用各物理子步脚姿态归属接触；主Isaac URDF的308个有占位质量标记link改为足link内纯visual，保留32个本体link与31个活动关节，HDF5升级schema 2。离散接触筛选不等于真实连续压力场；未启动仿真／训练，细节见H2实验README。
+
+2026-11-05后续已单独重建H2 Plus USD及子层，结构检查确认32刚体／31活动关节／308纯视觉圆形标记，标记无质量与碰撞、各本体质量匹配新URDF；仅资产转换，无物理步进或训练，详见H2实验README。
+
+2026-11-05按用户企鹅步态反馈调整：躯干竖直速度惩罚降至−0.1，膝活动奖励+0.06、新增约1秒活动范围不足惩罚−0.3，膝动作缩放0.25→0.5；初始零位、URDF限位与动作通道顺序保持。43项离线测试通过，未启动训练／回放；旧checkpoint续训需适应新的膝动作比例，详见H2实验README。
+
+2026-11-05膝部不动排查新增实际仿真证据：单机器人无重力／无地面的直接角度响应测试中，双膝目标0.6 rad实际约0.599 rad且可回零，未发现关节锁死。最新回放actor的合成零位输入探测给出超出伸直端限位的负目标，提示策略顶限位的可能；承重回放真实轨迹仍待核对。仅进行了480步关节诊断，无策略训练，细节和数据见H2实验README。
+
+2026-11-05继续排查已确认膝部实际回放持续请求低于下限的角度，双膝被向伸直端顶压。现增加膝目标物理限位裁剪和裁剪前超限请求惩罚（−0.2）；两次各20秒真实回放确认执行器力矩估计大幅下降，但旧策略仍缺乏合理屈膝，需后续训练适应。44项离线测试通过，本轮只做诊断回放、未训练；轨迹、对比图和配置见H2实验README。
+
+2026-11-05按用户后续反馈调整肘部、步宽与踝roll：上下起伏惩罚−0.03、肘运动奖励+0.04并增加少动窗口项，足滑−0.2、单足腾空+0.4、净空改为+0.2正奖励；增加双踝间距免罚区0.10—0.25 m，以及踝roll中间70%行程免罚／两端渐进处罚和超限目标裁剪。当前27项奖励／惩罚，47项离线测试通过，本轮未启动仿真／训练，详见H2实验README。
+
+2026-11-05继续加强躯干左右摇晃约束：torso_link侧倾分量倍率设为3、前后倾倍率保持1，新增横滚角速度惩罚−0.05；上下起伏项仍−0.03。当前28项奖励／惩罚，48项离线测试通过，本轮未启动仿真／训练，详见H2实验README。
+
+2026-11-06新增足端相对骨盆水平朝向惩罚foot_heading（−0.3），默认5度容差，约束内／外八字但允许整体转向；当前29项奖励／惩罚，49项离线测试通过，未启动仿真／训练，详见H2实验README。
+
+2026-11-12按用户行走反馈调整肩roll与躯干左右稳定：肩roll增加±10°软容差外摆幅惩罚、角速度惩罚和超物理限位请求惩罚／目标裁剪；躯干roll倍率3→6、横滚角速度权重−0.05→−0.15。当前32项奖励／惩罚，50项离线测试通过，本轮未启动仿真／训练，后续由用户续训评估，详见H2实验README。
+
+2026-11-12按用户要求新增骨盆横滚幅度惩罚−2.0与横滚角速度惩罚−0.1，直接选择pelvis；原纯roll幅度总惩罚约提高到5倍，不固定腰部关节。当前34项奖励／惩罚，51项离线测试通过，未启动仿真／训练，详见H2实验README。
+
+2026-11-12按用户“身体稳定、手臂运动”反馈补齐侧向平移约束（2.5 cm／0.05 m/s小幅平衡容差），移除肩pitch零位惩罚，加入迈步位置驱动的前后摆臂／肘屈伸软参考，提高肘运动奖励与少动惩罚并保护肘目标限位。当前38项奖励／惩罚，53项离线测试通过；本轮未执行仿真策略回放或启动训练，地形仍保留用户撤销后的plane，详见H2实验README。
 
 ## 第一次阅读
 
@@ -36,9 +68,9 @@
 | H2 Plus：Isaac Lab主入口 | `train.py`／`play.py` 为直接入口，任务内包含资产、地形、传感器、MDP、Gym注册和RecorderManager采集；旧独立工具已删除。 | 已生成USD，平地1024环境进入PPO更新后按用户要求停止；训练未完成，特殊地形、记录回读与行走效果未验证。 |
 | H2 Plus：旧MuJoCo展示（已删除） | 未接入训练且导出不完整的脚本与XML已清理，URDF原始资产保留。 | 历史缺陷见H2实验README；不作为物理或展示成功证据。 |
 
-Isaac Lab默认资产为 [H2_Plus_with_footrix_no_dex_hands.urdf](experiment/robot_asset/h2_plus/H2_Plus_with_footrix_no_dex_hands.urdf)；该URDF现在包含左右脚各154个无碰撞固定FOOTRIX可视化标记，同时保留整块足底碰撞作为完整足底接触面，点力由接触报告投影得到。对应的 MuJoCo 源资产 [H2_Plus_mujoco_with_footrix_no_dex_hands.urdf](experiment/robot_asset/h2_plus/H2_Plus_mujoco_with_footrix_no_dex_hands.urdf) 也包含同样的左右脚各154个无碰撞可视化标记，但只用于资产展示，不接入Isaac记录器；其右脚标记在足部局部 `y` 方向采用镜像，以匹配右足网格坐标。原始去手改装URDF保留49个本地网格引用；默认Isaac URDF的FOOTRIX标记不引用网格。URDF本身未声明IMU安装frame／外参，项目任务配置已在 `sensor_cfg.py` 中给出躯干和双足 IMU 的安装参数。带手的 `H2_Plus_mujoco_with_footrix.urdf` 为98个link、75个转动关节和22个固定关节，不能只凭名称中的FOOTRIX把它当作去手默认版。H2 Plus模块化任务配置、盲走动作空间和Ubuntu启动命令见 [H2实验README](experiment/h2_contact_lab/README.md)；平地现有早期训练运行证据，但无收敛或行走效果结论。
+Isaac Lab默认资产为 [H2_Plus_with_footrix_no_dex_hands.urdf](experiment/robot_asset/h2_plus/H2_Plus_with_footrix_no_dex_hands.urdf)；该URDF现在在左右足link内各含154个无碰撞、无独立质量的FOOTRIX visual标记，同时保留整块足底碰撞作为完整足底接触面，点力由接触报告投影得到。对应的 MuJoCo 源资产 [H2_Plus_mujoco_with_footrix_no_dex_hands.urdf](experiment/robot_asset/h2_plus/H2_Plus_mujoco_with_footrix_no_dex_hands.urdf) 也包含同样的左右脚各154个无碰撞可视化标记，但只用于资产展示，不接入Isaac记录器；其右脚标记在足部局部 `y` 方向采用镜像，以匹配右足网格坐标。原始去手改装URDF保留49个本地网格引用；默认Isaac URDF的FOOTRIX标记不引用网格。URDF本身未声明IMU安装frame／外参，项目任务配置已在 `sensor_cfg.yaml` 中给出躯干和双足 IMU 的安装参数。带手的 `H2_Plus_mujoco_with_footrix.urdf` 为98个link、75个转动关节和22个固定关节，不能只凭名称中的FOOTRIX把它当作去手默认版。H2 Plus模块化任务配置、盲走动作空间和Ubuntu启动命令见 [H2实验README](experiment/h2_contact_lab/README.md)；平地现有早期训练运行证据，但无收敛或行走效果结论。
 
-旧独立 `terrain`／`smoke`／`collect`／`validate` 工具已退出。任务地形仍含平地、低摩擦双区域和PhysX柔性场景。训练／回放场景始终挂载完整足底接触传感器和154个无碰撞可视化标记；RecorderManager在显式添加 `--record_sensors` 时订阅完整足底的PhysX接触报告，将左右脚接触冲量按足部局部 `x/y` 平面上的归一化线性权重分配到附近单元，形成154点三维力并保存到HDF5，默认不落盘。该数据不进入首版盲走策略。154点是无碰撞测量标记，不改变足底动力学，也没有能力标签或正式训练集。此次仅完成配置与记录逻辑写入，未升级实际仿真证据。
+旧独立 `terrain`／`smoke`／`collect`／`validate` 工具已退出。任务地形仍含平地、低摩擦双区域和PhysX柔性场景。训练／回放场景始终挂载完整足底接触传感器和154个无碰撞可视化标记；RecorderManager在显式添加 `--record_sensors` 时订阅完整足底的PhysX接触报告，按物理子步足部坐标严格筛选各小圆域和平面容差内的接触冲量，保存154点三维力及圆外未测量力到schema 2 HDF5，默认不落盘。该数据不进入首版盲走策略。154点是足link内的无碰撞纯visual测量标记，不额外声明质量或惯量，也没有能力标签或正式训练集。此次仅完成配置与记录逻辑写入，未升级实际仿真证据。
 
 ### 本次确认、尚未修改的工程问题
 
@@ -56,7 +88,7 @@ Isaac Lab默认资产为 [H2_Plus_with_footrix_no_dex_hands.urdf](experiment/rob
 | [engineer/09_DUAL_M0404_PARSER/](engineer/09_DUAL_M0404_PARSER/) | E-01。`Core/`为固件，`.ioc`、`.project`、`.cproject`、launch和链接脚本为工程配置，`Drivers/`为厂商组件。页面说明见 [visualizer/README.md](engineer/09_DUAL_M0404_PARSER/visualizer/README.md)。 |
 | [experiment/foot_contact_wrench_minimal/docs/script_catalog.md](experiment/foot_contact_wrench_minimal/docs/script_catalog.md) | E-02入口。`docs/`为理论与运行说明，`src/`为库，`experiments/`为脚本，`configs/`为参数，`models/`为模型，`tests/`为测试源码，`outputs/`为保留结果。环境由本单元的YAML／TOML说明。 |
 | [experiment/g1_sensorized_bypass/sensorized_experiment/README.md](experiment/g1_sensorized_bypass/sensorized_experiment/README.md) | E-03入口。原足分桶与 `continuous_sole/` 的数据模型、批次和报告分别阅读；截图属于G1。依赖副本身份见 [来源与记录边界](experiment/g1_sensorized_bypass/来源与记录边界.md)。 |
-| [experiment/h2_contact_lab/README.md](experiment/h2_contact_lab/README.md) | H2 Plus任务注册、训练／回放、采集、依赖和产物说明；奖励调优使用该单元 `tasks/locomotion/agents/rsl_rl_locomotion_rewards.yaml`。根目录保留训练／回放及其辅助入口，任务内RecorderManager负责采集，产物统一为 `log/`、`output/`；依赖说明统一见该单元 `ubuntu_environment.txt`。 |
+| [experiment/h2_contact_lab/README.md](experiment/h2_contact_lab/README.md) | H2 Plus任务注册、训练／回放、采集、依赖和产物说明；奖励调优使用该单元 `tasks/locomotion/agents/rsl_rl_locomotion_rewards.yaml`。根目录保留训练／回放及其辅助入口，任务内RecorderManager负责采集，`view_logs.py` 默认查看最近一次写入数据的TensorBoard曲线，产物统一为 `log/`、`output/`；依赖说明统一见该单元 `ubuntu_environment.txt`。 |
 | [experiment/robot_asset/](experiment/robot_asset/) | `h2_plus/`含6份URDF与网格；`h2_description/`含3份普通H2 URDF、一个XML及网格；`h2_260601/`保存简化H2 CAD；`footrix_design/`保存新足装配、IMU零件、左右足STL及 `L.txt`／`R.txt` 质量属性。普通H2、简化CAD与H2 Plus不可互换。 |
 | [handover/课题经历.md](handover/课题经历.md) | 供实习按需引用的事实底稿；记录材料和证据身份，不自动确认个人贡献或简历能力。 |
 | [AGENTS.md](AGENTS.md)、[web_project_prompt.md](web_project_prompt.md) | 本地／网页工作规则。`.gitattributes`／`.gitignore`为仓库配置，`.git/`为版本元数据；保存文档与Git操作分开。 |
